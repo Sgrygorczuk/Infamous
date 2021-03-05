@@ -37,6 +37,8 @@ public class GenericObject {
 
     public void setHeight(float height){hitBox.height = height;}
 
+    public Rectangle getHitBox(){return hitBox;}
+
     /**
      * Purpose: Sets up the animation loops in all of the directions
      */

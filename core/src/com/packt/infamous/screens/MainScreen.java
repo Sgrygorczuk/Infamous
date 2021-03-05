@@ -325,6 +325,7 @@ class MainScreen extends ScreenAdapter {
         cole.update();
         handleInput();
         updateCamera();
+        isColliding();
     }
 
 
@@ -350,6 +351,14 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    private void isColliding(){
+        for(Platforms platform : platforms){
+            if(platform.isColliding(cole.getHitBox())){
+                System.out.println("Hit");
+            }
+        }
+    }
+
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
@@ -372,10 +381,12 @@ class MainScreen extends ScreenAdapter {
         if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
 
         }
+
         //Jumping
         else if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             cole.jump();
         }
+
         //Interact
         else if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
 

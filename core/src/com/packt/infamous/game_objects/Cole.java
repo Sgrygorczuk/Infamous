@@ -14,7 +14,7 @@ public class Cole extends GenericObject{
 
     public void update(){
         hitBox.y += velocity.y;
-        hitBox.x = velocity.x;
+        hitBox.x += velocity.x;
         updateGravity();
     }
 
