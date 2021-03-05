@@ -16,6 +16,10 @@ public class Pole {
         end = new Rectangle(xEnd, yEnd, TILED_WIDTH, TILED_HEIGHT);
     }
 
+    public Rectangle getStartHitBox(){return start;}
+
+    public Rectangle getEndHitBox(){return end;}
+
     /**
      * Purpose: Draws the circle on the screen using render
      */

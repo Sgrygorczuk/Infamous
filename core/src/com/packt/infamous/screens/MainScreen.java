@@ -306,6 +306,9 @@ class MainScreen extends ScreenAdapter {
         for(Platforms platform : platforms){
             platform.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        for(Pole pole : poles){
+            pole.drawDebug(debugRendering.getShapeRendererBackground());
+        }
         debugRendering.endBackgroundRender();
 
         debugRendering.startCollectibleRender();
@@ -334,6 +337,8 @@ class MainScreen extends ScreenAdapter {
         cole.update();
         handleInput();
         isCollidingPlatform();
+        isCollidingPoleStart();
+        isCollidingPoleEnd();
         checkIfWorldBound();
     }
 
@@ -368,21 +373,44 @@ class MainScreen extends ScreenAdapter {
         }
 
         for (Platforms platform : platforms) {
-            if(cole.getY() >= platform.getY() + platform.getHitBox().height){
-                System.out.println(platform.getY() + platform.getHitBox().height);
-            }
             if (cole.isColliding(platform.getHitBox())) {
-                System.out.println("Colliding");
+                System.out.println("Platform Colliding");
                 cole.setTouchingPlatform(true, platform.getHitBox());
                 cole.setY(platform.getY()+platform.getHeight());
             }
         }
     }
 
-    private void isCollidingPole(){
+    private void isCollidingPoleStart(){
         if(!cole.isTouchingPlatform()){
             return;
         }
+
+        for (Pole pole : poles) {
+            if (cole.isColliding(pole.getStartHitBox())) {
+                System.out.println("Pole Colliding");
+                cole.setTouchPole(true);
+                return;
+            }
+        }
+
+        cole.setTouchPole(false);
+
+    }
+
+    private void isCollidingPoleEnd(){
+        if(!cole.isRidingPole()){
+            return;
+        }
+
+        for (Pole pole : poles) {
+            if (cole.getY() > pole.getEndHitBox().y + pole.getEndHitBox().height) {
+                System.out.println("Pole Colliding");
+                cole.setRidingPole(false);
+                return;
+            }
+        }
+
     }
 
     private void unsetColliding(){
@@ -409,31 +437,41 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
-        //Movement Horizontally
-        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            cole.moveHorizontally(-1);
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            cole.moveHorizontally(1);
-        }
-        else{ cole.moveHorizontally(0); }
+        //TODO MAKE W jump
+        //TODO Make S drop below platform
+        //
+        if(!cole.isRidingPole()) {
+            //Movement Horizontally
+            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                cole.moveHorizontally(-1);
+            } else if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                cole.moveHorizontally(1);
+            } else {
+                cole.moveHorizontally(0);
+            }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
+            if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
 
-        }
+            }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 
+            }
         }
 
         //Jumping
-        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
+            if(cole.isRidingPole()){ cole.setRidingPole(false); }
             cole.jump();
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && !cole.isTouchingPlatform()){
+            cole.hover();
         }
 
         //Interact
-        else if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-
+        if(Gdx.input.isKeyJustPressed(Input.Keys.E) && cole.isTouchPole()){
+            cole.setRidingPole(true);
+            cole.setPoleVelocity();
         }
 
 

@@ -47,6 +47,11 @@ public class GenericObject {
 
     public float getHeight(){return hitBox.height;}
 
+    public void setVelocity(float x, float y){
+        velocity.x = x;
+        velocity.y = y;
+    }
+
     public Vector2 getVelocity(){return velocity;}
 
     /**

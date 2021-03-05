@@ -8,6 +8,8 @@ import static com.packt.infamous.Const.GRAVITY;
 public class Cole extends GenericObject{
 
     protected boolean touchingPlatform = false;
+    protected boolean touchPole = false;
+    private boolean ridingPole = false;
     protected Rectangle previousCollisionBox = null;
 
     public Cole(float x, float y, Alignment alignment) {
@@ -18,7 +20,9 @@ public class Cole extends GenericObject{
     public void update(){
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
-        updateGravity();
+        if(!ridingPole){
+            updateGravity();
+        }
     }
 
     private void updateGravity(){
@@ -46,6 +50,23 @@ public class Cole extends GenericObject{
     public void setTouchingPlatform(boolean state, Rectangle hitBox) {
         touchingPlatform = state;
         previousCollisionBox = hitBox;
+    }
+
+    public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
+
+    public boolean isTouchPole(){return touchPole;}
+
+    public boolean isRidingPole(){return ridingPole;}
+
+    public void setRidingPole(boolean ridingPole) { this.ridingPole = ridingPole; }
+
+    public void setPoleVelocity(){
+        velocity.x = 0;
+        velocity.y = 5;
+    }
+
+    public void hover(){
+        velocity.y = -0.5f;
     }
 
     public void jump(){

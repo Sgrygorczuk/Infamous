@@ -35,10 +35,10 @@ public final class Const{
     public static final float MENU_BUTTON_FONT = 0.6f * WORLD_HEIGHT/320;
 
     //========================= Tile Data ================================
-    public static final float TILED_WIDTH = 8;
-    public static final float TILED_HEIGHT = 8;
+    public static final float TILED_WIDTH = 16;
+    public static final float TILED_HEIGHT = 16;
 
     //======================== Movement Data ===========================
     public static final float JUMP = 30f;
-    public static final float GRAVITY = -0.5f;
+    public static final float GRAVITY = -2f;
 }
