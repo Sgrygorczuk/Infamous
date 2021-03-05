@@ -37,4 +37,7 @@ public final class Const{
     //========================= Tile Data ================================
     public static final float TILED_WIDTH = 8;
     public static final float TILED_HEIGHT = 8;
+
+    //======================== Movement Data ===========================
+    public static final float GRAVITY = -0.5f;
 }

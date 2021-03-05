@@ -18,8 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.templet.screens.textures.MenuScreenTextures;
 import com.packt.infamous.main.Infamous;
+import com.packt.infamous.screens.textures.MenuScreenTextures;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 

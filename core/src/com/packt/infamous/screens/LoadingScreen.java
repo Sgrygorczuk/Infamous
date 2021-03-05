@@ -16,8 +16,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.templet.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.main.Infamous;
+import com.packt.infamous.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.TextAlignment;
 

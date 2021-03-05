@@ -20,11 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.templet.screens.textures.MainScreenTextures;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.main.Infamous;
+import com.packt.infamous.screens.textures.MainScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
@@ -236,6 +236,9 @@ class MainScreen extends ScreenAdapter {
         });
     }
 
+    /**
+     * Purpose: Sets up all the objects imported from tiled
+     */
     private void showTiled(){
         tiledSetUp = new TiledSetUp(infamous.getAssetManager(), batch, "Tiled/InfamousMapPlaceHolder.tmx");
 
@@ -319,6 +322,7 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void update(float delta){
+        cole.update();
         handleInput();
         updateCamera();
     }
@@ -350,6 +354,33 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
+        //Movement
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            cole.moveHorizontally(-1);
+        }
+        else{ cole.moveHorizontally(0); }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
+
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            cole.moveHorizontally(1);
+        }
+        else{ cole.moveHorizontally(0); }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+
+        }
+        //Jumping
+        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+            cole.jump();
+        }
+        //Interact
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+
+        }
+
 
     }
 

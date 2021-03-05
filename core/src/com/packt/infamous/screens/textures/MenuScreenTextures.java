@@ -1,4 +1,4 @@
-package com.mygdx.templet.screens.textures;
+package com.packt.infamous.screens.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

@@ -12,9 +12,9 @@ import static com.packt.infamous.Const.TILED_WIDTH;
 
 public class GenericObject {
 
-    public Alignment align;
-    public Rectangle hitBox;
-    public Vector2 velocity;
+    protected Alignment align;
+    protected Rectangle hitBox;
+    protected Vector2 velocity;
 
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
