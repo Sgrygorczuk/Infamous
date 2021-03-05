@@ -352,11 +352,19 @@ class MainScreen extends ScreenAdapter {
     }
 
     private void isColliding(){
+        if (cole.isTouchingPlatform()) {return;}
+        else if(!cole.isTouchingPlatform()) { cole.setTouchingPlatform(false);}
+
         for(Platforms platform : platforms){
-            if(platform.isColliding(cole.getHitBox())){
-                System.out.println("Hit");
+            if(cole.isColliding(platform.getHitBox())){
+                System.out.println("Colliding");
+                cole.setTouchingPlatform(true, platform.getHitBox());
             }
         }
+    }
+
+    private void unsetColliding(){
+
     }
 
     /**
