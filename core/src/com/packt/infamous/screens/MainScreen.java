@@ -31,8 +31,6 @@ import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
 
-import java.util.ArrayList;
-
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
@@ -95,6 +93,7 @@ class MainScreen extends ScreenAdapter {
     //========================================= Game Objects ========================================
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
+    private final Array<Platforms> poles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -246,6 +245,10 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
 
+        Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("PoleStart");
+        for(int i = 0; i < polePositions.size; i++){
+            poles.add(new Platforms(polePositions.get(i).x, polePositions.get(i).y, Alignment.BACKGROUND));
+        }
 
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
         Array<Vector2> platformsDimensions = tiledSetUp.getLayerDimensions("Platforms");
@@ -327,7 +330,7 @@ class MainScreen extends ScreenAdapter {
         updateCamera();
         cole.update();
         handleInput();
-        isColliding();
+        isCollidingPlatform();
         checkIfWorldBound();
     }
 
@@ -354,19 +357,28 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    private void isColliding(){
-        if (cole.isTouchingPlatform()) {return;}
-        else if(!cole.isTouchingPlatform()) { cole.setTouchingPlatform(false);}
+    private void isCollidingPlatform() {
+        if (cole.isTouchingPlatform()) {
+            return;
+        } else if (!cole.isTouchingPlatform()) {
+            cole.setTouchingPlatform(false);
+        }
 
-        for(Platforms platform : platforms){
-<<<<<<< Updated upstream
-            if(cole.isColliding(platform.getHitBox())){
+        for (Platforms platform : platforms) {
+            if(cole.getY() >= platform.getY() + platform.getHitBox().height){
+                System.out.println(platform.getY() + platform.getHitBox().height);
+            }
+            if (cole.isColliding(platform.getHitBox())) {
                 System.out.println("Colliding");
                 cole.setTouchingPlatform(true, platform.getHitBox());
-=======
-            if(platform.isColliding(cole.getHitBox())){
->>>>>>> Stashed changes
+                cole.setY(platform.getY()+platform.getHeight());
             }
+        }
+    }
+
+    private void isCollidingPole(){
+        if(!cole.isTouchingPlatform()){
+            return;
         }
     }
 
@@ -387,7 +399,7 @@ class MainScreen extends ScreenAdapter {
 
         //Makes sure that we stop moving down when we hit the ground
         if (cole.getHitBox().y < 0) { cole.getHitBox().y = 0; }
-        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT;}
+        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT - cole.getHitBox().height;}
     }
 
     /**
@@ -412,7 +424,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         //Jumping
-        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
             cole.jump();
         }
 

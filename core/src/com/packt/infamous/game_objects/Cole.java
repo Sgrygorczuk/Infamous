@@ -7,12 +7,9 @@ import static com.packt.infamous.Const.GRAVITY;
 
 public class Cole extends GenericObject{
 
-<<<<<<< Updated upstream
     protected boolean touchingPlatform = false;
     protected Rectangle previousCollisionBox = null;
 
-=======
->>>>>>> Stashed changes
     public Cole(float x, float y, Alignment alignment) {
         super(x, y, alignment);
         velocity.y = GRAVITY;
@@ -34,7 +31,7 @@ public class Cole extends GenericObject{
     }
 
     public void moveHorizontally(float speed){
-        velocity.x += speed;
+        velocity.x = speed;
     }
 
     public boolean isTouchingPlatform(){
@@ -52,6 +49,6 @@ public class Cole extends GenericObject{
     }
 
     public void jump(){
-        velocity.y = 4f;
+        velocity.y = 10f;
     }
 }

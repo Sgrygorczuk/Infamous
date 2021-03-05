@@ -19,7 +19,7 @@ public final class Const{
 
     //====================== Dev Text =========================
     public static final float DEVELOPER_TEXT_X = 20;
-    public static final float DEVELOPER_TEXT_Y = 300;
+    public static final float DEVELOPER_TEXT_Y = 300 * WORLD_HEIGHT/320;
 
     //====================== Instruction/Help =========================
     public static final float INSTRUCTIONS_Y_START = 230 * WORLD_HEIGHT/320;
@@ -39,5 +39,6 @@ public final class Const{
     public static final float TILED_HEIGHT = 8;
 
     //======================== Movement Data ===========================
+    public static final float JUMP = 30f;
     public static final float GRAVITY = -0.5f;
 }
