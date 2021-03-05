@@ -59,6 +59,7 @@ public class TiledSetUp {
         TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         levelHeight = tiledMapTileLayer.getHeight() * tiledMapTileLayer.getTileHeight();
         levelWidth = tiledMapTileLayer.getWidth() * tiledMapTileLayer.getTileWidth();
+        System.out.println(levelWidth);
 
     }
 
@@ -78,16 +79,27 @@ public class TiledSetUp {
 
     /**
      * Purpose: Scroll camera horizontally
-     * @param delta timing
-     * @param speed at which camera moves
      */
     public void scrollCameraHorizontally(float delta, float speed) {
-        if (camera.position.x + delta * speed + WORLD_HEIGHT < levelHeight) {
+        if (camera.position.x + delta * speed + WORLD_WIDTH < levelHeight) {
             camera.position.x += delta * speed;
             camera.position.set(camera.position.x, camera.position.y, camera.position.z);
             camera.update();
             orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
         }
+    }
+
+    public void updateXCameraPosition(float x){
+        if((x > WORLD_WIDTH/2f) && (x < levelWidth - WORLD_WIDTH/2f)) {
+            camera.position.set(x, camera.position.y, camera.position.z);
+            camera.update();
+            orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
+        }
+    }
+
+    public void updateCamera(Camera camera){
+        this.camera = camera;
+        orthogonalTiledMapRenderer.setView((OrthographicCamera) camera);
     }
 
     /**
@@ -146,6 +158,10 @@ public class TiledSetUp {
         }
         return dimensions;
     }
+
+    public float getLevelHeight(){return levelHeight;}
+
+    public float getLevelWidth(){return levelWidth;}
 
     /**
      * Purpose: Draws the tiled map

@@ -39,6 +39,12 @@ public class GenericObject {
 
     public Rectangle getHitBox(){return hitBox;}
 
+    public float getX(){return hitBox.x;}
+
+    public float getY(){return hitBox.y;}
+
+    public Vector2 getVelocity(){return velocity;}
+
     /**
      * Purpose: Sets up the animation loops in all of the directions
      */

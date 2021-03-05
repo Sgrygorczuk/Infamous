@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -262,6 +263,7 @@ class MainScreen extends ScreenAdapter {
     */
     private void showObjects(){
         debugRendering = new DebugRendering(camera);
+        debugRendering.setShapeRendererUserShapeType(ShapeRenderer.ShapeType.Filled);
         musicControl = new MusicControl(infamous.getAssetManager());
 
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
@@ -322,10 +324,11 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void update(float delta){
+        updateCamera();
         cole.update();
         handleInput();
-        updateCamera();
         isColliding();
+        checkIfWorldBound();
     }
 
 
@@ -356,9 +359,13 @@ class MainScreen extends ScreenAdapter {
         else if(!cole.isTouchingPlatform()) { cole.setTouchingPlatform(false);}
 
         for(Platforms platform : platforms){
+<<<<<<< Updated upstream
             if(cole.isColliding(platform.getHitBox())){
                 System.out.println("Colliding");
                 cole.setTouchingPlatform(true, platform.getHitBox());
+=======
+            if(platform.isColliding(cole.getHitBox())){
+>>>>>>> Stashed changes
             }
         }
     }
@@ -368,23 +375,37 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
+     * Purpose: Keeps Cole between 0 and levelWidth and make sure it stops when it hit the ground
+     */
+    private void checkIfWorldBound() {
+        //Makes sure we're bound by x
+        if (cole.getHitBox().x < 0) {
+            cole.getHitBox().x = 0;
+        } else if (cole.getHitBox().x + cole.getHitBox().width > tiledSetUp.getLevelWidth()) {
+            cole.getHitBox().x = (int) (tiledSetUp.getLevelWidth() - cole.getHitBox().getWidth());
+        }
+
+        //Makes sure that we stop moving down when we hit the ground
+        if (cole.getHitBox().y < 0) { cole.getHitBox().y = 0; }
+        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT;}
+    }
+
+    /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
-        //Movement
+        //Movement Horizontally
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             cole.moveHorizontally(-1);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            cole.moveHorizontally(1);
         }
         else{ cole.moveHorizontally(0); }
 
         if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
 
         }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            cole.moveHorizontally(1);
-        }
-        else{ cole.moveHorizontally(0); }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
 
@@ -410,6 +431,11 @@ class MainScreen extends ScreenAdapter {
     public void updateCamera() {
         //Resize the menu Stage if the screen changes size
         menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+        if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
+            camera.position.set(cole.getX(), camera.position.y, camera.position.z);
+            camera.update();
+            tiledSetUp.updateCamera(camera);
+        }
     }
 
     /**
