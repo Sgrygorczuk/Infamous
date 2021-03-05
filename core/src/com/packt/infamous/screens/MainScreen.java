@@ -351,20 +351,18 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Purpose: Manages collisions between the player and platforms
+     */
     private void isColliding(){
         if (cole.isTouchingPlatform()) {return;}
         else if(!cole.isTouchingPlatform()) { cole.setTouchingPlatform(false);}
 
         for(Platforms platform : platforms){
             if(cole.isColliding(platform.getHitBox())){
-                System.out.println("Colliding");
                 cole.setTouchingPlatform(true, platform.getHitBox());
             }
         }
-    }
-
-    private void unsetColliding(){
-
     }
 
     /**
@@ -375,19 +373,15 @@ class MainScreen extends ScreenAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             cole.moveHorizontally(-1);
         }
-        else{ cole.moveHorizontally(0); }
 
         if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
-
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             cole.moveHorizontally(1);
         }
-        else{ cole.moveHorizontally(0); }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-
         }
 
         //Jumping

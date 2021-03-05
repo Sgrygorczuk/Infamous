@@ -39,5 +39,9 @@ public final class Const{
     public static final float TILED_HEIGHT = 8;
 
     //======================== Movement Data ===========================
-    public static final float GRAVITY = -0.5f;
+    public static final float GRAVITY = -2f;
+    public static final float JUMP = 45f;
+    public static final float ACCELERATION = 1f;
+    public static final float FRICTION = 0.5f;
+    public static final float MAX_VELOCITY = 3f;
 }
