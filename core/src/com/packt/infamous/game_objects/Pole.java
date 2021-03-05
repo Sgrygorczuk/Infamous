@@ -11,7 +11,7 @@ public class Pole {
     Rectangle start;
     Rectangle end;
 
-    Pole(float xStart, float yStart, float xEnd, float yEnd){
+    public Pole(float xStart, float yStart, float xEnd, float yEnd){
         start = new Rectangle(xStart, yStart, TILED_WIDTH, TILED_HEIGHT);
         end = new Rectangle(xEnd, yEnd, TILED_WIDTH, TILED_HEIGHT);
     }

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
@@ -93,7 +94,7 @@ class MainScreen extends ScreenAdapter {
     //========================================= Game Objects ========================================
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
-    private final Array<Platforms> poles = new Array<>();
+    private final Array<Pole> poles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -245,9 +246,11 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
 
-        Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("PoleStart");
-        for(int i = 0; i < polePositions.size; i++){
-            poles.add(new Platforms(polePositions.get(i).x, polePositions.get(i).y, Alignment.BACKGROUND));
+        Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
+        Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
+
+        for(int i = 0; i < poleStartPositions.size; i++){
+            poles.add(new Pole(poleStartPositions.get(i).x, poleStartPositions.get(i).y, poleEndPositions.get(i).x, poleEndPositions.get(i).y));
         }
 
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
