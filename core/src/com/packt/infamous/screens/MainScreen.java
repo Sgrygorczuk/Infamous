@@ -87,6 +87,7 @@ class MainScreen extends ScreenAdapter {
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean endFlag = false;            //Tells us game has been lost
     private boolean helpFlag = false;           //Tells us if help flag is on or off
+    private boolean letGo = true;
 
     //=================================== Miscellaneous Vars =======================================
     private final String[] menuButtonText = new String[]{"Restart", "Help", "Sound Off", "Main Menu", "Back", "Sound On"};
@@ -334,7 +335,7 @@ class MainScreen extends ScreenAdapter {
     */
     private void update(float delta){
         updateCamera();
-        cole.update();
+        cole.update(delta);
         handleInput();
         isCollidingPlatform();
         isCollidingPoleStart();
@@ -367,18 +368,8 @@ class MainScreen extends ScreenAdapter {
 
   
     private void isCollidingPlatform() {
-        if (cole.isTouchingPlatform()) {
-            return;
-        } else if (!cole.isTouchingPlatform()) {
-            cole.setTouchingPlatform(false);
-        }
-
         for (Platforms platform : platforms) {
-            if (cole.isColliding(platform.getHitBox())) {
-                System.out.println("Platform Colliding");
-                cole.setTouchingPlatform(true, platform.getHitBox());
-                cole.setY(platform.getY()+platform.getHeight());
-            }
+            cole.updateCollision(platform.getHitBox());
         }
     }
 
@@ -439,18 +430,16 @@ class MainScreen extends ScreenAdapter {
         //
         if(!cole.isRidingPole()) {
             //Movement Horizontally
-        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            cole.moveHorizontally(1);
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-
             }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                cole.moveHorizontally(1);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                cole.moveHorizontally(-1);
+            }
+
 
             if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 
@@ -458,12 +447,9 @@ class MainScreen extends ScreenAdapter {
         }
 
         //Jumping
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) & !cole.isJumping){
             if(cole.isRidingPole()){ cole.setRidingPole(false); }
             cole.jump();
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && !cole.isTouchingPlatform()){
-            cole.hover();
         }
 
         //Interact

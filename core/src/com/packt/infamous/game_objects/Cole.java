@@ -15,6 +15,10 @@ public class Cole extends GenericObject{
     protected boolean touchPole = false;
     private boolean ridingPole = false;
     protected Rectangle previousCollisionBox = null;
+    public  boolean isJumping = false;
+    public boolean isFloating = false;
+    boolean isRising = false;
+    float initialY;
 
     
     /* =========================== Movement Variables =========================== */
@@ -33,7 +37,7 @@ public class Cole extends GenericObject{
         xMaxVel = MAX_VELOCITY;
     }
 
-    public void update(){
+    public void update(float delta){
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
 
@@ -44,9 +48,10 @@ public class Cole extends GenericObject{
     }
 
     private void updateGravity(){
-        if (touchingPlatform){
-            velocity.y = 0;
+        if(isRising && hitBox.y < initialY + 20){
+            velocity.y += JUMP;
         }
+        else if(isRising){isRising = false;}
         else if(velocity.y > GRAVITY){
             velocity.y += GRAVITY;
         }
@@ -68,8 +73,12 @@ public class Cole extends GenericObject{
     }
  
     public void jump(){
-        if (isTouchingPlatform())
+        if (!isJumping) {
             velocity.y = yAccel;
+            isJumping = true;
+            isRising = true;
+            initialY = hitBox.y;
+        }
     }
 
     /* ============================ Utility Functions =========================== */
@@ -78,6 +87,53 @@ public class Cole extends GenericObject{
         if (previousCollisionBox == null) {return false;} //Return false if not colliding with anything
         return (isColliding(previousCollisionBox));
     }
+
+    public void updateCollision(Rectangle rectangle){
+        if(this.hitBox.overlaps(rectangle)){
+            /* Breakdown of Collision
+              this.hitBox.y < rectangle.y + rectangle.height - checks if we're dipping into the box from the top
+              this.hitBox.y >= rectangle.y + rectangle.height * 0.8f - makes sure it's only the very top of the box we're going into
+             */
+            //=============== On Top Of the Colliding Platform ====================
+            if(this.hitBox.y <= rectangle.y + rectangle.height
+                    && this.hitBox.y >= rectangle.y + rectangle.height * 0.8f){
+                this.hitBox.y = rectangle.y + rectangle.height;
+                isJumping = false;
+                isFloating = false;
+            }
+            /* Breakdown of Collision
+              this.hitBox.y + this.hitBox.height > rectangle.y- checks if we're dipping into the box from the bottom
+              this.hitBox.y < rectangle.y < rectangle.y - makes sure that only on the bottom
+             */
+            //=============== Below the Colliding Platform ====================
+            else if(this.hitBox.y + this.hitBox.height > rectangle.y
+                    && this.hitBox.y < rectangle.y){
+                this.hitBox.y = rectangle.y - this.hitBox.height;
+            }
+
+            /* Breakdown of Collision
+              this.hitBox.x + this.hitBox.width > rectangle.x - checks if we're dipping into the box from the left
+              hitBox.x < rectangle.x - makes sures we're coming from the left
+              !(this.hitBox.y >= rectangle.y + rectangle.height) - makes sure we don't do it when on top of the block
+              hitBox.y >= rectangle.y - can't fully remember why
+             */
+            //=============== On the Left of the Colliding Platform ====================
+            if(this.hitBox.x + this.hitBox.width > rectangle.x
+                    && hitBox.x < rectangle.x
+                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
+                    && hitBox.y >= rectangle.y){
+                this.hitBox.x = rectangle.x - this.hitBox.width;
+            }
+            //=============== On the Right of the Colliding Platform ====================
+            else if(this.hitBox.x < rectangle.x + rectangle.width
+                    && this.hitBox.x > rectangle.x
+                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
+                    && hitBox.y >= rectangle.y){
+                this.hitBox.x = rectangle.x + rectangle.width;
+            }
+        }
+    }
+
 
     public void setTouchingPlatform(boolean state) {
         setTouchingPlatform(state, null);
@@ -103,9 +159,6 @@ public class Cole extends GenericObject{
 
     public void hover(){
         velocity.y = -0.5f;
-    }
-
-    public void jump(){
-        velocity.y = 10f;
+        isFloating = true;
     }
 }
