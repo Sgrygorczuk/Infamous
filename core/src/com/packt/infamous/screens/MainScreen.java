@@ -365,6 +365,7 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+  
     private void isCollidingPlatform() {
         if (cole.isTouchingPlatform()) {
             return;
@@ -413,10 +414,6 @@ class MainScreen extends ScreenAdapter {
 
     }
 
-    private void unsetColliding(){
-
-    }
-
     /**
      * Purpose: Keeps Cole between 0 and levelWidth and make sure it stops when it hit the ground
      */
@@ -442,13 +439,14 @@ class MainScreen extends ScreenAdapter {
         //
         if(!cole.isRidingPole()) {
             //Movement Horizontally
-            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                cole.moveHorizontally(-1);
-            } else if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                cole.moveHorizontally(1);
-            } else {
-                cole.moveHorizontally(0);
-            }
+        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            cole.moveHorizontally(1);
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
 
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
 
