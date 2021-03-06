@@ -192,7 +192,7 @@ public class DebugRendering {
      Input: Void
      Output: Void
      */
-    public void endBarFillRender(){ shapeRenderUI.end(); }
+    public void endBarFillRender(){ shapeRendererBarFill.end(); }
 
     public ShapeRenderer getShapeRenderEnemy(){return shapeRendererEnemy;}
     public ShapeRenderer getShapeRendererUser(){return shapeRendererUser;}
@@ -210,6 +210,7 @@ public class DebugRendering {
     public void setShapeRendererUserColor(Color color){ shapeRendererUser.setColor(color); }
     public void setShapeRendererBackgroundColor(Color color){ shapeRendererBackground.setColor(color); }
     public void setShapeRendererCollectibleColor(Color color){ shapeRendererCollectible.setColor(color); }
+    public void setShapeRendererBarFillColor(Color color){ shapeRendererBarFill.setColor(color); }
 
     /**
      * Purpose: Allow the programmer to change the shape type of the line 

@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
+import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.main.Infamous;
@@ -310,6 +311,11 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
+        //Draws Melee Range
+        debugRendering.setShapeRendererUserColor(Color.GOLD);
+        cole.drawMeleeDebug(debugRendering.getShapeRendererUser());
+        //Draws Cole
+        debugRendering.setShapeRendererUserColor(Color.GREEN);
         cole.drawDebug(debugRendering.getShapeRendererUser());
         debugRendering.endUserRender();
 
@@ -450,6 +456,7 @@ class MainScreen extends ScreenAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
         { cole.moveHorizontally(-1); }
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
 
     }
 
@@ -516,6 +523,7 @@ class MainScreen extends ScreenAdapter {
 
         //=================== Draws the Menu Background =====================
         drawUIBackground();
+        drawHealthAndEnergy();
 
         batch.begin();
         drawUIText();
@@ -533,8 +541,6 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     * Input: Void
-     * Output: Void
      * Purpose: Draws the menu background and instructions
      */
     private void drawPopUpMenu() {
@@ -545,21 +551,59 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Purpose: Draws the big black square that severs as the UI background
+     */
     private void drawUIBackground(){
         debugRendering.startUIRender();
         debugRendering.getShapeRendererUI().rect(xCameraDelta,yCameraDelta + WORLD_HEIGHT - UI_HEIGHT, WORLD_WIDTH, UI_HEIGHT);
         debugRendering.endUIRender();
     }
 
+    /**
+     * Purpose: Draws the Text that's displayed in the UI
+     */
     private void drawUIText(){
         bitmapFont.getData().setScale(0.3f);
         bitmapFont.setColor(Color.WHITE);
         textAlignment.centerText(batch, bitmapFont, "Health", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 5);
         textAlignment.centerText(batch, bitmapFont, "Energy", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 15 - 5);
+
+        textAlignment.centerText(batch, bitmapFont, cole.getCurrentAttack(), xCameraDelta + WORLD_WIDTH/2f + 80,yCameraDelta + WORLD_HEIGHT - 14);
     }
 
-    private void drawBar(){
+    /**
+     * Purpose: Draws the Health, Energy bars and draws the Current Attack Box
+     */
+    private void drawHealthAndEnergy(){
+        makeBar((int) cole.getCurrentHealth()/20, (int) cole.getMaxHealth()/20, Color.RED, 0);
+        makeBar((int) cole.getCurrentEnergy()/20, (int) cole.getMaxEnergy()/20, Color.BLUE, 15);
 
+        debugRendering.startBoarderRender();
+        debugRendering.getShapeRendererBoarder().rect(xCameraDelta + WORLD_WIDTH/2f + 20,  yCameraDelta + WORLD_HEIGHT - 27 , 20, 20);
+        debugRendering.endBoarderRender();
+    }
+
+    /**
+     * Purpose: Actual process of making a bar
+     */
+    private void makeBar(int healthFilledBox, int healthBoarderBox, Color color, float offset){
+        //Sets color
+        debugRendering.setShapeRendererBarFillColor(color);
+
+        //Creates the filled in boxes
+        for(int i = 0; i < healthFilledBox; i++){
+            debugRendering.startBarFillRender();
+            debugRendering.getShapeRendererBarFill().rect(xCameraDelta + 40 + 15 * i,yCameraDelta + WORLD_HEIGHT - 13 - offset, 10, 10);
+            debugRendering.endBarFillRender();
+        }
+
+        //Create the boarders around the boxes
+        for(int i = 0; i < healthBoarderBox; i++){
+            debugRendering.startBoarderRender();
+            debugRendering.getShapeRendererBoarder().rect(xCameraDelta + 40 + 15 * i,  yCameraDelta + WORLD_HEIGHT - 13  - offset, 10, 10);
+            debugRendering.endBoarderRender();
+        }
     }
 
     /**

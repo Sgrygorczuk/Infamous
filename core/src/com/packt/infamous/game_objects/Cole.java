@@ -1,6 +1,8 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 import com.packt.infamous.Alignment;
 
 import static com.packt.infamous.Const.ACCELERATION;
@@ -20,7 +22,11 @@ public class Cole extends GenericObject{
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
     private float initialY;               //Where the jump starts from
-    
+
+    private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
+
+    private Array<String> attackNames;
+    private int attackIndex = 0;
 
     private boolean canDrain = false;
 
@@ -40,8 +46,24 @@ public class Cole extends GenericObject{
         xAccel = ACCELERATION;
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
-        health = 100;
-        energy = 100;
+        currentHealth = 60;
+        currentEnergy = 80;
+        maxEnergy = maxHealth = 100;
+
+        setAttackNames();
+
+        meleeRangeBox = new Rectangle(hitBox.x - hitBox.width, hitBox.y, hitBox.width * 3, hitBox.height * 2);
+    }
+
+    /**
+     * Purpose: Sets up all the attacks that are available to Cole
+     */
+    private void setAttackNames(){
+        attackNames = new Array<>();
+
+        attackNames.add("Lighting Bolt");
+        attackNames.add("Bomb");
+        attackNames.add("Torpedo");
     }
 
     /**
@@ -60,6 +82,10 @@ public class Cole extends GenericObject{
 
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
+
+        //Follow the hitBox
+        meleeRangeBox.x = hitBox.x - hitBox.width;
+        meleeRangeBox.y = hitBox.y;
     }
 
     //=============================== Movement =============================================
@@ -158,7 +184,7 @@ public class Cole extends GenericObject{
 
     //TODO: Make attack work, switch between Melee and  Bolt
     public void attack(){
-        if (energy > 0){
+        if (currentEnergy > 0){
         }
     }
 
@@ -170,15 +196,20 @@ public class Cole extends GenericObject{
 
     }
 
+    public void updateAttackIndex(){
+        attackIndex++;
+        if(attackIndex == attackNames.size){ attackIndex = 0; }
+    }
+
+    public String getCurrentAttack(){return attackNames.get(attackIndex);}
+
     /**
      * Purpose: Allow Cole to drain energy
      * @param state sets if he can drain
      */
     public void setCanDrain(boolean state){this.canDrain = state;}
 
-    public void drainEnergy(GenericObject ){
-
-    }
+    //public void drainEnergy(GenericObject ){ }
 
 
 
@@ -277,4 +308,12 @@ public class Cole extends GenericObject{
         Rectangle fallCheckBox = new Rectangle(hitBox.x, hitBox.y - 1, hitBox.width, hitBox.height);
         return fallCheckBox.overlaps(rectangle);
     }
+
+    /**
+     * Purpose: Draws the melee range for Cole
+     */
+    public void drawMeleeDebug(ShapeRenderer shapeRenderer) {
+        shapeRenderer.rect(meleeRangeBox.x, meleeRangeBox.y, meleeRangeBox.width, meleeRangeBox.height);
+    }
+
 }
