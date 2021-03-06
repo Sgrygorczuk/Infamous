@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
 
 import static com.packt.infamous.Const.ACCELERATION;
+import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.JUMP_PEAK;
@@ -17,6 +18,7 @@ public class Cole extends GenericObject{
     private boolean isJumping = false;    //Used to tell that it's not touching a platform
     private boolean isFalling = false;    //Used to tell if Cole if falling off a platform
     private boolean isRising = false;     //Used to create a arc for the jump
+    private boolean isDucking = false;    //Tells us if cole is ducking
     private float initialY;               //Where the jump starts from
 
 
@@ -36,6 +38,7 @@ public class Cole extends GenericObject{
         xAccel = ACCELERATION;
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
+        health = 100;
     }
 
     /**
@@ -49,6 +52,8 @@ public class Cole extends GenericObject{
             updateVelocityY();
             decelerate();
         }
+
+        updateDucking();
 
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
@@ -114,6 +119,22 @@ public class Cole extends GenericObject{
      */
     public boolean getIsJumping(){return isJumping;}
 
+    //============================= Duck ================================================
+
+    /**
+     * Purpose: Have cole be at either full height or 2/3 height depending on if he's ducking
+     */
+    private void updateDucking(){
+        if(!isDucking){ hitBox.height = COLE_HEIGHT; }
+        else{ hitBox.height = 2 * COLE_HEIGHT / 3f; }
+    }
+
+    /**
+     * Purpose: Allow use to change Cole's stance
+     * @param isDucking sets if he's ducking or not
+     */
+    public void setDucking(boolean isDucking){this.isDucking = isDucking;}
+
     //=============================== Pole ===============================================
 
     public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
@@ -155,7 +176,7 @@ public class Cole extends GenericObject{
         }
         else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
             hitBox.y = WORLD_HEIGHT - hitBox.height;
-            velocity.y = 0;
+            isFalling = true;
         }
     }
 

@@ -414,38 +414,22 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
-        //TODO MAKE W jump
-        //TODO Make S drop below platform
-        //
-        if(!cole.isRidingPole()) {
-            //Movement Horizontally
-            if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            }
-
-            if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                cole.moveHorizontally(1);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                cole.moveHorizontally(-1);
-            }
-
-
-            if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-
-            }
-        }
-
-        //Jumping
-        if(Gdx.input.isKeyJustPressed(Input.Keys.W) && !cole.getIsJumping()){
-            if(cole.isRidingPole()){ cole.setRidingPole(false); }
+        //Movement Vertically
+        if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
+                Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.jump();
         }
 
-        //Interact
-        if(Gdx.input.isKeyJustPressed(Input.Keys.E) && cole.isTouchPole()){
-            cole.setRidingPole(true);
-            cole.setPoleVelocity();
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            cole.setDucking(true);
         }
+        else{ cole.setDucking(false);}
+
+        //Movement Horizontally
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+        { cole.moveHorizontally(1); }
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+        { cole.moveHorizontally(-1); }
 
 
     }
@@ -524,6 +508,10 @@ class MainScreen extends ScreenAdapter {
             batch.draw(mainScreenTextures.menuBackgroundTexture, WORLD_WIDTH / 2f - 200 / 2f, WORLD_HEIGHT / 2 - 300 / 2f, 200, 300);
             if (helpFlag) { drawInstructions();}
         }
+    }
+
+    private void drawUI(){
+
     }
 
     /**

@@ -16,6 +16,8 @@ public class GenericObject {
     protected Rectangle hitBox;
     protected Vector2 velocity;
 
+    protected float health;
+
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
 
