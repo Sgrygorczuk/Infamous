@@ -20,7 +20,7 @@ public class Cole extends GenericObject{
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
     private float initialY;               //Where the jump starts from
-
+    
 
     private boolean canDrain = false;
 

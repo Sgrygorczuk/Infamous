@@ -40,6 +40,8 @@ public final class Const{
     public static final float COLE_WIDTH = 16;
     public static final float COLE_HEIGHT = 32;
 
+    public static final float UI_HEIGHT = 32;
+
     //======================== Movement Data ===========================
     public static final float GRAVITY = 2f;
     public static final float JUMP_PEAK = 30f;

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -43,6 +44,7 @@ import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.MENU_BUTTON_Y_START;
 import static com.packt.infamous.Const.TEXT_OFFSET;
+import static com.packt.infamous.Const.UI_HEIGHT;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
 
@@ -90,7 +92,8 @@ class MainScreen extends ScreenAdapter {
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean endFlag = false;            //Tells us game has been lost
     private boolean helpFlag = false;           //Tells us if help flag is on or off
-    private boolean letGo = true;
+    private float xCameraDelta = 0;
+    private float yCameraDelta = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final String[] menuButtonText = new String[]{"Restart", "Help", "Sound Off", "Main Menu", "Back", "Sound On"};
@@ -281,6 +284,7 @@ class MainScreen extends ScreenAdapter {
 
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
         bitmapFont.getData().setScale(1f);
+        bitmapFont.setColor(Color.WHITE);
     }
 
     //=================================== Execute Time Methods =====================================
@@ -456,11 +460,24 @@ class MainScreen extends ScreenAdapter {
     public void updateCamera() {
         //Resize the menu Stage if the screen changes size
         menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+
+        //Updates Camera if the X positions has changed
         if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
             camera.position.set(cole.getX(), camera.position.y, camera.position.z);
             camera.update();
             tiledSetUp.updateCamera(camera);
         }
+
+        //Updates the Camera if the Y positions has changed
+        if((cole.getY() > 2 * WORLD_HEIGHT / 3f) && (cole.getY() < tiledSetUp.getLevelHeight() - 2 * WORLD_HEIGHT / 3f)){
+            camera.position.set(camera.position.x, cole.getY(), camera.position.z);
+            camera.update();
+            tiledSetUp.updateCamera(camera);
+        }
+
+        //Updates the change of camera to keep the UI moving with the player
+        xCameraDelta = camera.position.x - WORLD_WIDTH/2f;
+        yCameraDelta = camera.position.y - WORLD_HEIGHT/2f;
     }
 
     /**
@@ -498,7 +515,10 @@ class MainScreen extends ScreenAdapter {
         tiledSetUp.drawTiledMap();
 
         //=================== Draws the Menu Background =====================
+        drawUIBackground();
+
         batch.begin();
+        drawUIText();
         drawPopUpMenu();
         batch.end();
 
@@ -525,7 +545,20 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    private void drawUI(){
+    private void drawUIBackground(){
+        debugRendering.startUIRender();
+        debugRendering.getShapeRendererUI().rect(xCameraDelta,yCameraDelta + WORLD_HEIGHT - UI_HEIGHT, WORLD_WIDTH, UI_HEIGHT);
+        debugRendering.endUIRender();
+    }
+
+    private void drawUIText(){
+        bitmapFont.getData().setScale(0.3f);
+        bitmapFont.setColor(Color.WHITE);
+        textAlignment.centerText(batch, bitmapFont, "Health", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 5);
+        textAlignment.centerText(batch, bitmapFont, "Energy", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 15 - 5);
+    }
+
+    private void drawBar(){
 
     }
 
@@ -535,6 +568,8 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Draws the text for instructions
      */
     private void drawInstructions() {
+        textAlignment.centerText(batch, bitmapFont, "Health", WORLD_WIDTH/2f, WORLD_HEIGHT/2f);
+
         bitmapFont.getData().setScale(.5f);
         textAlignment.centerText(batch, bitmapFont, "Instruction", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START);
         bitmapFont.getData().setScale(.35f);
@@ -570,7 +605,7 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Set the screen to black so we can draw on top of it again
     */
     private void clearScreen() {
-        Gdx.gl.glClearColor(Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, Color.BLACK.a); //Sets color to black
+        Gdx.gl.glClearColor(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b, Color.BROWN.a); //Sets color to black
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);										 //Sends it to the buffer
     }
 
