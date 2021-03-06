@@ -28,6 +28,7 @@ import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
+import com.packt.infamous.game_objects.Water;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
@@ -102,6 +103,7 @@ class MainScreen extends ScreenAdapter {
     //========================================= Game Objects ========================================
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
+    private final Array<Water> waters = new Array<>();
     private final Array<Pole> poles = new Array<>();
     private final Array<DrainableObject> drainables = new Array<>();
 
@@ -259,7 +261,6 @@ class MainScreen extends ScreenAdapter {
 
         Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
         Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
-
         for(int i = 0; i < poleStartPositions.size; i++){
             poles.add(new Pole(poleStartPositions.get(i).x, poleStartPositions.get(i).y, poleEndPositions.get(i).x, poleEndPositions.get(i).y));
         }
@@ -270,6 +271,14 @@ class MainScreen extends ScreenAdapter {
             platforms.add(new Platforms(platformsPositions.get(i).x, platformsPositions.get(i).y, Alignment.BACKGROUND));
             platforms.get(i).setWidth(platformsDimensions.get(i).x);
             platforms.get(i).setHeight(platformsDimensions.get(i).y);
+        }
+
+        Array<Vector2> waterPositions = tiledSetUp.getLayerCoordinates("Water");
+        Array<Vector2> waterDimensions = tiledSetUp.getLayerDimensions("Water");
+        for(int i = 0; i < waterPositions.size; i++){
+            waters.add(new Water(waterPositions.get(i).x, waterPositions.get(i).y, Alignment.ENEMY));
+            waters.get(i).setWidth(waterDimensions.get(i).x);
+            waters.get(i).setHeight(waterDimensions.get(i).y);
         }
 
     }
@@ -307,7 +316,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void debugRender(){
         debugRendering.startEnemyRender();
-        //TODO set up enemies to render
+        for(Water water : waters){ water.drawDebug(debugRendering.getShapeRenderEnemy()); }
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
@@ -355,6 +364,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingPoleStart();
         isCollidingPoleEnd();
         isCollidingDrainable();
+        isCollidingWater();
         handleInput();
         cole.update(tiledSetUp.getLevelWidth());
     }
@@ -389,7 +399,10 @@ class MainScreen extends ScreenAdapter {
         //Checks if there is ground below him
         boolean hasGround = false;
         for (int i = 0; i < platforms.size; i++) {
-           if(cole.updateCollision(platforms.get(i).getHitBox())){ hasGround = true; }
+           if(cole.updateCollision(platforms.get(i).getHitBox())){
+               hasGround = true;                //Tells us that he's standing
+               cole.setLastTouchedGround();     //Saves that position for respawn
+           }
         }
         //If there is no ground below Cole he should fall
         if(!hasGround){cole.setFalling();}
@@ -418,6 +431,14 @@ class MainScreen extends ScreenAdapter {
                 System.out.println("Pole Colliding");
                 cole.setRidingPole(false);
                 return;
+            }
+        }
+    }
+
+    private void isCollidingWater(){
+        for (Water water : waters) {
+            if(cole.isColliding(water.getHitBox())){
+                cole.touchedWater();
             }
         }
     }

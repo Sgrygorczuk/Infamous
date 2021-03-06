@@ -1,17 +1,11 @@
 package com.packt.infamous.game_objects;
 
-import com.badlogic.gdx.math.Rectangle;
+import com.packt.infamous.Alignment;
 
-public class Water {
-    public Rectangle hitbox;
+public class Water extends GenericObject{
 
-    public Water(float x, float y, int width, int height){
-        hitbox = new Rectangle(x, y, width, height);
+    public Water(float x, float y, Alignment alignment){
+        super(x, y, alignment);
     }
 
-    public void inWater(Cole player, Rectangle otherHitbox){
-        if(hitbox.overlaps(otherHitbox)){
-            // drain player energy here
-        }
-    }
 }

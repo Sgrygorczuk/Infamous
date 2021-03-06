@@ -27,6 +27,9 @@ public class Cole extends GenericObject{
     private boolean isDucking = false;    //Tells us if cole is ducking
     private float initialY;               //Where the jump starts from
 
+    private float lastTouchedGroundX;
+    private float lastTouchedGroundY;
+
     private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
 
     private Array<String> attackNames;
@@ -152,6 +155,25 @@ public class Cole extends GenericObject{
      * @return returns isJumping state
      */
     public boolean getIsJumping(){return isJumping;}
+
+    //================================== Respawn ========================================
+
+    public void setLastTouchedGround(){
+        lastTouchedGroundX = hitBox.x;
+        lastTouchedGroundY = hitBox.y;
+    }
+
+    public void touchedWater(){
+        if(currentHealth - 20 > -20){
+            currentHealth -= 20;
+        }
+        else{
+            //Game Over
+        }
+
+        hitBox.x = lastTouchedGroundX;
+        hitBox.y = lastTouchedGroundY;
+    }
 
     //============================= Duck ================================================
 

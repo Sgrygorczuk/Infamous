@@ -18,9 +18,6 @@ public class Enemy {
         ammo = 10;
     }
 
-
-
-
     public void update(float delta){
         if(reloading <= 0) {
             // TOOD: or if enemy doesn't see cole, reload
