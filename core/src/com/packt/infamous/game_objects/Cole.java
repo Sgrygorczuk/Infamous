@@ -12,6 +12,8 @@ import static com.packt.infamous.Const.MAX_VELOCITY;
 public class Cole extends GenericObject{
 
     protected boolean touchingPlatform = false;
+    protected boolean touchPole = false;
+    private boolean ridingPole = false;
     protected Rectangle previousCollisionBox = null;
 
     
@@ -34,8 +36,11 @@ public class Cole extends GenericObject{
     public void update(){
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
-        updateGravity();
-        decelerate();
+
+        if(!ridingPole){
+            updateGravity();
+            decelerate();
+        }
     }
 
     private void updateGravity(){
@@ -46,7 +51,7 @@ public class Cole extends GenericObject{
             velocity.y += GRAVITY;
         }
     }
-
+  
     private void decelerate(){
         if (velocity.x > xDecel)
             velocity.x = velocity.x - xDecel;
@@ -54,6 +59,7 @@ public class Cole extends GenericObject{
             velocity.x = velocity.x + xDecel;
         else
             velocity.x = 0;
+
     }
 
     public void moveHorizontally(int direction){
@@ -82,5 +88,24 @@ public class Cole extends GenericObject{
         previousCollisionBox = hitBox;
     }
 
+    public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
 
+    public boolean isTouchPole(){return touchPole;}
+
+    public boolean isRidingPole(){return ridingPole;}
+
+    public void setRidingPole(boolean ridingPole) { this.ridingPole = ridingPole; }
+
+    public void setPoleVelocity(){
+        velocity.x = 0;
+        velocity.y = 5;
+    }
+
+    public void hover(){
+        velocity.y = -0.5f;
+    }
+
+    public void jump(){
+        velocity.y = 10f;
+    }
 }

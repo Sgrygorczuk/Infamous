@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,14 +24,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
-
-import java.util.ArrayList;
 
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
@@ -94,6 +94,7 @@ class MainScreen extends ScreenAdapter {
     //========================================= Game Objects ========================================
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
+    private final Array<Pole> poles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -245,6 +246,12 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
 
+        Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
+        Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
+
+        for(int i = 0; i < poleStartPositions.size; i++){
+            poles.add(new Pole(poleStartPositions.get(i).x, poleStartPositions.get(i).y, poleEndPositions.get(i).x, poleEndPositions.get(i).y));
+        }
 
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
         Array<Vector2> platformsDimensions = tiledSetUp.getLayerDimensions("Platforms");
@@ -262,6 +269,7 @@ class MainScreen extends ScreenAdapter {
     */
     private void showObjects(){
         debugRendering = new DebugRendering(camera);
+        debugRendering.setShapeRendererUserShapeType(ShapeRenderer.ShapeType.Filled);
         musicControl = new MusicControl(infamous.getAssetManager());
 
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
@@ -298,6 +306,9 @@ class MainScreen extends ScreenAdapter {
         for(Platforms platform : platforms){
             platform.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        for(Pole pole : poles){
+            pole.drawDebug(debugRendering.getShapeRendererBackground());
+        }
         debugRendering.endBackgroundRender();
 
         debugRendering.startCollectibleRender();
@@ -322,10 +333,13 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void update(float delta){
+        updateCamera();
         cole.update();
         handleInput();
-        updateCamera();
-        isColliding();
+        isCollidingPlatform();
+        isCollidingPoleStart();
+        isCollidingPoleEnd();
+        checkIfWorldBound();
     }
 
 
@@ -351,29 +365,80 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Purpose: Manages collisions between the player and platforms
-     */
-    private void isColliding(){
-        if (cole.isTouchingPlatform()) {return;}
-        else if(!cole.isTouchingPlatform()) { cole.setTouchingPlatform(false);}
+  
+    private void isCollidingPlatform() {
+        if (cole.isTouchingPlatform()) {
+            return;
+        } else if (!cole.isTouchingPlatform()) {
+            cole.setTouchingPlatform(false);
+        }
 
-        for(Platforms platform : platforms){
-            if(cole.isColliding(platform.getHitBox())){
+        for (Platforms platform : platforms) {
+            if (cole.isColliding(platform.getHitBox())) {
+                System.out.println("Platform Colliding");
                 cole.setTouchingPlatform(true, platform.getHitBox());
+                cole.setY(platform.getY()+platform.getHeight());
             }
         }
+    }
+
+    private void isCollidingPoleStart(){
+        if(!cole.isTouchingPlatform()){
+            return;
+        }
+
+        for (Pole pole : poles) {
+            if (cole.isColliding(pole.getStartHitBox())) {
+                System.out.println("Pole Colliding");
+                cole.setTouchPole(true);
+                return;
+            }
+        }
+
+        cole.setTouchPole(false);
+
+    }
+
+    private void isCollidingPoleEnd(){
+        if(!cole.isRidingPole()){
+            return;
+        }
+
+        for (Pole pole : poles) {
+            if (cole.getY() > pole.getEndHitBox().y + pole.getEndHitBox().height) {
+                System.out.println("Pole Colliding");
+                cole.setRidingPole(false);
+                return;
+            }
+        }
+
+    }
+
+    /**
+     * Purpose: Keeps Cole between 0 and levelWidth and make sure it stops when it hit the ground
+     */
+    private void checkIfWorldBound() {
+        //Makes sure we're bound by x
+        if (cole.getHitBox().x < 0) {
+            cole.getHitBox().x = 0;
+        } else if (cole.getHitBox().x + cole.getHitBox().width > tiledSetUp.getLevelWidth()) {
+            cole.getHitBox().x = (int) (tiledSetUp.getLevelWidth() - cole.getHitBox().getWidth());
+        }
+
+        //Makes sure that we stop moving down when we hit the ground
+        if (cole.getHitBox().y < 0) { cole.getHitBox().y = 0; }
+        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT - cole.getHitBox().height;}
     }
 
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
-        //Movement
-        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            cole.moveHorizontally(-1);
-        }
-
+        //TODO MAKE W jump
+        //TODO Make S drop below platform
+        //
+        if(!cole.isRidingPole()) {
+            //Movement Horizontally
         if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
         }
 
@@ -382,16 +447,29 @@ class MainScreen extends ScreenAdapter {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+
+            if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
+
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+
+            }
         }
 
         //Jumping
-        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
+            if(cole.isRidingPole()){ cole.setRidingPole(false); }
             cole.jump();
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && !cole.isTouchingPlatform()){
+            cole.hover();
         }
 
         //Interact
-        else if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-
+        if(Gdx.input.isKeyJustPressed(Input.Keys.E) && cole.isTouchPole()){
+            cole.setRidingPole(true);
+            cole.setPoleVelocity();
         }
 
 
@@ -404,6 +482,11 @@ class MainScreen extends ScreenAdapter {
     public void updateCamera() {
         //Resize the menu Stage if the screen changes size
         menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+        if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
+            camera.position.set(cole.getX(), camera.position.y, camera.position.z);
+            camera.update();
+            tiledSetUp.updateCamera(camera);
+        }
     }
 
     /**
