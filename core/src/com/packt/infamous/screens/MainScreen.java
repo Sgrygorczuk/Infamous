@@ -335,12 +335,12 @@ class MainScreen extends ScreenAdapter {
     */
     private void update(float delta){
         updateCamera();
-        cole.update(delta);
-        handleInput();
         isCollidingPlatform();
         isCollidingPoleStart();
         isCollidingPoleEnd();
         checkIfWorldBound();
+        handleInput();
+        cole.update(delta);
     }
 
 
@@ -374,10 +374,6 @@ class MainScreen extends ScreenAdapter {
     }
 
     private void isCollidingPoleStart(){
-        if(!cole.isTouchingPlatform()){
-            return;
-        }
-
         for (Pole pole : poles) {
             if (cole.isColliding(pole.getStartHitBox())) {
                 System.out.println("Pole Colliding");
@@ -447,7 +443,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         //Jumping
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) & !cole.isJumping){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             if(cole.isRidingPole()){ cole.setRidingPole(false); }
             cole.jump();
         }

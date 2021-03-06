@@ -15,12 +15,12 @@ public class Cole extends GenericObject{
     protected boolean touchPole = false;
     private boolean ridingPole = false;
     protected Rectangle previousCollisionBox = null;
-    public  boolean isJumping = false;
+    protected boolean isJumping = false;
     public boolean isFloating = false;
     boolean isRising = false;
     float initialY;
 
-    
+
     /* =========================== Movement Variables =========================== */
 
     protected float yAccel;     //value of jump speed
@@ -56,7 +56,7 @@ public class Cole extends GenericObject{
             velocity.y += GRAVITY;
         }
     }
-  
+
     private void decelerate(){
         if (velocity.x > xDecel)
             velocity.x = velocity.x - xDecel;
@@ -71,22 +71,17 @@ public class Cole extends GenericObject{
         if ((velocity.x < xMaxVel) && (velocity.x > -xMaxVel))
             velocity.x += direction*xAccel;
     }
- 
+
     public void jump(){
         if (!isJumping) {
-            velocity.y = yAccel;
             isJumping = true;
             isRising = true;
             initialY = hitBox.y;
+            velocity.y += yAccel;
         }
     }
 
     /* ============================ Utility Functions =========================== */
-
-    public boolean isTouchingPlatform(){
-        if (previousCollisionBox == null) {return false;} //Return false if not colliding with anything
-        return (isColliding(previousCollisionBox));
-    }
 
     public void updateCollision(Rectangle rectangle){
         if(this.hitBox.overlaps(rectangle)){
@@ -96,7 +91,7 @@ public class Cole extends GenericObject{
              */
             //=============== On Top Of the Colliding Platform ====================
             if(this.hitBox.y <= rectangle.y + rectangle.height
-                    && this.hitBox.y >= rectangle.y + rectangle.height * 0.8f){
+                    && this.hitBox.y >= (rectangle.y + rectangle.height) * 0.8f){
                 this.hitBox.y = rectangle.y + rectangle.height;
                 isJumping = false;
                 isFloating = false;
@@ -132,16 +127,6 @@ public class Cole extends GenericObject{
                 this.hitBox.x = rectangle.x + rectangle.width;
             }
         }
-    }
-
-
-    public void setTouchingPlatform(boolean state) {
-        setTouchingPlatform(state, null);
-    }
-
-    public void setTouchingPlatform(boolean state, Rectangle hitBox) {
-        touchingPlatform = state;
-        previousCollisionBox = hitBox;
     }
 
     public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
