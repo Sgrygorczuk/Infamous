@@ -22,6 +22,8 @@ public class Cole extends GenericObject{
     private float initialY;               //Where the jump starts from
 
 
+    private boolean canDrain = false;
+
     /* =========================== Movement Variables =========================== */
 
     protected float yAccel;     //value of jump speed
@@ -39,6 +41,7 @@ public class Cole extends GenericObject{
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
         health = 100;
+        energy = 100;
     }
 
     /**
@@ -150,6 +153,34 @@ public class Cole extends GenericObject{
         velocity.x = 0;
         velocity.y = 5;
     }
+
+    /* ============================ Combat Functions =========================== */
+
+    //TODO: Make attack work, switch between Melee and  Bolt
+    public void attack(){
+        if (energy > 0){
+        }
+    }
+
+    public void attackMelee(){
+
+    }
+
+    public void attackBolt(){
+
+    }
+
+    /**
+     * Purpose: Allow Cole to drain energy
+     * @param state sets if he can drain
+     */
+    public void setCanDrain(boolean state){this.canDrain = state;}
+
+    public void drainEnergy(GenericObject ){
+
+    }
+
+
 
     /* ============================ Utility Functions =========================== */
 

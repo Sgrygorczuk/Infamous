@@ -17,6 +17,7 @@ public class GenericObject {
     protected Vector2 velocity;
 
     protected float health;
+    protected float energy;
 
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;

@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
+import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.main.Infamous;
@@ -98,6 +99,7 @@ class MainScreen extends ScreenAdapter {
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
     private final Array<Pole> poles = new Array<>();
+    private final Array<DrainableObject> drainables = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -342,6 +344,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingPlatform();
         isCollidingPoleStart();
         isCollidingPoleEnd();
+        isCollidingDrainable();
         handleInput();
         cole.update(tiledSetUp.getLevelWidth());
     }
@@ -407,7 +410,19 @@ class MainScreen extends ScreenAdapter {
                 return;
             }
         }
+    }
 
+    /**
+     * Purpose: Check if colliding with a drainable object
+     */
+    private void isCollidingDrainable(){
+        for (DrainableObject battery : drainables) {
+            if (cole.isColliding(battery.getHitBox())) {
+            }
+                System.out.println("Found drainable");
+                cole.setCanDrain(true);
+                return;
+            }
     }
 
     /**
