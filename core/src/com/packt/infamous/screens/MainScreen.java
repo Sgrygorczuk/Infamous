@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,6 +24,8 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
+import com.packt.infamous.game_objects.DrainableObject;
+import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.main.Infamous;
@@ -32,6 +35,8 @@ import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
 
+import static com.packt.infamous.Const.COLE_HEIGHT;
+import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
@@ -40,6 +45,7 @@ import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.MENU_BUTTON_Y_START;
 import static com.packt.infamous.Const.TEXT_OFFSET;
+import static com.packt.infamous.Const.UI_HEIGHT;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
 
@@ -87,6 +93,8 @@ class MainScreen extends ScreenAdapter {
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean endFlag = false;            //Tells us game has been lost
     private boolean helpFlag = false;           //Tells us if help flag is on or off
+    private float xCameraDelta = 0;
+    private float yCameraDelta = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final String[] menuButtonText = new String[]{"Restart", "Help", "Sound Off", "Main Menu", "Back", "Sound On"};
@@ -95,6 +103,7 @@ class MainScreen extends ScreenAdapter {
     private Cole cole;
     private final Array<Platforms> platforms = new Array<>();
     private final Array<Pole> poles = new Array<>();
+    private final Array<DrainableObject> drainables = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -245,6 +254,8 @@ class MainScreen extends ScreenAdapter {
 
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
+        cole.setWidth(COLE_WIDTH);
+        cole.setHeight(COLE_HEIGHT);
 
         Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
         Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
@@ -274,6 +285,7 @@ class MainScreen extends ScreenAdapter {
 
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
         bitmapFont.getData().setScale(1f);
+        bitmapFont.setColor(Color.WHITE);
     }
 
     //=================================== Execute Time Methods =====================================
@@ -299,6 +311,11 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
+        //Draws Melee Range
+        debugRendering.setShapeRendererUserColor(Color.GOLD);
+        cole.drawMeleeDebug(debugRendering.getShapeRendererUser());
+        //Draws Cole
+        debugRendering.setShapeRendererUserColor(Color.GREEN);
         cole.drawDebug(debugRendering.getShapeRendererUser());
         debugRendering.endUserRender();
 
@@ -334,12 +351,12 @@ class MainScreen extends ScreenAdapter {
     */
     private void update(float delta){
         updateCamera();
-        cole.update();
-        handleInput();
         isCollidingPlatform();
         isCollidingPoleStart();
         isCollidingPoleEnd();
-        checkIfWorldBound();
+        isCollidingDrainable();
+        handleInput();
+        cole.update(tiledSetUp.getLevelWidth());
     }
 
 
@@ -365,27 +382,20 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Purpose: Check if it's touching any platforms
+     */
     private void isCollidingPlatform() {
-        if (cole.isTouchingPlatform()) {
-            return;
-        } else if (!cole.isTouchingPlatform()) {
-            cole.setTouchingPlatform(false);
+        //Checks if there is ground below him
+        boolean hasGround = false;
+        for (int i = 0; i < platforms.size; i++) {
+           if(cole.updateCollision(platforms.get(i).getHitBox())){ hasGround = true; }
         }
-
-        for (Platforms platform : platforms) {
-            if (cole.isColliding(platform.getHitBox())) {
-                System.out.println("Platform Colliding");
-                cole.setTouchingPlatform(true, platform.getHitBox());
-                cole.setY(platform.getY()+platform.getHeight());
-            }
-        }
+        //If there is no ground below Cole he should fall
+        if(!hasGround){cole.setFalling();}
     }
 
     private void isCollidingPoleStart(){
-        if(!cole.isTouchingPlatform()){
-            return;
-        }
-
         for (Pole pole : poles) {
             if (cole.isColliding(pole.getStartHitBox())) {
                 System.out.println("Pole Colliding");
@@ -410,70 +420,43 @@ class MainScreen extends ScreenAdapter {
                 return;
             }
         }
-
-    }
-
-    private void unsetColliding(){
-
     }
 
     /**
-     * Purpose: Keeps Cole between 0 and levelWidth and make sure it stops when it hit the ground
+     * Purpose: Check if colliding with a drainable object
      */
-    private void checkIfWorldBound() {
-        //Makes sure we're bound by x
-        if (cole.getHitBox().x < 0) {
-            cole.getHitBox().x = 0;
-        } else if (cole.getHitBox().x + cole.getHitBox().width > tiledSetUp.getLevelWidth()) {
-            cole.getHitBox().x = (int) (tiledSetUp.getLevelWidth() - cole.getHitBox().getWidth());
-        }
-
-        //Makes sure that we stop moving down when we hit the ground
-        if (cole.getHitBox().y < 0) { cole.getHitBox().y = 0; }
-        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT - cole.getHitBox().height;}
+    private void isCollidingDrainable(){
+        for (DrainableObject battery : drainables) {
+            if (cole.isColliding(battery.getHitBox())) {
+            }
+                System.out.println("Found drainable");
+                cole.setCanDrain(true);
+                return;
+            }
     }
 
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
-        //TODO MAKE W jump
-        //TODO Make S drop below platform
-        //
-        if(!cole.isRidingPole()) {
-            //Movement Horizontally
-            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                cole.moveHorizontally(-1);
-            } else if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                cole.moveHorizontally(1);
-            } else {
-                cole.moveHorizontally(0);
-            }
-
-            if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-
-            }
-
-            if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-
-            }
-        }
-
-        //Jumping
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && cole.isTouchingPlatform()){
-            if(cole.isRidingPole()){ cole.setRidingPole(false); }
+        //Movement Vertically
+        if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
+                Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.jump();
         }
-        else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && !cole.isTouchingPlatform()){
-            cole.hover();
-        }
 
-        //Interact
-        if(Gdx.input.isKeyJustPressed(Input.Keys.E) && cole.isTouchPole()){
-            cole.setRidingPole(true);
-            cole.setPoleVelocity();
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            cole.setDucking(true);
         }
+        else{ cole.setDucking(false);}
 
+        //Movement Horizontally
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+        { cole.moveHorizontally(1); }
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+        { cole.moveHorizontally(-1); }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
 
     }
 
@@ -484,11 +467,24 @@ class MainScreen extends ScreenAdapter {
     public void updateCamera() {
         //Resize the menu Stage if the screen changes size
         menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+
+        //Updates Camera if the X positions has changed
         if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
             camera.position.set(cole.getX(), camera.position.y, camera.position.z);
             camera.update();
             tiledSetUp.updateCamera(camera);
         }
+
+        //Updates the Camera if the Y positions has changed
+        if((cole.getY() > 2 * WORLD_HEIGHT / 3f) && (cole.getY() < tiledSetUp.getLevelHeight() - 2 * WORLD_HEIGHT / 3f)){
+            camera.position.set(camera.position.x, cole.getY(), camera.position.z);
+            camera.update();
+            tiledSetUp.updateCamera(camera);
+        }
+
+        //Updates the change of camera to keep the UI moving with the player
+        xCameraDelta = camera.position.x - WORLD_WIDTH/2f;
+        yCameraDelta = camera.position.y - WORLD_HEIGHT/2f;
     }
 
     /**
@@ -526,7 +522,11 @@ class MainScreen extends ScreenAdapter {
         tiledSetUp.drawTiledMap();
 
         //=================== Draws the Menu Background =====================
+        drawUIBackground();
+        drawHealthAndEnergy();
+
         batch.begin();
+        drawUIText();
         drawPopUpMenu();
         batch.end();
 
@@ -541,8 +541,6 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     * Input: Void
-     * Output: Void
      * Purpose: Draws the menu background and instructions
      */
     private void drawPopUpMenu() {
@@ -554,11 +552,68 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
+     * Purpose: Draws the big black square that severs as the UI background
+     */
+    private void drawUIBackground(){
+        debugRendering.startUIRender();
+        debugRendering.getShapeRendererUI().rect(xCameraDelta,yCameraDelta + WORLD_HEIGHT - UI_HEIGHT, WORLD_WIDTH, UI_HEIGHT);
+        debugRendering.endUIRender();
+    }
+
+    /**
+     * Purpose: Draws the Text that's displayed in the UI
+     */
+    private void drawUIText(){
+        bitmapFont.getData().setScale(0.3f);
+        bitmapFont.setColor(Color.WHITE);
+        textAlignment.centerText(batch, bitmapFont, "Health", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 5);
+        textAlignment.centerText(batch, bitmapFont, "Energy", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 15 - 5);
+
+        textAlignment.centerText(batch, bitmapFont, cole.getCurrentAttack(), xCameraDelta + WORLD_WIDTH/2f + 80,yCameraDelta + WORLD_HEIGHT - 14);
+    }
+
+    /**
+     * Purpose: Draws the Health, Energy bars and draws the Current Attack Box
+     */
+    private void drawHealthAndEnergy(){
+        makeBar((int) cole.getCurrentHealth()/20, (int) cole.getMaxHealth()/20, Color.RED, 0);
+        makeBar((int) cole.getCurrentEnergy()/20, (int) cole.getMaxEnergy()/20, Color.BLUE, 15);
+
+        debugRendering.startBoarderRender();
+        debugRendering.getShapeRendererBoarder().rect(xCameraDelta + WORLD_WIDTH/2f + 20,  yCameraDelta + WORLD_HEIGHT - 27 , 20, 20);
+        debugRendering.endBoarderRender();
+    }
+
+    /**
+     * Purpose: Actual process of making a bar
+     */
+    private void makeBar(int healthFilledBox, int healthBoarderBox, Color color, float offset){
+        //Sets color
+        debugRendering.setShapeRendererBarFillColor(color);
+
+        //Creates the filled in boxes
+        for(int i = 0; i < healthFilledBox; i++){
+            debugRendering.startBarFillRender();
+            debugRendering.getShapeRendererBarFill().rect(xCameraDelta + 40 + 15 * i,yCameraDelta + WORLD_HEIGHT - 13 - offset, 10, 10);
+            debugRendering.endBarFillRender();
+        }
+
+        //Create the boarders around the boxes
+        for(int i = 0; i < healthBoarderBox; i++){
+            debugRendering.startBoarderRender();
+            debugRendering.getShapeRendererBoarder().rect(xCameraDelta + 40 + 15 * i,  yCameraDelta + WORLD_HEIGHT - 13  - offset, 10, 10);
+            debugRendering.endBoarderRender();
+        }
+    }
+
+    /**
      * Input: Void
      * Output: Void
      * Purpose: Draws the text for instructions
      */
     private void drawInstructions() {
+        textAlignment.centerText(batch, bitmapFont, "Health", WORLD_WIDTH/2f, WORLD_HEIGHT/2f);
+
         bitmapFont.getData().setScale(.5f);
         textAlignment.centerText(batch, bitmapFont, "Instruction", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START);
         bitmapFont.getData().setScale(.35f);
@@ -594,7 +649,7 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Set the screen to black so we can draw on top of it again
     */
     private void clearScreen() {
-        Gdx.gl.glClearColor(Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, Color.BLACK.a); //Sets color to black
+        Gdx.gl.glClearColor(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b, Color.BROWN.a); //Sets color to black
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);										 //Sends it to the buffer
     }
 

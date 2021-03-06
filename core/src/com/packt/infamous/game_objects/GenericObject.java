@@ -16,6 +16,11 @@ public class GenericObject {
     protected Rectangle hitBox;
     protected Vector2 velocity;
 
+    protected int maxHealth;
+    protected int maxEnergy;
+    protected int currentHealth;
+    protected int currentEnergy;
+
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
 
@@ -46,6 +51,12 @@ public class GenericObject {
     public void setY(float y){hitBox.y = y;}
 
     public float getHeight(){return hitBox.height;}
+
+    public float getMaxHealth(){return maxHealth;}
+    public float getCurrentHealth(){return currentHealth;}
+
+    public float getMaxEnergy(){return maxEnergy;}
+    public float getCurrentEnergy(){return currentEnergy;}
 
     public void setVelocity(float x, float y){
         velocity.x = x;
