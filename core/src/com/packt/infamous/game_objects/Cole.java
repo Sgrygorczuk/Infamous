@@ -11,6 +11,7 @@ public class Cole extends GenericObject{
     protected boolean touchPole = false;
     private boolean ridingPole = false;
     protected Rectangle previousCollisionBox = null;
+    public boolean facingDirection = false; //false = Left, true = right
 
     public Cole(float x, float y, Alignment alignment) {
         super(x, y, alignment);
