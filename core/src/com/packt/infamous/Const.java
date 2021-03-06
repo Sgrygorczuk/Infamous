@@ -37,10 +37,12 @@ public final class Const{
     //========================= Tile Data ================================
     public static final float TILED_WIDTH = 16;
     public static final float TILED_HEIGHT = 16;
+    public static final float COLE_WIDTH = 16;
+    public static final float COLE_HEIGHT = 32;
 
     //======================== Movement Data ===========================
-    public static final float GRAVITY = -2f;
-    public static final float JUMP = 2f;
+    public static final float GRAVITY = 2f;
+    public static final float JUMP_PEAK = 30f;
     public static final float ACCELERATION = 1f;
     public static final float FRICTION = 0.5f;
     public static final float MAX_VELOCITY = 3f;

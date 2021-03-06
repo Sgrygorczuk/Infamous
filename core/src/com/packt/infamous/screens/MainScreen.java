@@ -32,6 +32,8 @@ import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
 
+import static com.packt.infamous.Const.COLE_HEIGHT;
+import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
@@ -246,6 +248,8 @@ class MainScreen extends ScreenAdapter {
 
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
+        cole.setWidth(COLE_WIDTH);
+        cole.setHeight(COLE_HEIGHT);
 
         Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
         Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
@@ -338,9 +342,8 @@ class MainScreen extends ScreenAdapter {
         isCollidingPlatform();
         isCollidingPoleStart();
         isCollidingPoleEnd();
-        checkIfWorldBound();
         handleInput();
-        cole.update(delta);
+        cole.update(tiledSetUp.getLevelWidth());
     }
 
 
@@ -366,11 +369,17 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-  
+    /**
+     * Purpose: Check if it's touching any platforms
+     */
     private void isCollidingPlatform() {
-        for (Platforms platform : platforms) {
-            cole.updateCollision(platform.getHitBox());
+        //Checks if there is ground below him
+        boolean hasGround = false;
+        for (int i = 0; i < platforms.size; i++) {
+           if(cole.updateCollision(platforms.get(i).getHitBox())){ hasGround = true; }
         }
+        //If there is no ground below Cole he should fall
+        if(!hasGround){cole.setFalling();}
     }
 
     private void isCollidingPoleStart(){
@@ -402,22 +411,6 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     * Purpose: Keeps Cole between 0 and levelWidth and make sure it stops when it hit the ground
-     */
-    private void checkIfWorldBound() {
-        //Makes sure we're bound by x
-        if (cole.getHitBox().x < 0) {
-            cole.getHitBox().x = 0;
-        } else if (cole.getHitBox().x + cole.getHitBox().width > tiledSetUp.getLevelWidth()) {
-            cole.getHitBox().x = (int) (tiledSetUp.getLevelWidth() - cole.getHitBox().getWidth());
-        }
-
-        //Makes sure that we stop moving down when we hit the ground
-        if (cole.getHitBox().y < 0) { cole.getHitBox().y = 0; }
-        else if (cole.getY() + cole.getHitBox().height > WORLD_HEIGHT){cole.getHitBox().y = WORLD_HEIGHT - cole.getHitBox().height;}
-    }
-
-    /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
@@ -443,7 +436,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         //Jumping
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.W) && !cole.getIsJumping()){
             if(cole.isRidingPole()){ cole.setRidingPole(false); }
             cole.jump();
         }

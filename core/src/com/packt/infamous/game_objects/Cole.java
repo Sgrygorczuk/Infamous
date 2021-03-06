@@ -6,19 +6,18 @@ import com.packt.infamous.Alignment;
 import static com.packt.infamous.Const.ACCELERATION;
 import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
-import static com.packt.infamous.Const.JUMP;
+import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
+import static com.packt.infamous.Const.WORLD_HEIGHT;
 
 public class Cole extends GenericObject{
 
-    protected boolean touchingPlatform = false;
-    protected boolean touchPole = false;
+    private boolean touchPole = false;
     private boolean ridingPole = false;
-    protected Rectangle previousCollisionBox = null;
-    protected boolean isJumping = false;
-    public boolean isFloating = false;
-    boolean isRising = false;
-    float initialY;
+    private boolean isJumping = false;    //Used to tell that it's not touching a platform
+    private boolean isFalling = false;    //Used to tell if Cole if falling off a platform
+    private boolean isRising = false;     //Used to create a arc for the jump
+    private float initialY;               //Where the jump starts from
 
 
     /* =========================== Movement Variables =========================== */
@@ -28,32 +27,55 @@ public class Cole extends GenericObject{
     protected float xDecel;     //value of decreased speed for chosen direction
     protected float xMaxVel;    //maximum x velocity allowed
 
+    //============================ Constructor ========================================
+
     public Cole(float x, float y, Alignment alignment) {
         super(x, y, alignment);
-        velocity.y = GRAVITY;
-        yAccel = JUMP;
+        velocity.y = -GRAVITY;
+        yAccel = GRAVITY;
         xAccel = ACCELERATION;
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
     }
 
-    public void update(float delta){
-        hitBox.y += velocity.y;
-        hitBox.x += velocity.x;
+    /**
+     * Purpose: Central Update function for Cole all continuous updates come through here
+     * @param levelWidth the end of the level
+     */
+    public void update(float levelWidth){
+        checkIfWorldBound(levelWidth);
 
         if(!ridingPole){
-            updateGravity();
+            updateVelocityY();
             decelerate();
         }
+
+        hitBox.y += velocity.y;
+        hitBox.x += velocity.x;
     }
 
-    private void updateGravity(){
-        if(isRising && hitBox.y < initialY + 20){
-            velocity.y += JUMP;
+    //=============================== Movement =============================================
+
+    /**
+     Purpose: Performs the jumping/falling action
+     */
+    private void updateVelocityY(){
+        //=================== Player Initiated Jumping============
+        if(isJumping) {
+            //Is rising towards peak
+            if (isRising && hitBox.y < initialY + JUMP_PEAK) { velocity.y += GRAVITY; }
+            //Checks if we reached peaked or Cole hit something above him
+            else if (isRising) { isRising = false; }
+            //Starts falling back down
+            else if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
         }
-        else if(isRising){isRising = false;}
-        else if(velocity.y > GRAVITY){
-            velocity.y += GRAVITY;
+        //================== Player Walked Off A Platform ===========
+        else if(isFalling) {
+            if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
+        }
+        //==================== Is Standing on a Platform =============
+        else{
+            velocity.y = 0;
         }
     }
 
@@ -72,68 +94,34 @@ public class Cole extends GenericObject{
             velocity.x += direction*xAccel;
     }
 
+    /**
+     * Purpose: Initiate the Player jump action
+     */
     public void jump(){
-        if (!isJumping) {
-            isJumping = true;
-            isRising = true;
-            initialY = hitBox.y;
-            velocity.y += yAccel;
-        }
+        isJumping = true;       //Tells us we're jumping
+        isRising = true;        //Tells us we're going up
+        initialY = hitBox.y;    //Grabs the initial place where we started so we can find the jump peak
     }
 
-    /* ============================ Utility Functions =========================== */
+    /**
+     * Purpose: Turns isFalling true whenever Cole dosen't have ground below him
+     */
+    public void setFalling(){isFalling = true;}
 
-    public void updateCollision(Rectangle rectangle){
-        if(this.hitBox.overlaps(rectangle)){
-            /* Breakdown of Collision
-              this.hitBox.y < rectangle.y + rectangle.height - checks if we're dipping into the box from the top
-              this.hitBox.y >= rectangle.y + rectangle.height * 0.8f - makes sure it's only the very top of the box we're going into
-             */
-            //=============== On Top Of the Colliding Platform ====================
-            if(this.hitBox.y <= rectangle.y + rectangle.height
-                    && this.hitBox.y >= (rectangle.y + rectangle.height) * 0.8f){
-                this.hitBox.y = rectangle.y + rectangle.height;
-                isJumping = false;
-                isFloating = false;
-            }
-            /* Breakdown of Collision
-              this.hitBox.y + this.hitBox.height > rectangle.y- checks if we're dipping into the box from the bottom
-              this.hitBox.y < rectangle.y < rectangle.y - makes sure that only on the bottom
-             */
-            //=============== Below the Colliding Platform ====================
-            else if(this.hitBox.y + this.hitBox.height > rectangle.y
-                    && this.hitBox.y < rectangle.y){
-                this.hitBox.y = rectangle.y - this.hitBox.height;
-            }
+    /**
+     * Purpose: To tell MainScreen that the use can click Jump
+     * @return returns isJumping state
+     */
+    public boolean getIsJumping(){return isJumping;}
 
-            /* Breakdown of Collision
-              this.hitBox.x + this.hitBox.width > rectangle.x - checks if we're dipping into the box from the left
-              hitBox.x < rectangle.x - makes sures we're coming from the left
-              !(this.hitBox.y >= rectangle.y + rectangle.height) - makes sure we don't do it when on top of the block
-              hitBox.y >= rectangle.y - can't fully remember why
-             */
-            //=============== On the Left of the Colliding Platform ====================
-            if(this.hitBox.x + this.hitBox.width > rectangle.x
-                    && hitBox.x < rectangle.x
-                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
-                    && hitBox.y >= rectangle.y){
-                this.hitBox.x = rectangle.x - this.hitBox.width;
-            }
-            //=============== On the Right of the Colliding Platform ====================
-            else if(this.hitBox.x < rectangle.x + rectangle.width
-                    && this.hitBox.x > rectangle.x
-                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
-                    && hitBox.y >= rectangle.y){
-                this.hitBox.x = rectangle.x + rectangle.width;
-            }
-        }
-    }
+    //=============================== Pole ===============================================
 
     public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
 
     public boolean isTouchPole(){return touchPole;}
 
     public boolean isRidingPole(){return ridingPole;}
+
 
     public void setRidingPole(boolean ridingPole) { this.ridingPole = ridingPole; }
 
@@ -142,8 +130,99 @@ public class Cole extends GenericObject{
         velocity.y = 5;
     }
 
-    public void hover(){
-        velocity.y = -0.5f;
-        isFloating = true;
+    /* ============================ Utility Functions =========================== */
+
+
+    /**
+     * Purpose: Keeps Cole within the level
+     * @param levelWidth tells where the map ends
+     */
+    private void checkIfWorldBound(float levelWidth) {
+        //Makes sure we're bound by x
+        if (hitBox.x < 0) {
+            hitBox.x = 0;
+            velocity.x = 0;
+        }
+        else if (hitBox.x + hitBox.width > levelWidth) {
+            hitBox.x = (int) (levelWidth - hitBox.width);
+            velocity.x = 0;
+        }
+
+        //Makes sure that we stop moving down when we hit the ground
+        if (hitBox.y < 0) {
+            hitBox.y = 0;
+            velocity.y = 0;
+        }
+        else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
+            hitBox.y = WORLD_HEIGHT - hitBox.height;
+            velocity.y = 0;
+        }
+    }
+
+    /**
+     * Purpose: Check if Cole is touching any platform
+     * @param rectangle the platform we're checking against
+     * @return tells us if there is any platform below Cole
+     */
+    public boolean updateCollision(Rectangle rectangle){
+        if(this.hitBox.overlaps(rectangle)){
+            //Vertical hitBox collision happens first otherwise he'll get set to the other size of the map
+
+            /* Breakdown of Collision
+              this.hitBox.y < rectangle.y + rectangle.height - checks if we're dipping into the box from the top
+              this.hitBox.y >= rectangle.y + rectangle.height * 0.8f - makes sure it's only the very top of the box we're going into
+                       We do rectangle.y + rectangle.height * 0.8f not (rectangle.y + rectangle.height) * 0.8f because () will have a lower value on
+                       lower platforms we only want to multiply the height so that the initial Y is still large
+              hitBox.x + hitBox.width > rectangle.x && hitBox.x < rectangle.x + rectangle.width - makes sure to only interact with this platform
+             */
+            //=============== On Top Of the Colliding Platform ====================
+            if(this.hitBox.y <= rectangle.y + rectangle.height
+                    && this.hitBox.y >= rectangle.y + rectangle.height * 0.8f){
+                this.hitBox.y = rectangle.y + rectangle.height;
+                isJumping = false;  //Can jump again
+                isFalling = false;  //Is no longer falling
+                velocity.y = 0;
+            }
+            /* Breakdown of Collision
+              this.hitBox.y + this.hitBox.height > rectangle.y- checks if we're dipping into the box from the bottom
+              this.hitBox.y + this.hitBox.height * 0.8f < rectangle.y - makes sure that only on the bottom
+              hitBox.x + hitBox.width > rectangle.x && hitBox.x < rectangle.x + rectangle.width - makes sure to only interact with this platform
+             */
+            //=============== Below the Colliding Platform ====================
+            else if(this.hitBox.y + this.hitBox.height > rectangle.y
+                    && this.hitBox.y < rectangle.y
+                    && hitBox.x + hitBox.width >= rectangle.x + rectangle.width * 0.1f
+                    && hitBox.x <= rectangle.x + rectangle.width * 0.9f){
+                this.hitBox.y = rectangle.y - this.hitBox.height;
+                isRising = false;   //Stop jump arc
+            }
+
+            /* Breakdown of Collision
+              this.hitBox.x + this.hitBox.width > rectangle.x - checks if we're dipping into the box from the left
+              hitBox.x < rectangle.x - makes sures we're coming from the left
+              !(this.hitBox.y >= rectangle.y + rectangle.height) - makes sure we don't do it when on top of the block
+              hitBox.y >= rectangle.y - so he doesn't teleports to edge of platform if he touches it from below
+             */
+            //=============== On the Left of the Colliding Platform ====================
+            if(this.hitBox.x + this.hitBox.width >= rectangle.x
+                    && hitBox.x < rectangle.x
+                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
+                    && this.hitBox.y >= rectangle.y){
+                this.hitBox.x = rectangle.x - this.hitBox.width;
+                velocity.x = 0; //Stops movement
+            }
+            //=============== On the Right of the Colliding Platform ====================
+            else if(this.hitBox.x <= rectangle.x + rectangle.width
+                    && this.hitBox.x > rectangle.x
+                    && !(this.hitBox.y >= rectangle.y + rectangle.height)
+                    && this.hitBox.y >= rectangle.y){
+                this.hitBox.x = rectangle.x + rectangle.width;
+                velocity.x = 0; //Stop movement
+            }
+        }
+        //Creates a second rectangle that's a little below Cole to see if there is any
+        //Platform below him
+        Rectangle fallCheckBox = new Rectangle(hitBox.x, hitBox.y - 1, hitBox.width, hitBox.height);
+        return fallCheckBox.overlaps(rectangle);
     }
 }
