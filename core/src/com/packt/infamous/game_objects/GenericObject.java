@@ -31,7 +31,7 @@ public class GenericObject {
     protected Animation<TextureRegion> walkRightAnimation;
     protected Animation<TextureRegion> walkLeftAnimation;
 
-    float animationFrameTime = 4;
+    float animationFrameTime = 6;
     protected float animationRightTime = 0;
     protected float animationLeftTime = 0;
 

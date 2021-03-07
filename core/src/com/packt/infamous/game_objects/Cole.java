@@ -1,5 +1,9 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -25,10 +29,12 @@ public class Cole extends GenericObject{
     private boolean isFalling = false;    //Used to tell if Cole if falling off a platform
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
+    private boolean isFacingRight = true; //
     private float initialY;               //Where the jump starts from
 
     private float lastTouchedGroundX;
     private float lastTouchedGroundY;
+
 
     private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
 
@@ -63,6 +69,11 @@ public class Cole extends GenericObject{
         meleeRangeBox = new Rectangle(hitBox.x - hitBox.width, hitBox.y, hitBox.width * 3, hitBox.height * 2);
     }
 
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions){
+        this.spriteSheet = textureRegions;
+        setUpAnimations();
+    }
+
     /**
      * Purpose: Sets up all the attacks that are available to Cole
      */
@@ -78,12 +89,21 @@ public class Cole extends GenericObject{
      * Purpose: Central Update function for Cole all continuous updates come through here
      * @param levelWidth the end of the level
      */
-    public void update(float levelWidth){
+    public void update(float levelWidth, float delta){
         checkIfWorldBound(levelWidth);
 
         if(!ridingPole){
             updateVelocityY();
             decelerate();
+        }
+
+        if(velocity.x > 0){
+            animationLeftTime += delta;
+            isFacingRight = false;
+        }
+        if(velocity.x < 0){
+            animationRightTime += delta;
+            isFacingRight = true;
         }
 
         updateDucking();
@@ -377,5 +397,23 @@ public class Cole extends GenericObject{
             canDrain = false;
             previousDrainable = null;
         }
+    }
+
+    public void drawAnimations(SpriteBatch batch){
+        TextureRegion currentFrame = walkRightAnimation.getKeyFrame(0);
+        float time = 0;
+
+        if (isFacingRight) {
+            if(velocity.x != 0){time =animationRightTime;}
+            else{time = 0;}
+            currentFrame = walkRightAnimation.getKeyFrame(time);
+        }
+        else if(!isFacingRight){
+            if(velocity.x != 0){time =animationLeftTime;}
+            else{time = 4;}
+            currentFrame = walkLeftAnimation.getKeyFrame(time);
+        }
+
+        batch.draw(currentFrame, isFacingRight ? hitBox.x + hitBox.width : hitBox.x , hitBox.y , isFacingRight ? -hitBox.width : hitBox.width, hitBox.height);
     }
 }

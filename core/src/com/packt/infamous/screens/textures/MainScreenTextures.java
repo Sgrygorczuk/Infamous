@@ -12,6 +12,7 @@ public class MainScreenTextures {
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
     public TextureRegion[][] buttonSpriteSheet;
+    public TextureRegion[][] coleSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -27,6 +28,10 @@ public class MainScreenTextures {
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
                 menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
+
+        Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
+        coleSpriteSheet = new TextureRegion(coleTexturePath).split(
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight());
 
     }
 

@@ -155,6 +155,7 @@ class MainScreen extends ScreenAdapter {
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
+        cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet);
 
         /*
         Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
@@ -297,7 +298,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingWater();
         isCollidingRails();
         handleInput();
-        cole.update(tiledSetUp.getLevelWidth());
+        cole.update(tiledSetUp.getLevelWidth(), delta);
     }
 
 
@@ -310,7 +311,7 @@ class MainScreen extends ScreenAdapter {
         handlePause();
         //Allows user to turn on dev mode
         if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) { developerMode = !developerMode; }
-        if (developerMode) { handleDevInputs(); }
+        handleDevInputs();
     }
 
     /**
@@ -520,6 +521,7 @@ class MainScreen extends ScreenAdapter {
         for (DrainableObject drainable : drainables){
             drainable.draw(batch);
         }
+        cole.drawAnimations(batch);
         batch.end();
 
 
