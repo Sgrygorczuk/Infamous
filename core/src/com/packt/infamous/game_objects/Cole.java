@@ -18,7 +18,7 @@ public class Cole extends GenericObject{
     private boolean touchPole = false;
     private boolean ridingPole = false;
 
-    protected Rectangle previousCollisionBox = null;
+    private DrainableObject previousDrainable = null;
     public boolean facingDirection = false; //false = Left, true = right
 
     private boolean isJumping = false;    //Used to tell that it's not touching a platform
@@ -236,7 +236,19 @@ public class Cole extends GenericObject{
      */
     public void setCanDrain(boolean state){this.canDrain = state;}
 
-    //public void drainEnergy(GenericObject ){ }
+    /**
+     * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
+     */
+    public void drainEnergy(){
+        if (!canDrain || previousDrainable.getCurrentEnergy() == 0 || this.maxEnergy == this.currentEnergy) {
+            //Play fail sound
+        }
+
+        else if (this.currentEnergy < this.maxEnergy){
+            int source_energy = previousDrainable.removeEnergy();
+            this.currentEnergy += source_energy;
+        }
+    }
 
 
 
@@ -343,4 +355,19 @@ public class Cole extends GenericObject{
         shapeRenderer.rect(meleeRangeBox.x, meleeRangeBox.y, meleeRangeBox.width, meleeRangeBox.height);
     }
 
+    public boolean isCollidingMelee(Rectangle other) { return this.meleeRangeBox.overlaps(other); }
+
+    public void setPreviousDrainableBox(DrainableObject drainable){
+        previousDrainable = drainable;
+    }
+
+    /**
+     * Purpose: Sets Cole to no longer allow recharge
+     */
+    private void updateDrainableRange(){
+        if (previousDrainable == null || isCollidingMelee(previousDrainable.getHitBox()) == false){
+            canDrain = false;
+            previousDrainable = null;
+        }
+    }
 }

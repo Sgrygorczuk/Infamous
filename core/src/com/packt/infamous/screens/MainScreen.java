@@ -459,10 +459,10 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Check if colliding with a drainable object
      */
     private void isCollidingDrainable(){
-        for (DrainableObject battery : drainables) {
-            if (cole.isColliding(battery.getHitBox())) {
+        for (DrainableObject source : drainables) {
+            if (cole.isCollidingMelee(source.getHitBox())) {
             }
-                System.out.println("Found drainable");
+                cole.setPreviousDrainableBox(source);
                 cole.setCanDrain(true);
                 return;
             }
@@ -503,6 +503,11 @@ class MainScreen extends ScreenAdapter {
         { cole.moveHorizontally(-1); }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
+
+
+        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
+            Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+        { cole.drainEnergy(); }
 
     }
 
