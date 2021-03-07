@@ -283,7 +283,7 @@ public class Cole extends GenericObject{
             hitBox.y = 0;
             velocity.y = 0;
         }
-        else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
+        else if (hitBox.y + hitBox.height >= WORLD_HEIGHT){
             hitBox.y = WORLD_HEIGHT - hitBox.height;
             isFalling = true;
         }

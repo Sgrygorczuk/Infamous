@@ -23,9 +23,10 @@ public class GenericObject {
     protected int currentHealth;
     protected int currentEnergy;
 
+
+    protected Texture texture;
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
-    protected Texture texture;
 
     protected Animation<TextureRegion> walkRightAnimation;
     protected Animation<TextureRegion> walkLeftAnimation;

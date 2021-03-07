@@ -2,6 +2,7 @@ package com.packt.infamous.screens.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class MainScreenTextures {
 
@@ -10,6 +11,7 @@ public class MainScreenTextures {
     public Texture menuBackgroundTexture;   //Pop up menu to show menu buttons and Help screen
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
+    public TextureRegion[][] buttonSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -21,6 +23,11 @@ public class MainScreenTextures {
         menuBackgroundTexture = new Texture(Gdx.files.internal("UI/TestPopUp.png"));
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
+
+        Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
+        buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
+                menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
+
     }
 
 }
