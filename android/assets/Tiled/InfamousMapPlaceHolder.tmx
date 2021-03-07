@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="40" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="53">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="40" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="55">
  <tileset firstgid="1" source="InfamousPlaceHolderTileSet.tsx"/>
  <layer id="3" name="Background" width="40" height="17" visible="0">
   <data encoding="csv">
@@ -72,5 +72,11 @@
  </objectgroup>
  <objectgroup id="4" name="Cole">
   <object id="20" x="32" y="224" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="10" name="ElePhone">
+  <object id="53" x="112.5" y="209" width="16" height="32"/>
+ </objectgroup>
+ <objectgroup id="11" name="EleJunc">
+  <object id="54" x="527" y="127.5" width="16" height="16"/>
  </objectgroup>
 </map>

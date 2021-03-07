@@ -292,7 +292,24 @@ class MainScreen extends ScreenAdapter {
             float height = railDimensions.get(i).y;
             rails.add(new Rail(x, y, width, height,Alignment.BACKGROUND));
         }
-    }
+
+        Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
+        for(int i = 0; i < drainablePositions.size; i++){
+            drainables.add(new DrainableObject(drainablePositions.get(i).x,
+                    drainablePositions.get(i).y, Alignment.BACKGROUND));
+
+            drainables.get(i).setTexture(mainScreenTextures.telephoneBoxTexture);
+        }
+
+        int currDrainableNum = drainables.size;
+        drainablePositions = tiledSetUp.getLayerCoordinates("EleJunc");
+        for(int i = 0; i < drainablePositions.size; i++){
+            drainables.add(new DrainableObject(drainablePositions.get(i).x,
+                    drainablePositions.get(i).y, Alignment.BACKGROUND));
+
+            drainables.get(i+currDrainableNum).setTexture(mainScreenTextures.junctionBoxTexture);
+            }
+        }
 
 
     /**
@@ -345,6 +362,9 @@ class MainScreen extends ScreenAdapter {
         }
         for(Pole pole : poles){
             pole.drawDebug(debugRendering.getShapeRendererBackground());
+        }
+        for(DrainableObject drainable :  drainables){
+            drainable.drawDebug(debugRendering.getShapeRendererBackground());
         }
         debugRendering.endBackgroundRender();
 
@@ -566,6 +586,9 @@ class MainScreen extends ScreenAdapter {
         batch.begin();
         batch.draw(mainScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
+        for (DrainableObject drainable : drainables){
+            drainable.draw(batch);
+        }
         batch.end();
 
 

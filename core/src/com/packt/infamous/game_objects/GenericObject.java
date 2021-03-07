@@ -1,6 +1,8 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -23,6 +25,7 @@ public class GenericObject {
 
     //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
+    protected Texture texture;
 
     protected Animation<TextureRegion> walkRightAnimation;
     protected Animation<TextureRegion> walkLeftAnimation;
@@ -36,6 +39,12 @@ public class GenericObject {
         this.align = aling;
         this.hitBox = new Rectangle(x, y, TILED_WIDTH, TILED_HEIGHT);
         this.velocity = new Vector2(0, 0);
+    }
+
+    public void setTexture(Texture texture){
+        this.texture = texture;
+        this.hitBox.height = texture.getHeight();
+        this.hitBox.width = texture.getWidth();
     }
 
     public void setWidth(float width){hitBox.width = width;}
@@ -87,6 +96,10 @@ public class GenericObject {
      */
     public void drawDebug(ShapeRenderer shapeRenderer) {
         shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+    }
+
+    public void draw(SpriteBatch batch){
+        batch.draw(texture, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 
 }
