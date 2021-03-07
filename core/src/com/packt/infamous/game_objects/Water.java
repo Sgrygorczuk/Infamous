@@ -7,5 +7,4 @@ public class Water extends GenericObject{
     public Water(float x, float y, Alignment alignment){
         super(x, y, alignment);
     }
-
 }

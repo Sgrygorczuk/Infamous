@@ -164,11 +164,11 @@ public class Cole extends GenericObject{
     }
 
     public void touchedWater(){
-        if(currentHealth - 20 > -20){
+        if(currentHealth - 20 > 0){
             currentHealth -= 20;
         }
         else{
-            //Game Over
+            //TODO: Game Over
         }
 
         hitBox.x = lastTouchedGroundX;

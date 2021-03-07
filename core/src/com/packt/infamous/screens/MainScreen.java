@@ -28,6 +28,7 @@ import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
+import com.packt.infamous.game_objects.Rail;
 import com.packt.infamous.game_objects.Water;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
@@ -106,6 +107,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Water> waters = new Array<>();
     private final Array<Pole> poles = new Array<>();
     private final Array<DrainableObject> drainables = new Array<>();
+    private final Array<Rail> rails = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -281,6 +283,15 @@ class MainScreen extends ScreenAdapter {
             waters.get(i).setHeight(waterDimensions.get(i).y);
         }
 
+        Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
+        Array<Vector2> railDimensions = tiledSetUp.getLayerCoordinates("Rail");
+        for(int i = 0; i < railPositions.size; i++){
+            float x = railPositions.get(i).x;
+            float y = railPositions.get(i).y;
+            float width = railDimensions.get(i).x;
+            float height = railDimensions.get(i).y;
+            rails.add(new Rail(x, y, width, height,Alignment.BACKGROUND));
+        }
     }
 
 
@@ -365,6 +376,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingPoleEnd();
         isCollidingDrainable();
         isCollidingWater();
+        isCollidingRails();
         handleInput();
         cole.update(tiledSetUp.getLevelWidth());
     }
@@ -454,6 +466,19 @@ class MainScreen extends ScreenAdapter {
                 cole.setCanDrain(true);
                 return;
             }
+    }
+
+    /**
+     * Purpose: Check if Cole is on rails
+     */
+    private void isCollidingRails(){
+        boolean hasGround = false;
+        for (Rail rail : rails){
+            if(rail.rideRail(cole)){
+                hasGround = true;
+            }
+        }
+
     }
 
     /**
