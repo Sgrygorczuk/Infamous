@@ -5,16 +5,14 @@ import com.packt.infamous.Alignment;
 public class DrainableObject extends GenericObject{
     public DrainableObject(float x, float y, Alignment alignment) {
         super(x, y , alignment);
-        currentEnergy = 10000;
+        maxEnergy = currentEnergy = 10000;
     }
 
-    public float getEnergy(){
-        return currentEnergy;
-    }
-
-    //TODO: Drain energy slowly
-    public float alterEnergy(int amount){
-        currentEnergy -= amount;
-        return 0;
+    public int removeEnergy() {
+        if (this.currentEnergy > 0) {
+            currentEnergy -= 10;
+            return 10;
+        }
+        else { return 0; } //Play fail sound
     }
 }
