@@ -164,11 +164,11 @@ public class Cole extends GenericObject{
     }
 
     public void touchedWater(){
-        if(currentHealth - 20 > -20){
+        if(currentHealth - 20 > 0){
             currentHealth -= 20;
         }
         else{
-            //Game Over
+            //TODO: Game Over
         }
 
         hitBox.x = lastTouchedGroundX;
@@ -240,13 +240,21 @@ public class Cole extends GenericObject{
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
     public void drainEnergy(){
-        if (!canDrain || previousDrainable.getCurrentEnergy() == 0 || this.maxEnergy == this.currentEnergy) {
+        if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
         }
 
-        else if (this.currentEnergy < this.maxEnergy){
+        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
             int source_energy = previousDrainable.removeEnergy();
-            this.currentEnergy += source_energy;
+
+            if (this.currentEnergy < this.maxEnergy){
+                this.currentEnergy += source_energy;
+            }
+
+            if (this.currentHealth < this.maxHealth){
+                this.currentHealth += source_energy;
+            }
+
         }
     }
 
@@ -344,7 +352,7 @@ public class Cole extends GenericObject{
         }
         //Creates a second rectangle that's a little below Cole to see if there is any
         //Platform below him
-        Rectangle fallCheckBox = new Rectangle(hitBox.x, hitBox.y - 1, hitBox.width, hitBox.height);
+        Rectangle fallCheckBox = new Rectangle(hitBox.x, hitBox.y - 1, hitBox.width, hitBox.height * 0.1f);
         return fallCheckBox.overlaps(rectangle);
     }
 

@@ -28,6 +28,7 @@ import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Pole;
+import com.packt.infamous.game_objects.Rail;
 import com.packt.infamous.game_objects.Water;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
@@ -106,6 +107,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Water> waters = new Array<>();
     private final Array<Pole> poles = new Array<>();
     private final Array<DrainableObject> drainables = new Array<>();
+    private final Array<Rail> rails = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -281,7 +283,33 @@ class MainScreen extends ScreenAdapter {
             waters.get(i).setHeight(waterDimensions.get(i).y);
         }
 
-    }
+        Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
+        Array<Vector2> railDimensions = tiledSetUp.getLayerCoordinates("Rail");
+        for(int i = 0; i < railPositions.size; i++){
+            float x = railPositions.get(i).x;
+            float y = railPositions.get(i).y;
+            float width = railDimensions.get(i).x;
+            float height = railDimensions.get(i).y;
+            rails.add(new Rail(x, y, width, height,Alignment.BACKGROUND));
+        }
+
+        Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
+        for(int i = 0; i < drainablePositions.size; i++){
+            drainables.add(new DrainableObject(drainablePositions.get(i).x,
+                    drainablePositions.get(i).y, Alignment.BACKGROUND));
+
+            drainables.get(i).setTexture(mainScreenTextures.telephoneBoxTexture);
+        }
+
+        int currDrainableNum = drainables.size;
+        drainablePositions = tiledSetUp.getLayerCoordinates("EleJunc");
+        for(int i = 0; i < drainablePositions.size; i++){
+            drainables.add(new DrainableObject(drainablePositions.get(i).x,
+                    drainablePositions.get(i).y, Alignment.BACKGROUND));
+
+            drainables.get(i+currDrainableNum).setTexture(mainScreenTextures.junctionBoxTexture);
+            }
+        }
 
 
     /**
@@ -335,6 +363,9 @@ class MainScreen extends ScreenAdapter {
         for(Pole pole : poles){
             pole.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        for(DrainableObject drainable :  drainables){
+            drainable.drawDebug(debugRendering.getShapeRendererBackground());
+        }
         debugRendering.endBackgroundRender();
 
         debugRendering.startCollectibleRender();
@@ -365,6 +396,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingPoleEnd();
         isCollidingDrainable();
         isCollidingWater();
+        isCollidingRails();
         handleInput();
         cole.update(tiledSetUp.getLevelWidth());
     }
@@ -457,6 +489,19 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
+     * Purpose: Check if Cole is on rails
+     */
+    private void isCollidingRails(){
+        boolean hasGround = false;
+        for (Rail rail : rails){
+            if(rail.rideRail(cole)){
+                hasGround = true;
+            }
+        }
+
+    }
+
+    /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
     private void handleDevInputs(){
@@ -541,6 +586,9 @@ class MainScreen extends ScreenAdapter {
         batch.begin();
         batch.draw(mainScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
+        for (DrainableObject drainable : drainables){
+            drainable.draw(batch);
+        }
         batch.end();
 
 
