@@ -414,7 +414,8 @@ class MainScreen extends ScreenAdapter {
             PlayerProjectile proj = projectiles.get(i);
             boolean removeProjectile = false;
             //If projectile is no longer moving, or collided with world barrier
-            if (proj.getVelocity().x == 0 || proj.getVelocity().y == 0 || proj.isTouchingCeiling()){
+            if (proj.getVelocity().x == 0 && proj.getVelocity().y == 0 ||
+                    proj.isTouchingCeiling()){
                 removeProjectile = true;
             }
             else {
@@ -449,12 +450,13 @@ class MainScreen extends ScreenAdapter {
     }
 
     private void createProjectile(){
-        int direction = 1;
-        if (!cole.facingDirection){
-            direction = -1;
+        int direction = -1;
+        if (!cole.getIsFacingRight()){
+            direction = 1;
         }
-        projectiles.add(new PlayerProjectile(cole.getX(), cole.getY(), Alignment.PLAYER,
+        projectiles.add(new PlayerProjectile(cole.getX(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                 1, 1, direction));
+        System.out.println(projectiles.size);
     }
 
 

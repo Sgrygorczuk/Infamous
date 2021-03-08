@@ -397,4 +397,8 @@ public class Cole extends GenericObject{
 
         batch.draw(currentFrame, isFacingRight ? hitBox.x + hitBox.width : hitBox.x , hitBox.y , isFacingRight ? -hitBox.width : hitBox.width, hitBox.height);
     }
+
+    public boolean getIsFacingRight(){
+        return isFacingRight;
+    }
 }
