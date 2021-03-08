@@ -13,6 +13,7 @@ public class MainScreenTextures {
     public Texture telephoneBoxTexture;
     public TextureRegion[][] buttonSpriteSheet;
     public TextureRegion[][] coleSpriteSheet;
+    public TextureRegion[][] drainSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -31,7 +32,11 @@ public class MainScreenTextures {
 
         Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
         coleSpriteSheet = new TextureRegion(coleTexturePath).split(
-                coleTexturePath.getWidth()/4, coleTexturePath.getHeight());
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/2);
+
+        Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
+        drainSpriteSheet = new TextureRegion(drainTexturePath).split(
+                drainTexturePath.getWidth()/2, drainTexturePath.getHeight());
 
     }
 

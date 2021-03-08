@@ -39,16 +39,19 @@ public class GenericObject {
     protected boolean touchedCeiling;
 
 
-    GenericObject(float x , float y, Alignment align){
+    public GenericObject(float x , float y, Alignment align){
         this.align = align;
         this.hitBox = new Rectangle(x, y, TILED_WIDTH, TILED_HEIGHT);
         this.velocity = new Vector2(0, 0);
     }
 
+    public GenericObject() {
+    }
+
     public void setTexture(Texture texture){
         this.texture = texture;
-        this.hitBox.height = texture.getHeight();
-        this.hitBox.width = texture.getWidth();
+        this.hitBox.height = texture.getHeight()/2f;
+        this.hitBox.width = texture.getWidth()/2f;
     }
 
     public void setWidth(float width){hitBox.width = width;}
@@ -60,6 +63,8 @@ public class GenericObject {
     public float getX(){return hitBox.x;}
 
     public float getY(){return hitBox.y;}
+
+    public float getWidth(){return hitBox.width;}
 
     public void setY(float y){hitBox.y = y;}
 
@@ -82,12 +87,12 @@ public class GenericObject {
      * Purpose: Sets up the animation loops in all of the directions
      */
     protected void setUpAnimations() {
-        walkRightAnimation = setUpAnimation(1/animationFrameTime, 0, Animation.PlayMode.LOOP);
-        walkLeftAnimation = setUpAnimation(1/animationFrameTime, 0, Animation.PlayMode.LOOP_REVERSED);
+        walkRightAnimation = setUpAnimation(spriteSheet, 1/animationFrameTime, 0, Animation.PlayMode.LOOP);
+        walkLeftAnimation = setUpAnimation(spriteSheet, 1/animationFrameTime, 0, Animation.PlayMode.LOOP_REVERSED);
     }
 
-    private Animation<TextureRegion> setUpAnimation(float duration, int row, Animation.PlayMode playMode){
-        Animation<TextureRegion> animation = new Animation<>(duration, this.spriteSheet[row]);
+    protected Animation<TextureRegion> setUpAnimation(TextureRegion[][] textureRegion, float duration, int row, Animation.PlayMode playMode){
+        Animation<TextureRegion> animation = new Animation<>(duration, textureRegion[row]);
         animation.setPlayMode(playMode);
         return animation;
     }
@@ -95,16 +100,6 @@ public class GenericObject {
 
     public boolean isColliding(Rectangle other) { return this.hitBox.overlaps(other); }
 
-    /**
-     * Purpose: Draws the circle on the screen using render
-     */
-    public void drawDebug(ShapeRenderer shapeRenderer) {
-        shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
-    }
-
-    public void draw(SpriteBatch batch){
-        batch.draw(texture, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
-    }
 
     /**
      * Purpose: Keeps Object within the level
@@ -137,5 +132,16 @@ public class GenericObject {
     }
 
     public boolean isTouchingCeiling(){ return touchedCeiling;}
+
+    /**
+     * Purpose: Draws the circle on the screen using render
+     */
+    public void drawDebug(ShapeRenderer shapeRenderer) {
+        shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+    }
+
+    public void draw(SpriteBatch batch){
+        batch.draw(texture, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+    }
 
 }
