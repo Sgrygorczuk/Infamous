@@ -310,16 +310,10 @@ public class Cole extends GenericObject{
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
     public void drainEnergy(){
-<<<<<<< Updated upstream
-        if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)){
-=======
-        if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
-            //Play fail sound
-            isDraining = false;
+        if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
         }
         else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
             isDraining = true;
->>>>>>> Stashed changes
             int source_energy = previousDrainable.removeEnergy();
 
             if (this.currentEnergy < this.maxEnergy){
@@ -330,11 +324,8 @@ public class Cole extends GenericObject{
                 this.currentHealth += source_energy;
             }
         }
-        else {
+        else { isDraining = false; }
             //Play fail sound
-        }
-        else{ isDraining = false; }
-
     }
 
 
