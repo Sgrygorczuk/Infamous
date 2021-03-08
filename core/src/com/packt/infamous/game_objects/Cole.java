@@ -310,24 +310,26 @@ public class Cole extends GenericObject{
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
     public void drainEnergy(){
-        if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
-        }
-        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
-            isDraining = true;
-            int source_energy = previousDrainable.removeEnergy();
-
-            if (this.currentEnergy < this.maxEnergy){
-                this.currentEnergy += source_energy;
-            }
-
-            if (this.currentHealth < this.maxHealth){
-                this.currentHealth += source_energy;
-            }
-        }
-        else { isDraining = false; }
+        if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
-    }
+        }
 
+        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
+            if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)){
+                int source_energy = previousDrainable.removeEnergy();
+
+                if (this.currentEnergy < this.maxEnergy){
+                    //@@ -271,7 +268,9 @@ else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHea
+                    if (this.currentHealth < this.maxHealth){
+                        this.currentHealth += source_energy;
+                    }
+
+                }
+                else {
+                    //Play fail sound
+                }
+            }
+    }
 
 
     /* ============================ Utility Functions =========================== */

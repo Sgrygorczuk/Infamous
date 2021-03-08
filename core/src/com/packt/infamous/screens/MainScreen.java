@@ -9,10 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-<<<<<<< Updated upstream
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-=======
->>>>>>> Stashed changes
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -320,10 +316,6 @@ class MainScreen extends ScreenAdapter {
     private void handlePause(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             pausedFlag = !pausedFlag;
-<<<<<<< Updated upstream
-//            for (ImageButton imageButton : menuButtons) { imageButton.setVisible(true); }
-=======
->>>>>>> Stashed changes
         }
     }
 
@@ -457,11 +449,8 @@ class MainScreen extends ScreenAdapter {
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
-<<<<<<< Updated upstream
-        projectiles.add(new Projectile(cole.getX(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-=======
-        projectiles.add(new PlayerProjectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
->>>>>>> Stashed changes
+
+        projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                 1, 1, direction));
         System.out.println(projectiles.size);
     }
