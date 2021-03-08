@@ -1,6 +1,7 @@
 package com.packt.infamous.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -27,6 +28,7 @@ import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
 import static com.packt.infamous.Const.MENU_BUTTON_FONT;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
+import static com.packt.infamous.Const.NUM_BUTTONS_MENU_SCREEN;
 import static com.packt.infamous.Const.TEXT_OFFSET;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
@@ -42,11 +44,6 @@ public class MenuScreen extends ScreenAdapter{
     private SpriteBatch batch = new SpriteBatch();
     private Viewport viewport;
     private Camera camera;
-
-    //=================================== Buttons ==================================================
-    private Stage menuStage;
-    private ImageButton[] menuButtons;
-    private ImageButton backButton;
 
     //===================================== Tools ==================================================
     private MusicControl musicControl;
@@ -66,6 +63,7 @@ public class MenuScreen extends ScreenAdapter{
     //String used on the buttons
     private final String[] buttonText = new String[]{"Play", "Help", "Credits"};
     private float backButtonY = 10;
+    private int buttonIndex = 0;    //Tells us which button we're currently looking at
 
     //================================ Set Up ======================================================
 
@@ -91,7 +89,6 @@ public class MenuScreen extends ScreenAdapter{
     public void show() {
         showCamera();           //Sets up camera through which objects are draw through
         menuScreenTextures = new MenuScreenTextures();
-        showButtons();          //Sets up the buttons
         showObjects();          //Sets up the font
         musicControl.showMusic(0);
     }
@@ -104,104 +101,6 @@ public class MenuScreen extends ScreenAdapter{
         camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
         camera.update();
         viewport = new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
-    }
-
-    /**
-     * Purpose: Sets up the button
-     */
-    private void showButtons(){
-        menuStage = new Stage(new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT));
-        Gdx.input.setInputProcessor(menuStage); //Give power to the menuStage
-
-        setUpMainButtons(); //Places the three main Play|Help|Credits buttons on the screen
-        setUpExitButton();  //Palaces the exit button that leaves the Help and Credits menus
-    }
-
-    /**
-     * Purpose: Sets main three main Play|Help|Credits buttons on the screen
-    */
-    private void setUpMainButtons(){
-        //Set up all the buttons used by the stage
-        menuButtons = new ImageButton[3];
-
-        //Get the textures of the buttons
-        Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
-        TextureRegion[][] buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
-                menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
-
-        //Places the three main Play|Help|Credits buttons on the screen
-        for(int i = 0; i < 3; i ++){
-            menuButtons[i] =  new ImageButton(new TextureRegionDrawable(buttonSpriteSheet[0][0]), new TextureRegionDrawable(buttonSpriteSheet[0][1]));
-            menuButtons[i].setPosition(20, 2*WORLD_HEIGHT/3 - (MENU_BUTTON_HEIGHT + 10) * i);
-            menuButtons[i].setWidth(MENU_BUTTON_WIDTH);
-            menuButtons[i].setHeight(MENU_BUTTON_HEIGHT);
-            menuStage.addActor(menuButtons[i]);
-
-            final int finalI = i;
-            menuButtons[i].addListener(new ActorGestureListener() {
-                @Override
-                public void tap(InputEvent event, float x, float y, int count, int button) {
-                    super.tap(event, x, y, count, button);
-                    musicControl.playSFX(0);
-                    //Launches the game
-                    if(finalI == 0){
-                        musicControl.playSFX(0);
-                        infamous.setScreen(new LoadingScreen(infamous, 1));
-                    }
-                    //Turns on the help menu
-                    else if(finalI == 1){
-                        for (ImageButton imageButton : menuButtons) { imageButton.setVisible(false); }
-                        helpFlag = true;
-                        backButton.setVisible(true);
-                        //The button moves to different place for help and credits menu
-                        backButtonY = 40;
-                        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-                    }
-                    //Turns on the credits menu
-                    else{
-                        for (ImageButton imageButton : menuButtons) { imageButton.setVisible(false); }
-                        creditsFlag = true;
-                        backButton.setVisible(true);
-                        //The button moves to different place for help and credits menu
-                        backButtonY = 10;
-                        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Purpose: Turn off the credits or heap menu
-     */
-    private void setUpExitButton(){
-        //Sets up the texture
-        Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
-        TextureRegion[][] buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
-                menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
-
-        //Sets up the position
-        backButton = new ImageButton(new TextureRegionDrawable(buttonSpriteSheet[0][0]), new TextureRegionDrawable(buttonSpriteSheet[0][1]));
-        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-        backButton.setWidth(MENU_BUTTON_WIDTH);
-        backButton.setHeight(MENU_BUTTON_HEIGHT);
-        menuStage.addActor(backButton);
-        backButton.setVisible(false);
-        //Sets up to turn of the help menu if clicked
-        backButton.addListener(new ActorGestureListener() {
-            @Override
-            public void tap(InputEvent event, float x, float y, int count, int button) {
-                super.tap(event, x, y, count, button);
-                musicControl.playSFX(0);
-                helpFlag = false;
-                creditsFlag = false;
-                //Turn on all buttons but turn off this one
-                for (ImageButton imageButton : menuButtons) {
-                    imageButton.setVisible(true);
-                }
-                backButton.setVisible(false);
-            }
-        });
     }
 
     /**
@@ -222,26 +121,63 @@ public class MenuScreen extends ScreenAdapter{
      */
     @Override
     public void render(float delta) {
-        update(delta);       //Update the variables
+        update();       //Update the variables
         draw();
     }
 
     /**
      Purpose: Updates all the moving components and game variables
-     Input: @delta - timing variable
      */
-    private void update(float delta){
-        updateCamera();
-    }
-
+    private void update() { inputHandling(); }
 
     /**
-     * Purpose: Resize the menuStage viewport in case the screen gets resized (Desktop)
-     *          Moving the camera if that's part of the game
+     * Purpose: Allow user to navigate the menus
      */
-    public void updateCamera() {
-        //Resize the menu Stage if the screen changes size
-        menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+    private void inputHandling(){
+        if(!creditsFlag && !helpFlag) {
+            //Movement Vertically
+            if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                buttonIndex--;
+                if (buttonIndex <= -1) {
+                    buttonIndex = NUM_BUTTONS_MENU_SCREEN - 1;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                buttonIndex++;
+                if (buttonIndex >= NUM_BUTTONS_MENU_SCREEN) {
+                    buttonIndex = 0;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                //Launches the game
+                if (buttonIndex == 0) {
+                    musicControl.playSFX(0);
+                    infamous.setScreen(new LoadingScreen(infamous, 1));
+                }
+                //Turns on the help menu
+                else if (buttonIndex == 1) {
+                    helpFlag = true;
+                }
+                //Turns on the credits menu
+                else {
+                    creditsFlag = true;
+                }
+            }
+        }
+        else if(creditsFlag && !helpFlag){
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                creditsFlag = false;
+                backButtonY = 40;
+                }
+            }
+        else{
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                helpFlag = false;
+                backButtonY = 10;
+            }
+        }
     }
 
     //========================================== Drawing ===========================================
@@ -259,20 +195,19 @@ public class MenuScreen extends ScreenAdapter{
         batch.draw(menuScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         //Draw the pop up menu
         if(helpFlag  || creditsFlag){batch.draw(menuScreenTextures.menuBackgroundTexture, 10, 10, WORLD_WIDTH - 20, WORLD_HEIGHT-20);}
-        batch.end();
-
-        menuStage.draw(); // Draws the buttons
-
-        batch.begin();
         //Draws the Play|Help|Credits text on buttons
-        if(!helpFlag && !creditsFlag){drawButtonText();}
-        //Draws the Help Text
+        if(!helpFlag && !creditsFlag){
+            drawMainButtons();
+            drawButtonText();
+        }
         else if(helpFlag){
+            drawBackButton();
             drawInstructions();
             drawBackButtonText();
         }
         //Draws the credits text
         else{
+            drawBackButton();
             drawCredits();
             drawBackButtonText();
         }
@@ -288,13 +223,32 @@ public class MenuScreen extends ScreenAdapter{
     }
 
     /**
+     * Purpose: Draws the main buttons on the screen
+     */
+    private void drawMainButtons(){
+        for(int i = 0; i < NUM_BUTTONS_MENU_SCREEN; i++){
+            if(i == buttonIndex){
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], 10, 2*WORLD_HEIGHT/3 - 15 - (MENU_BUTTON_HEIGHT + 15) * i, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+            }
+            else{
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][0], 10, 2*WORLD_HEIGHT/3 - 15 - (MENU_BUTTON_HEIGHT + 15) * i, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+            }
+        }
+    }
+
+    private void drawBackButton(){
+        batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], WORLD_WIDTH/2f - menuScreenTextures.buttonSpriteSheet[0][1].getRegionWidth()/2f - 8, backButtonY, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+
+    }
+
+    /**
      * Purpose: Draws the text on the Play|Help|Credits buttons
     */
     private void drawButtonText(){
         bitmapFont.getData().setScale(MENU_BUTTON_FONT);
         for(int i = 0; i < 3; i ++) {
-            textAlignment.centerText(batch, bitmapFont, buttonText[i], 20 + MENU_BUTTON_WIDTH/2f,
-                    2*WORLD_HEIGHT/3 + 0.65f * MENU_BUTTON_HEIGHT - (MENU_BUTTON_HEIGHT + 10) * i);
+            textAlignment.centerText(batch, bitmapFont, buttonText[i], 10 + MENU_BUTTON_WIDTH/2f,
+                    2*WORLD_HEIGHT/3 + 0.65f * MENU_BUTTON_HEIGHT - 15 - (MENU_BUTTON_HEIGHT + 15) * i);
         }
     }
 
@@ -351,6 +305,5 @@ public class MenuScreen extends ScreenAdapter{
     */
     @Override
     public void dispose() {
-        menuStage.dispose();
     }
 }
