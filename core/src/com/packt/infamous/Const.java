@@ -49,4 +49,7 @@ public final class Const{
     public static final float FRICTION = 0.5f;
     public static final float MAX_VELOCITY = 3f;
 
+    //======================== Weapon Speed ===========================
+    public static final float BOLT_SPEED = 1f;
+    public static final int BOLT_DAMAGE =  1;
 }

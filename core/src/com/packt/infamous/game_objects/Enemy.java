@@ -1,20 +1,19 @@
 package com.packt.infamous.game_objects;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.packt.infamous.Alignment;
 
-public class Enemy {
-    public Rectangle hitbox;
-    protected int health;
-    protected int ammo;
+public class Enemy extends  GenericObject{
+    protected int ammo = 0;
     protected float reloading = 0;
     protected static float reloadTime = 3f;
     protected static float shooting = 0;
     protected static float shootTime = 1f;
 
 
-    public Enemy(float x, float y, int width, int height){
-        hitbox = new Rectangle(x, y, width, height);
-        health = 100;
+    public Enemy(float x, float y, Alignment alignment){
+        super(x, y, alignment);
+        currentHealth = maxHealth = 100;
         ammo = 10;
     }
 

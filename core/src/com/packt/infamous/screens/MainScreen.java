@@ -25,8 +25,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
+import com.packt.infamous.game_objects.Enemy;
 import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.PlayerProjectile;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.game_objects.Rail;
 import com.packt.infamous.game_objects.Water;
@@ -108,6 +110,8 @@ class MainScreen extends ScreenAdapter {
     private final Array<Pole> poles = new Array<>();
     private final Array<DrainableObject> drainables = new Array<>();
     private final Array<Rail> rails = new Array<>();
+    private final Array<Enemy> enemies = new Array<>();
+    private final Array<PlayerProjectile> projectiles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -345,6 +349,7 @@ class MainScreen extends ScreenAdapter {
     private void debugRender(){
         debugRendering.startEnemyRender();
         for(Water water : waters){ water.drawDebug(debugRendering.getShapeRenderEnemy()); }
+        for(PlayerProjectile proj : projectiles){ proj.drawDebug(debugRendering.getShapeRenderEnemy()); }
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
@@ -397,6 +402,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingDrainable();
         isCollidingWater();
         isCollidingRails();
+        updateProjectiles(tiledSetUp.getLevelWidth());
         handleInput();
         cole.update(tiledSetUp.getLevelWidth());
     }
@@ -480,7 +486,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void isCollidingDrainable(){
         for (DrainableObject source : drainables) {
-            if (cole.isCollidingMelee(source.getHitBox())) {
+            if (cole.isCollidingMelee(source.getHitBox()) && source.getCurrentEnergy() > 0) {
             }
                 cole.setPreviousDrainableBox(source);
                 cole.setCanDrain(true);
@@ -498,8 +504,59 @@ class MainScreen extends ScreenAdapter {
                 hasGround = true;
             }
         }
-
     }
+
+    /**
+     * Purpose: Checks for collision between enemies and player-made projectiles
+     */
+    private void processProjectileCollision(){
+        for (int i = 0; i < projectiles.size; i++){
+            PlayerProjectile proj = projectiles.get(i);
+            boolean removeProjectile = false;
+            //If projectile is no longer moving, or collided with world barrier
+            if (proj.getVelocity().x == 0 || proj.getVelocity().y == 0 || proj.isTouchingCeiling()){
+                removeProjectile = true;
+            }
+            else {
+                //Check if Projectile is colliding with an enemy
+                for (Enemy enemy : enemies){
+                    if (proj.isColliding(enemy.getHitBox())){
+                        removeProjectile = true;
+                        enemy.takeDamage(proj.getDamage());
+                    }
+                }
+            }
+            if (removeProjectile){
+                if (proj.isExplosive()){
+                    //Explode
+                }
+                projectiles.removeValue(proj, true);
+            }
+        }
+    }
+
+    //========================= Player-Attack Related =========================
+
+    /**
+     * Purpose: Updates projectile position each tick, processes collisions from projectiles
+     * @param levelWidth the end of the level
+     */
+    private void updateProjectiles(float levelWidth){
+        processProjectileCollision();
+        for (PlayerProjectile proj : projectiles){
+            proj.update(levelWidth);
+        }
+    }
+
+    private void createProjectile(){
+        int direction = 1;
+        if (!cole.facingDirection){
+            direction = -1;
+        }
+        projectiles.add(new PlayerProjectile(cole.getX(), cole.getY(), Alignment.PLAYER,
+                1, 1, direction));
+    }
+
 
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
@@ -526,8 +583,18 @@ class MainScreen extends ScreenAdapter {
 
 
         if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
-            Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+                Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
         { cole.drainEnergy(); }
+
+
+        else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
+            cole.attack();
+            if (cole.isAttacking){
+                createProjectile();
+                cole.isAttacking = false;
+            }
+        }
+
 
     }
 

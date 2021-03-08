@@ -11,6 +11,7 @@ import com.packt.infamous.Alignment;
 
 import static com.packt.infamous.Const.TILED_HEIGHT;
 import static com.packt.infamous.Const.TILED_WIDTH;
+import static com.packt.infamous.Const.WORLD_HEIGHT;
 
 public class GenericObject {
 
@@ -34,9 +35,11 @@ public class GenericObject {
     protected float animationRightTime = 0;
     protected float animationLeftTime = 0;
 
+    protected boolean touchedCeiling;
 
-    GenericObject(float x , float y, Alignment aling){
-        this.align = aling;
+
+    GenericObject(float x , float y, Alignment align){
+        this.align = align;
         this.hitBox = new Rectangle(x, y, TILED_WIDTH, TILED_HEIGHT);
         this.velocity = new Vector2(0, 0);
     }
@@ -101,5 +104,37 @@ public class GenericObject {
     public void draw(SpriteBatch batch){
         batch.draw(texture, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
+
+    /**
+     * Purpose: Keeps Object within the level
+     * @param levelWidth tells where the map ends
+     */
+    protected void checkIfWorldBound(float levelWidth) {
+        //Makes sure we're bound by x
+        if (hitBox.x < 0) {
+            hitBox.x = 0;
+            velocity.x = 0;
+        }
+        else if (hitBox.x + hitBox.width > levelWidth) {
+            hitBox.x = (int) (levelWidth - hitBox.width);
+            velocity.x = 0;
+        }
+
+        //Makes sure that we stop moving down when we hit the ground
+        if (hitBox.y < 0) {
+            hitBox.y = 0;
+            velocity.y = 0;
+        }
+        else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
+            hitBox.y = WORLD_HEIGHT - hitBox.height;
+            touchedCeiling = true;
+        }
+    }
+
+    public void takeDamage(float damage){
+        currentHealth -= damage;
+    }
+
+    public boolean isTouchingCeiling(){ return touchedCeiling;}
 
 }

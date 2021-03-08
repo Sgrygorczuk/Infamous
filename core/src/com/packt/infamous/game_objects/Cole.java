@@ -36,6 +36,7 @@ public class Cole extends GenericObject{
     private int attackIndex = 0;
 
     private boolean canDrain = false;
+    public boolean isAttacking = false;
 
     /* =========================== Movement Variables =========================== */
 
@@ -79,7 +80,7 @@ public class Cole extends GenericObject{
      * @param levelWidth the end of the level
      */
     public void update(float levelWidth){
-        checkIfWorldBound(levelWidth);
+        assertWorldBound(levelWidth);
 
         if(!ridingPole){
             updateVelocityY();
@@ -165,7 +166,7 @@ public class Cole extends GenericObject{
 
     public void touchedWater(){
         if(currentHealth - 20 > 0){
-            currentHealth -= 20;
+           takeDamage(20);
         }
         else{
             //TODO: Game Over
@@ -209,18 +210,15 @@ public class Cole extends GenericObject{
 
     /* ============================ Combat Functions =========================== */
 
-    //TODO: Make attack work, switch between Melee and  Bolt
+    /**
+     * Purpose: Sets isAttacking to true, allows MainScreen to create projectile instance
+     */
     public void attack(){
+        //If out of melee range, projectile: uses energy
         if (currentEnergy > 0){
+            currentEnergy -= 5;
+            isAttacking = true;
         }
-    }
-
-    public void attackMelee(){
-
-    }
-
-    public void attackBolt(){
-
     }
 
     public void updateAttackIndex(){
@@ -267,26 +265,9 @@ public class Cole extends GenericObject{
      * Purpose: Keeps Cole within the level
      * @param levelWidth tells where the map ends
      */
-    private void checkIfWorldBound(float levelWidth) {
-        //Makes sure we're bound by x
-        if (hitBox.x < 0) {
-            hitBox.x = 0;
-            velocity.x = 0;
-        }
-        else if (hitBox.x + hitBox.width > levelWidth) {
-            hitBox.x = (int) (levelWidth - hitBox.width);
-            velocity.x = 0;
-        }
-
-        //Makes sure that we stop moving down when we hit the ground
-        if (hitBox.y < 0) {
-            hitBox.y = 0;
-            velocity.y = 0;
-        }
-        else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
-            hitBox.y = WORLD_HEIGHT - hitBox.height;
-            isFalling = true;
-        }
+    private void assertWorldBound(float levelWidth) {
+        checkIfWorldBound(levelWidth);
+        if (touchedCeiling) {isFalling = true; touchedCeiling = false;}
     }
 
     /**
