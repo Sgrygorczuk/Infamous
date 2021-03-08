@@ -9,7 +9,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+<<<<<<< Updated upstream
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+=======
+>>>>>>> Stashed changes
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -151,7 +154,7 @@ class MainScreen extends ScreenAdapter {
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
-        cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet);
+        cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet);
 
         /*
         Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
@@ -212,7 +215,6 @@ class MainScreen extends ScreenAdapter {
     */
     private void showObjects(){
         debugRendering = new DebugRendering(camera);
-        debugRendering.setShapeRendererUserShapeType(ShapeRenderer.ShapeType.Filled);
         musicControl = new MusicControl(infamous.getAssetManager());
 
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
@@ -309,7 +311,7 @@ class MainScreen extends ScreenAdapter {
         handlePause();
         //Allows user to turn on dev mode
         if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) { developerMode = !developerMode; }
-        handleDevInputs();
+        handleInputs();
     }
 
     /**
@@ -318,7 +320,10 @@ class MainScreen extends ScreenAdapter {
     private void handlePause(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             pausedFlag = !pausedFlag;
+<<<<<<< Updated upstream
 //            for (ImageButton imageButton : menuButtons) { imageButton.setVisible(true); }
+=======
+>>>>>>> Stashed changes
         }
     }
 
@@ -331,7 +336,10 @@ class MainScreen extends ScreenAdapter {
         for (int i = 0; i < platforms.size; i++) {
            if(cole.updateCollision(platforms.get(i).getHitBox())){
                hasGround = true;                //Tells us that he's standing
-               cole.setLastTouchedGround();     //Saves that position for respawn
+               if(cole.getX() >= platforms.get(i).getX()
+                       && cole.getX() + cole.getWidth() <= platforms.get(i).getX() + platforms.get(i).getWidth()) {
+                   cole.setLastTouchedGround();     //Saves that position for respawn
+               }
            }
         }
         //If there is no ground below Cole he should fall
@@ -449,7 +457,11 @@ class MainScreen extends ScreenAdapter {
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
+<<<<<<< Updated upstream
         projectiles.add(new Projectile(cole.getX(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+=======
+        projectiles.add(new PlayerProjectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+>>>>>>> Stashed changes
                 1, 1, direction));
         System.out.println(projectiles.size);
     }
@@ -458,22 +470,19 @@ class MainScreen extends ScreenAdapter {
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
-    private void handleDevInputs(){
+    private void handleInputs(){
         //Movement Vertically
         if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
                 Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.jump();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            cole.setDucking(true);
-        }
-        else{ cole.setDucking(false);}
+        cole.setDucking(!cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)));
 
         //Movement Horizontally
-        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
         { cole.moveHorizontally(1); }
-        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
         { cole.moveHorizontally(-1); }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }

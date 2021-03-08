@@ -29,11 +29,17 @@ public class Cole extends GenericObject{
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
     private boolean isFacingRight = true; //
+    private boolean isDraining = false;
+    private boolean invincibilityFlag = false;
+    protected boolean flashing = false;
     private float initialY;               //Where the jump starts from
 
     private float lastTouchedGroundX;
     private float lastTouchedGroundY;
 
+    protected TextureRegion[][] drainingParticleEffectSpriteSheet;
+    protected Animation<TextureRegion> drainingParticleEffectAnimation;
+    protected float drainingParticleEffectTime = 0;
 
     private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
 
@@ -43,6 +49,14 @@ public class Cole extends GenericObject{
     private boolean canDrain = false;
     public boolean isAttacking = false;
 
+    //Timer counting down until player can be hit again
+    private static final float INVINCIBILITY_TIME = 0.5F;
+    private float invincibilityTimer = INVINCIBILITY_TIME;
+
+    //Timer counting down until we turn the draw function on/Off
+    private static final float FLASHING_TIME = 0.1F;
+    private float flashingTimer = FLASHING_TIME;
+
     /* =========================== Movement Variables =========================== */
 
     protected float yAccel;     //value of jump speed
@@ -51,7 +65,6 @@ public class Cole extends GenericObject{
     protected float xMaxVel;    //maximum x velocity allowed
 
     //============================ Constructor ========================================
-
 
     public Cole(float x, float y, Alignment alignment) {
         super(x, y, alignment);
@@ -69,10 +82,14 @@ public class Cole extends GenericObject{
         meleeRangeBox = new Rectangle(hitBox.x - hitBox.width, hitBox.y, hitBox.width * 3, hitBox.height * 2);
     }
 
-    public void setUpSpriteSheet(TextureRegion[][] textureRegions){
+
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] chargeTexture){
         this.spriteSheet = textureRegions;
+        this.drainingParticleEffectSpriteSheet = chargeTexture;
         setUpAnimations();
+        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/2f,0, Animation.PlayMode.LOOP_PINGPONG);
     }
+
 
     /**
      * Purpose: Sets up all the attacks that are available to Cole
@@ -107,12 +124,15 @@ public class Cole extends GenericObject{
             isFacingRight = true;
         }
 
+        if(isDraining){ drainingParticleEffectTime += delta; }
+
         updateDucking();
 
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
 
         //Follow the hitBox
+        meleeRangeBox.height = hitBox.height;
         meleeRangeBox.x = hitBox.x - hitBox.width;
         meleeRangeBox.y = hitBox.y;
     }
@@ -177,6 +197,16 @@ public class Cole extends GenericObject{
      */
     public boolean getIsJumping(){return isJumping;}
 
+    /**
+     * Purpose: If cole is doing something that stops him from walking, it disables users
+     * ability to move
+     * @return tells us if Cole can move
+     */
+    public boolean canColeMove(){
+        if(isDucking){ return false; }
+        else { return true; }
+    }
+
     //================================== Respawn ========================================
 
     public void setLastTouchedGround(){
@@ -230,6 +260,28 @@ public class Cole extends GenericObject{
 
     /* ============================ Combat Functions =========================== */
 
+
+    /**
+     Input: Float delta
+     Output: Void
+     Purpose: Ticks down to turn off invincibility
+     */
+    public void invincibilityTimer(float delta){
+        invincibilityTimer -= delta;
+        flashingTimer -= delta;
+
+        if (flashingTimer <= 0) {
+            flashingTimer = FLASHING_TIME;
+            flashing = !flashing;
+        }
+
+        if (invincibilityTimer <= 0) {
+            invincibilityTimer = INVINCIBILITY_TIME;
+            invincibilityFlag = false;
+            flashing = false;
+        }
+    }
+
     /**
      * Purpose: Sets isAttacking to true, allows MainScreen to create projectile instance
      */
@@ -258,7 +310,16 @@ public class Cole extends GenericObject{
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
     public void drainEnergy(){
+<<<<<<< Updated upstream
         if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)){
+=======
+        if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
+            //Play fail sound
+            isDraining = false;
+        }
+        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
+            isDraining = true;
+>>>>>>> Stashed changes
             int source_energy = previousDrainable.removeEnergy();
 
             if (this.currentEnergy < this.maxEnergy){
@@ -272,6 +333,8 @@ public class Cole extends GenericObject{
         else {
             //Play fail sound
         }
+        else{ isDraining = false; }
+
     }
 
 
@@ -386,21 +449,28 @@ public class Cole extends GenericObject{
     }
 
     public void drawAnimations(SpriteBatch batch){
-        TextureRegion currentFrame = walkRightAnimation.getKeyFrame(0);
-        float time = 0;
+        TextureRegion currentFrame = spriteSheet[0][0];
 
-        if (isFacingRight) {
-            if(velocity.x != 0){time =animationRightTime;}
-            else{time = 0;}
-            currentFrame = walkRightAnimation.getKeyFrame(time);
+        //=========================== Cole ============================================
+        if(isDraining){ currentFrame = spriteSheet[1][3]; }
+        else if(isJumping){ currentFrame = spriteSheet[1][1];}
+        else if(isAttacking){ currentFrame = spriteSheet[1][2];}
+        else if(isDucking){ currentFrame = spriteSheet[1][0];
+        }
+        else if (isFacingRight) {
+            if(velocity.x != 0){currentFrame = walkRightAnimation.getKeyFrame(animationRightTime);}
         }
         else if(!isFacingRight){
-            if(velocity.x != 0){time =animationLeftTime;}
-            else{time = 4;}
-            currentFrame = walkLeftAnimation.getKeyFrame(time);
+            if(velocity.x != 0){currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime);}
         }
 
-        batch.draw(currentFrame, isFacingRight ? hitBox.x + hitBox.width : hitBox.x , hitBox.y , isFacingRight ? -hitBox.width : hitBox.width, hitBox.height);
+        batch.draw(currentFrame, isFacingRight ? hitBox.x + currentFrame.getRegionWidth() : hitBox.x , hitBox.y , isFacingRight ? -currentFrame.getRegionWidth() : currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
+
+        //========================== Particle Effects =================================
+        if(isDraining){
+            TextureRegion currentParticleFrame = drainingParticleEffectAnimation.getKeyFrame(drainingParticleEffectTime);
+            batch.draw(currentParticleFrame, hitBox.x - hitBox.width, hitBox.y , hitBox.width * 3f,  hitBox.height);
+        }
     }
 
     public boolean getIsFacingRight(){
