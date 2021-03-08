@@ -314,21 +314,21 @@ public class Cole extends GenericObject{
             //Play fail sound
         }
 
-        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
-            if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)){
+        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
+            if (canDrain && (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
                 int source_energy = previousDrainable.removeEnergy();
 
-                if (this.currentEnergy < this.maxEnergy){
-                    //@@ -271,7 +268,9 @@ else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHea
-                    if (this.currentHealth < this.maxHealth){
+                if (this.currentEnergy < this.maxEnergy) {
+                    if (this.currentHealth < this.maxHealth) {
                         this.currentHealth += source_energy;
                     }
+                    currentEnergy += source_energy;
 
-                }
-                else {
+                } else {
                     //Play fail sound
                 }
             }
+        }
     }
 
 
