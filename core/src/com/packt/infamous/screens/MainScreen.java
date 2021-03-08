@@ -187,13 +187,17 @@ class MainScreen extends ScreenAdapter {
         }
 
         Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
-        Array<Vector2> railDimensions = tiledSetUp.getLayerCoordinates("Rail");
+        Array<Vector2> railDimensions = tiledSetUp.getLayerDimensions("Rail");
         for(int i = 0; i < railPositions.size; i++){
             float x = railPositions.get(i).x;
             float y = railPositions.get(i).y;
             float width = railDimensions.get(i).x;
             float height = railDimensions.get(i).y;
-            rails.add(new Rail(x, y, width, height,Alignment.BACKGROUND));
+            rails.add(new Rail(x, y+height, width, height,Alignment.BACKGROUND));
+            Platforms rail_platform = new Platforms(x, y, Alignment.BACKGROUND);
+            rail_platform.setWidth(width);
+            rail_platform.setHeight(height);
+            platforms.add(rail_platform);
         }
 
         Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
@@ -262,14 +266,22 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endUserRender();
 
         debugRendering.startBackgroundRender();
+        debugRendering.setShapeRendererBackgroundColor(Color.GRAY);
         for(Platforms platform : platforms){
             platform.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        debugRendering.setShapeRendererBackgroundColor(Color.BROWN);
         for(Pole pole : poles){
             pole.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        debugRendering.setShapeRendererBackgroundColor(Color.BLUE);
         for(DrainableObject drainable :  drainables){
             drainable.drawDebug(debugRendering.getShapeRendererBackground());
+        }
+
+        debugRendering.setShapeRendererBackgroundColor(Color.YELLOW);
+        for(Rail rail : rails){
+            rail.drawDebug(debugRendering.getShapeRendererBackground());
         }
         debugRendering.endBackgroundRender();
 
