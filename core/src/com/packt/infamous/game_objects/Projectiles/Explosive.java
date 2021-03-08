@@ -16,4 +16,6 @@ public class Explosive extends Projectile{
         this.explosive_radius = radius;
         isExplosive = true;
     }
+
+    public float getExplosive_radius() {return explosive_radius;}
 }

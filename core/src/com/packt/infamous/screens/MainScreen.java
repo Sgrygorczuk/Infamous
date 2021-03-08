@@ -304,7 +304,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingDrainable();
         isCollidingWater();
         isCollidingRails();
-        updateProjectiles(tiledSetUp.getLevelWidth());
+        updateProjectiles(tiledSetUp.getLevelWidth(), delta);
         handleInput();
         cole.update(tiledSetUp.getLevelWidth(), delta);
     }
@@ -434,11 +434,8 @@ class MainScreen extends ScreenAdapter {
                     }
                 }
             }
-            if (removeProjectile){
-                if (proj.isExplosive){
-                    //Explode
-                }
-                projectiles.removeValue(proj, true);
+            if (removeProjectile || proj.canDestroy()){
+                projectileRemove(proj);
             }
         }
     }
@@ -449,11 +446,18 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Updates projectile position each tick, processes collisions from projectiles
      * @param levelWidth the end of the level
      */
-    private void updateProjectiles(float levelWidth){
+    private void updateProjectiles(float levelWidth, float delta){
         processProjectileCollision();
         for (Projectile proj : projectiles){
-            proj.update(levelWidth);
+            proj.update(levelWidth, delta);
+            if (proj.canDestroy()){
+                projectileRemove(proj);
+            }
         }
+    }
+
+    private void projectileRemove(Projectile proj){
+        projectiles.removeValue(proj, true);
     }
 
     private void createProjectile(){
