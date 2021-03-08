@@ -92,6 +92,7 @@ public class Cole extends GenericObject{
 
     public void update(float levelWidth, float delta){
         assertWorldBound(levelWidth);
+        updateDrainableRange();
         if(!ridingPole){
             updateVelocityY();
             decelerate();
@@ -257,11 +258,7 @@ public class Cole extends GenericObject{
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
     public void drainEnergy(){
-        if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
-            //Play fail sound
-        }
-
-        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth){
+        if (canDrain &&(this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)){
             int source_energy = previousDrainable.removeEnergy();
 
             if (this.currentEnergy < this.maxEnergy){
@@ -271,7 +268,9 @@ public class Cole extends GenericObject{
             if (this.currentHealth < this.maxHealth){
                 this.currentHealth += source_energy;
             }
-
+        }
+        else {
+            //Play fail sound
         }
     }
 
@@ -366,15 +365,21 @@ public class Cole extends GenericObject{
 
     public boolean isCollidingMelee(Rectangle other) { return this.meleeRangeBox.overlaps(other); }
 
-    public void setPreviousDrainableBox(DrainableObject drainable){
+    public void setPreviousDrainable(DrainableObject drainable){
         previousDrainable = drainable;
+    }
+
+    public DrainableObject getPreviousDrainable(){
+        return previousDrainable;
     }
 
     /**
      * Purpose: Sets Cole to no longer allow recharge
      */
     private void updateDrainableRange(){
-        if (previousDrainable == null || isCollidingMelee(previousDrainable.getHitBox()) == false){
+        if (previousDrainable == null ||
+                isCollidingMelee(previousDrainable.getHitBox()) == false ||
+                previousDrainable.getCurrentEnergy() < 0){
             canDrain = false;
             previousDrainable = null;
         }

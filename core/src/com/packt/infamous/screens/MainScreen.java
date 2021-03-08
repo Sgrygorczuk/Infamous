@@ -326,7 +326,7 @@ class MainScreen extends ScreenAdapter {
     private void handlePause(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             pausedFlag = !pausedFlag;
-            for (ImageButton imageButton : menuButtons) { imageButton.setVisible(true); }
+//            for (ImageButton imageButton : menuButtons) { imageButton.setVisible(true); }
         }
     }
 
@@ -385,13 +385,16 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Check if colliding with a drainable object
      */
     private void isCollidingDrainable(){
-        for (DrainableObject source : drainables) {
-            if (cole.isCollidingMelee(source.getHitBox()) && source.getCurrentEnergy() > 0) {
+        if (cole.getPreviousDrainable() == null) {
+            for (DrainableObject source : drainables) {
+                if (cole.isCollidingMelee(source.getHitBox()) && source.getCurrentEnergy() > 0) {
+                    System.out.println("Found drainable: " + source);
+                    cole.setPreviousDrainable(source);
+                    cole.setCanDrain(true);
+                    return;
+                }
             }
-                cole.setPreviousDrainableBox(source);
-                cole.setCanDrain(true);
-                return;
-            }
+        }
     }
 
     /**

@@ -33,7 +33,6 @@ public class PlayerProjectile extends GenericObject {
 
     public void update(float levelWidth){
         checkIfWorldBound(levelWidth);
-        System.out.println("X Location"+ hitBox.x + "\n Y Location: "+hitBox.y);
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
     }
