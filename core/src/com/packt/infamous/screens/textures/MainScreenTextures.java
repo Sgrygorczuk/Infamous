@@ -32,7 +32,7 @@ public class MainScreenTextures {
 
         Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
         coleSpriteSheet = new TextureRegion(coleTexturePath).split(
-                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/2);
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/3);
 
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(

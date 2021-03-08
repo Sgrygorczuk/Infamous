@@ -7,24 +7,19 @@ import com.badlogic.gdx.math.Rectangle;
 import static com.packt.infamous.Const.TILED_HEIGHT;
 import static com.packt.infamous.Const.TILED_WIDTH;
 
-public class Pole {
-    Rectangle start;
-    Rectangle end;
+public class Pole extends GenericObject{
 
-    public Pole(float xStart, float yStart, float xEnd, float yEnd){
-        start = new Rectangle(xStart, yStart, TILED_WIDTH, TILED_HEIGHT);
-        end = new Rectangle(xEnd, yEnd, TILED_WIDTH, TILED_HEIGHT);
+    public Pole(float xStart, float yStart){
+        hitBox = new Rectangle(xStart, yStart, TILED_WIDTH, TILED_HEIGHT);
     }
 
-    public Rectangle getStartHitBox(){return start;}
+    public Rectangle getHitBox(){return hitBox;}
 
-    public Rectangle getEndHitBox(){return end;}
 
     /**
      * Purpose: Draws the circle on the screen using render
      */
     public void drawDebug(ShapeRenderer shapeRenderer) {
-        shapeRenderer.rect(start.x, start.y, start.width, start.height);
-        shapeRenderer.rect(end.x, end.y, end.width, end.height);
+        shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 }

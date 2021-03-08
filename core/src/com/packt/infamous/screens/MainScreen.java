@@ -10,8 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -19,6 +17,7 @@ import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
+import com.packt.infamous.game_objects.Ledge;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Projectiles.Projectile;
 import com.packt.infamous.game_objects.Pole;
@@ -55,12 +54,6 @@ class MainScreen extends ScreenAdapter {
     private Camera camera;				                     //The camera viewing the viewport
     private final SpriteBatch batch = new SpriteBatch();	 //Batch that holds all of the textures
 
-    //=================================== Buttons ==================================================
-
-    private Stage menuStage;
-    private ImageButton[] menuButtons; //Used for the menu selection
-    private ImageButton backButton;    //Used to go back from the Help Screen to Menu
-
     //===================================== Tools ==================================================
     private final Infamous infamous;      //Game object that holds the settings
     private DebugRendering debugRendering;        //Draws debug hit-boxes
@@ -82,6 +75,8 @@ class MainScreen extends ScreenAdapter {
     private float xCameraDelta = 0;
     private float yCameraDelta = 0;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
+    private float polePosition = 0;
+    private float ledgePosition = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final String[] menuButtonText = new String[]{"Help", "Sound Off", "Main Menu", "Back", "Sound On"};
@@ -92,6 +87,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Platforms> platforms = new Array<>();
     private final Array<Water> waters = new Array<>();
     private final Array<Pole> poles = new Array<>();
+    private final Array<Ledge> ledges = new Array<>();
     private final Array<DrainableObject> drainables = new Array<>();
     private final Array<Rail> rails = new Array<>();
     private final Array<Enemy> enemies = new Array<>();
@@ -152,14 +148,21 @@ class MainScreen extends ScreenAdapter {
         cole.setHeight(COLE_HEIGHT);
         cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet);
 
-        /*
-        Array<Vector2> poleStartPositions = tiledSetUp.getLayerCoordinates("PoleStart");
-        Array<Vector2> poleEndPositions = tiledSetUp.getLayerCoordinates("PoleEnd");
-        for(int i = 0; i < poleStartPositions.size; i++){
-            poles.add(new Pole(poleStartPositions.get(i).x, poleStartPositions.get(i).y, poleEndPositions.get(i).x, poleEndPositions.get(i).y));
+        Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("Pole");
+        Array<Vector2> poleDimensions = tiledSetUp.getLayerDimensions("Pole");
+        for(int i = 0; i < polePositions.size; i++){
+            poles.add(new Pole(polePositions.get(i).x + poleDimensions.get(i).x/2f, polePositions.get(i).y));
+            poles.get(i).setWidth(poleDimensions.get(i).x/2f);
+            poles.get(i).setHeight(poleDimensions.get(i).y);
         }
-        */
 
+        Array<Vector2> ledgePositions = tiledSetUp.getLayerCoordinates("Ledge");
+        Array<Vector2> ledgeDimensions = tiledSetUp.getLayerDimensions("Ledge");
+        for(int i = 0; i < ledgePositions.size; i++){
+            ledges.add(new Ledge(ledgePositions.get(i).x, ledgePositions.get(i).y + ledgeDimensions.get(i).y/2f));
+            ledges.get(i).setWidth(ledgeDimensions.get(i).x);
+            ledges.get(i).setHeight(ledgeDimensions.get(i).y/2f);
+        }
 
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
         Array<Vector2> platformsDimensions = tiledSetUp.getLayerDimensions("Platforms");
@@ -258,6 +261,9 @@ class MainScreen extends ScreenAdapter {
         for(Pole pole : poles){
             pole.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        for(Ledge ledge : ledges){
+            ledge.drawDebug(debugRendering.getShapeRendererBackground());
+        }
         for(DrainableObject drainable :  drainables){
             drainable.drawDebug(debugRendering.getShapeRendererBackground());
         }
@@ -286,17 +292,13 @@ class MainScreen extends ScreenAdapter {
     */
     private void update(float delta){
         updateCamera();
-        isCollidingPlatform();
-        isCollidingPoleStart();
-        isCollidingPoleEnd();
-        isCollidingDrainable();
-        isCollidingWater();
-        isCollidingRails();
+        updateColliding();
         updateProjectiles(tiledSetUp.getLevelWidth());
         handleInput();
         cole.update(tiledSetUp.getLevelWidth(), delta);
     }
 
+    //======================= Input Handling ======================================================
 
     /**
      * Purpose: Central Input Handling function
@@ -320,6 +322,149 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
+     * Purpose: Actions that can only be done in developer mode, used for testing
+     */
+    private void handleInputs(){
+        //======================== Movement Vertically ====================================
+        if (cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
+                Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.jump();
+        }
+        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.climbPole(true);
+        }
+        else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.jump();
+            cole.setIsHangingLedge(false);
+        }
+
+        if(cole.canColeMove() && !cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN))){
+            cole.setDucking(true);
+        }
+        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN))){
+            cole.climbPole(false);
+        }
+        else{
+            cole.setDucking(false);
+        }
+
+        //==================== Movement Horizontally ======================================
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
+        { cole.moveHorizontally(1); }
+        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
+            cole.jump();
+            cole.setIsClimbingPole(false);
+        }
+        else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
+            cole.shimmyLedge(true);
+        }
+
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
+        { cole.moveHorizontally(-1); }
+        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
+            cole.jump();
+            cole.setIsClimbingPole(false);
+        }
+        else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))){
+            cole.shimmyLedge(false);
+        }
+
+        //=========================== Switch Power ========================================
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
+
+        //================================= Drain =========================================
+        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
+                Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+        { cole.drainEnergy(); }
+
+        //================================== Attacks ======================================
+        else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
+            cole.attack();
+            if (cole.isAttacking){
+                createProjectile();
+                cole.isAttacking = false;
+            }
+        }
+
+        //================================ Interact =================================================
+        else if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
+            if(cole.getIsTouchingPole() && !cole.getIsClimbingPole()){
+                cole.setIsClimbingPole(true);
+                cole.setX(polePosition);
+                cole.setIsJumping(false);
+            }
+            else if(cole.getIsTouchingPole() && cole.getIsClimbingPole()){
+                cole.setIsClimbingPole(false);
+            }
+
+            if(cole.getIsTouchingLedge() && !cole.getIsHangingLedge()){
+                cole.setIsHangingLedge(true);
+                cole.setY(ledgePosition);
+                cole.setIsJumping(false);
+            }
+            else if(cole.getIsTouchingLedge() && cole.getIsHangingLedge()){
+                cole.setIsHangingLedge(false);
+            }
+        }
+
+
+    }
+
+    /**
+     * Purpose: allows user to control the menus
+     */
+    private void menuInputHandling(){
+        if(!helpFlag) {
+            //Movement Vertically
+            if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                buttonIndex--;
+                if (buttonIndex <= -1) {
+                    buttonIndex = NUM_BUTTONS_MAIN_SCREEN - 1;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                buttonIndex++;
+                if (buttonIndex >= NUM_BUTTONS_MAIN_SCREEN) {
+                    buttonIndex = 0;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                //Launches the game
+                if (buttonIndex == 0) { helpFlag = true; }
+                //Turns on the help menu
+                else if (buttonIndex == 1) { musicControl.soundOnOff(); }
+                //Turns on the credits menu
+                else if(buttonIndex == 2){
+                    musicControl.stopMusic();
+                    infamous.setScreen(new LoadingScreen(infamous, 0));
+                }
+                else{ pausedFlag = false; }
+            }
+        }
+        else{
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) { helpFlag = false; }
+        }
+    }
+
+    //============================== Collision ============================================
+
+    /**
+     * Purpose: Central Colliding function, to make it update less cluttered
+     */
+    private void updateColliding(){
+        System.out.println(cole.getVelocity().y);
+        isCollidingPlatform();
+        isCollidingDrainable();
+        isCollidingWater();
+        isCollidingRails();
+        isCollidingPole();
+        isCollidingLedge();
+    }
+
+
+    /**
      * Purpose: Check if it's touching any platforms
      */
     private void isCollidingPlatform() {
@@ -338,33 +483,40 @@ class MainScreen extends ScreenAdapter {
         if(!hasGround){cole.setFalling();}
     }
 
-    private void isCollidingPoleStart(){
+    /**
+     *.]
+     */
+    private void isCollidingPole(){
+        boolean touching = false;
         for (Pole pole : poles) {
-            if (cole.isColliding(pole.getStartHitBox())) {
-                System.out.println("Pole Colliding");
-                cole.setTouchPole(true);
-                return;
+            if(cole.isColliding(pole.getHitBox())){
+                touching = true;
+                polePosition = pole.getX() - pole.getWidth()/2f;
+                cole.setPoleLimits(pole.getY(), pole.getY() + pole.getHeight());
             }
         }
-
-        cole.setTouchPole(false);
-
+        cole.setIsTouchingPole(touching);
     }
 
-    private void isCollidingPoleEnd(){
-        if(!cole.isRidingPole()){
-            return;
-        }
 
-        for (Pole pole : poles) {
-            if (cole.getY() > pole.getEndHitBox().y + pole.getEndHitBox().height) {
-                System.out.println("Pole Colliding");
-                cole.setRidingPole(false);
-                return;
+    /**
+     * Checks if cole hits water.
+     */
+    private void isCollidingLedge(){
+        boolean touching = false;
+        for (Ledge ledge : ledges) {
+            if(cole.isColliding(ledge.getHitBox())){
+                touching = true;
+                ledgePosition = ledge.getY() - 2.5f * ledge.getHeight();
+                cole.setLedgeLimits(ledge.getX(), ledge.getX() + ledge.getWidth());
             }
         }
+        cole.setIsTouchingLedge(touching);
     }
 
+    /**
+     * Checks if cole hits water.
+     */
     private void isCollidingWater(){
         for (Water water : waters) {
             if(cole.isColliding(water.getHitBox())){
@@ -455,78 +607,6 @@ class MainScreen extends ScreenAdapter {
         System.out.println(projectiles.size);
     }
 
-
-    /**
-     * Purpose: Actions that can only be done in developer mode, used for testing
-     */
-    private void handleInputs(){
-        //Movement Vertically
-        if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
-                Gdx.input.isKeyPressed(Input.Keys.UP))){
-            cole.jump();
-        }
-
-        cole.setDucking(!cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)));
-
-        //Movement Horizontally
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
-        { cole.moveHorizontally(1); }
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
-        { cole.moveHorizontally(-1); }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
-
-
-        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
-                Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-        { cole.drainEnergy(); }
-
-
-        else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
-            cole.attack();
-            if (cole.isAttacking){
-                createProjectile();
-                cole.isAttacking = false;
-            }
-        }
-
-
-    }
-
-    private void menuInputHandling(){
-        if(!helpFlag) {
-            //Movement Vertically
-            if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-                buttonIndex--;
-                if (buttonIndex <= -1) {
-                    buttonIndex = NUM_BUTTONS_MAIN_SCREEN - 1;
-                }
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-                buttonIndex++;
-                if (buttonIndex >= NUM_BUTTONS_MAIN_SCREEN) {
-                    buttonIndex = 0;
-                }
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                //Launches the game
-                if (buttonIndex == 0) { helpFlag = true; }
-                //Turns on the help menu
-                else if (buttonIndex == 1) { musicControl.soundOnOff(); }
-                //Turns on the credits menu
-                else if(buttonIndex == 2){
-                    musicControl.stopMusic();
-                    infamous.setScreen(new LoadingScreen(infamous, 0));
-                }
-                else{ pausedFlag = false; }
-            }
-        }
-        else{
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) { helpFlag = false; }
-        }
-    }
 
     /**
      * Purpose: Resize the menuStage viewport in case the screen gets resized (Desktop)
@@ -740,6 +820,5 @@ class MainScreen extends ScreenAdapter {
     */
     @Override
     public void dispose() {
-        menuStage.dispose();
     }
 }
