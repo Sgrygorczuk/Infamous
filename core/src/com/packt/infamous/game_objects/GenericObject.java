@@ -39,7 +39,7 @@ public class GenericObject {
     protected boolean touchedCeiling;
 
 
-    GenericObject(float x , float y, Alignment align){
+    public GenericObject(float x , float y, Alignment align){
         this.align = align;
         this.hitBox = new Rectangle(x, y, TILED_WIDTH, TILED_HEIGHT);
         this.velocity = new Vector2(0, 0);

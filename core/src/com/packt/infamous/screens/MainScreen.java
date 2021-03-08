@@ -7,18 +7,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -26,9 +20,8 @@ import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
-import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
-import com.packt.infamous.game_objects.PlayerProjectile;
+import com.packt.infamous.game_objects.Projectiles.Projectile;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.game_objects.Rail;
 import com.packt.infamous.game_objects.Water;
@@ -49,7 +42,6 @@ import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.MENU_BUTTON_Y_START;
 import static com.packt.infamous.Const.NUM_BUTTONS_MAIN_SCREEN;
-import static com.packt.infamous.Const.NUM_BUTTONS_MENU_SCREEN;
 import static com.packt.infamous.Const.TEXT_OFFSET;
 import static com.packt.infamous.Const.UI_HEIGHT;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
@@ -104,7 +96,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<DrainableObject> drainables = new Array<>();
     private final Array<Rail> rails = new Array<>();
     private final Array<Enemy> enemies = new Array<>();
-    private final Array<PlayerProjectile> projectiles = new Array<>();
+    private final Array<Projectile> projectiles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -249,7 +241,7 @@ class MainScreen extends ScreenAdapter {
     private void debugRender(){
         debugRendering.startEnemyRender();
         for(Water water : waters){ water.drawDebug(debugRendering.getShapeRenderEnemy()); }
-        for(PlayerProjectile proj : projectiles){ proj.drawDebug(debugRendering.getShapeRenderEnemy()); }
+        for(Projectile proj : projectiles){ proj.drawDebug(debugRendering.getShapeRenderEnemy()); }
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
@@ -414,7 +406,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void processProjectileCollision(){
         for (int i = 0; i < projectiles.size; i++){
-            PlayerProjectile proj = projectiles.get(i);
+            Projectile proj = projectiles.get(i);
             boolean removeProjectile = false;
             //If projectile is no longer moving, or collided with world barrier
             if (proj.getVelocity().x == 0 && proj.getVelocity().y == 0 ||
@@ -431,7 +423,7 @@ class MainScreen extends ScreenAdapter {
                 }
             }
             if (removeProjectile){
-                if (proj.isExplosive()){
+                if (proj.isExplosive){
                     //Explode
                 }
                 projectiles.removeValue(proj, true);
@@ -447,7 +439,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void updateProjectiles(float levelWidth){
         processProjectileCollision();
-        for (PlayerProjectile proj : projectiles){
+        for (Projectile proj : projectiles){
             proj.update(levelWidth);
         }
     }
@@ -457,7 +449,7 @@ class MainScreen extends ScreenAdapter {
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
-        projectiles.add(new PlayerProjectile(cole.getX(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+        projectiles.add(new Projectile(cole.getX(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                 1, 1, direction));
         System.out.println(projectiles.size);
     }
