@@ -52,7 +52,12 @@ public final class Const{
     public static final float FRICTION = 0.5f;
     public static final float MAX_VELOCITY = 3f;
 
-    //======================== Weapon Related ===========================
+    //======================== Combat Related ===========================
+    public static final float INVINCIBILITY_TIME = 0.5F;
+    public static final float ATTACK_DELAY = 0.2f;
+    public static final float PROJ_TIME = 0.5f;
+    public static final float MELEE_TIME = 0.2f;
+
     public static final float BOLT_SPEED = 2f;
     public static final int BOLT_DAMAGE = 1;
 
@@ -60,7 +65,7 @@ public final class Const{
     public static final int EXPLOSIVE_RADIUS = 15;
     public static final float EXPLOSIVE_LINGER = 0.5f;
 
-    public static final float PROJ_TIME = 0.5f;
+
 
 
 }
