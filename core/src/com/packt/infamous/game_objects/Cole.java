@@ -12,6 +12,7 @@ import static com.packt.infamous.Const.ACCELERATION;
 import static com.packt.infamous.Const.ATTACK_DELAY;
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.FRICTION;
+import static com.packt.infamous.Const.FRICTION_AFTER_RIDE;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.INVINCIBILITY_TIME;
 import static com.packt.infamous.Const.JUMP_PEAK;
@@ -27,6 +28,7 @@ public class Cole extends GenericObject{
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
     private boolean isRiding = false;
+    private boolean ridingFriction = false;
     private boolean isFacingRight = true; //Tells us which way cole is facing
     private boolean isDraining = false;   //Tells us to use the drain animation
     private boolean invincibilityFlag = false; //Tells us if he's invincible
@@ -186,7 +188,7 @@ public class Cole extends GenericObject{
             else if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
         }
         //================== Is holding onto something ======================
-        else if(isClimbingPole || isHangingLedge){
+        else if(isClimbingPole || isHangingLedge || isRiding){
             velocity.y = 0;
         }
         //================== Player Walked Off A Platform ===========
@@ -200,10 +202,13 @@ public class Cole extends GenericObject{
     }
 
     private void decelerate(){
-        if (velocity.x > xDecel)
-            velocity.x = velocity.x - xDecel;
-        else if (velocity.x < -xDecel)
-            velocity.x = velocity.x + xDecel;
+        float deceleration = xDecel;
+        if(ridingFriction){deceleration = FRICTION_AFTER_RIDE;}
+
+        if (velocity.x > deceleration)
+            velocity.x = velocity.x - deceleration;
+        else if (velocity.x < -deceleration)
+            velocity.x = velocity.x + deceleration;
         else
             velocity.x = 0;
 
@@ -213,6 +218,8 @@ public class Cole extends GenericObject{
         if ((velocity.x < xMaxVel) && (velocity.x > -xMaxVel))
             velocity.x += direction*xAccel;
     }
+
+    public void setFriction(boolean friction){ridingFriction = friction;}
 
     /**
      * Purpose: Initiate the Player jump action
@@ -226,7 +233,7 @@ public class Cole extends GenericObject{
     /**
      * Purpose: Turns isFalling true whenever Cole dosen't have ground below him
      */
-    public void setFalling(){isFalling = true;}
+    public void setFalling(boolean falling){isFalling = falling;}
 
     public boolean getIsFalling(){return isFalling;}
 
@@ -250,6 +257,8 @@ public class Cole extends GenericObject{
     //====================== Rail Riding ==============================================
 
     public void setIsRiding(boolean isRiding){ this.isRiding = isRiding;}
+
+    public boolean getIsRiding(){return isRiding;}
 
     //================================== Respawn ========================================
 
@@ -469,10 +478,11 @@ public class Cole extends GenericObject{
              */
             //=============== On Top Of the Colliding Platform ====================
             if(this.hitBox.y <= rectangle.y + rectangle.height
-                    && this.hitBox.y >= rectangle.y + rectangle.height * 0.8f){
+                    && this.hitBox.y >= rectangle.y + rectangle.height * 0.7f){
                 this.hitBox.y = rectangle.y + rectangle.height;
                 isJumping = false;  //Can jump again
                 isFalling = false;  //Is no longer falling
+                ridingFriction = false;
                 velocity.y = 0;
             }
             /* Breakdown of Collision
@@ -484,7 +494,8 @@ public class Cole extends GenericObject{
             else if(this.hitBox.y + this.hitBox.height > rectangle.y
                     && this.hitBox.y < rectangle.y
                     && hitBox.x + hitBox.width >= rectangle.x + rectangle.width * 0.1f
-                    && hitBox.x <= rectangle.x + rectangle.width * 0.9f){
+                    && hitBox.x <= rectangle.x + rectangle.width * 0.9f
+                    && !isRiding){
                 this.hitBox.y = rectangle.y - this.hitBox.height;
                 isRising = false;   //Stop jump arc
             }
@@ -499,7 +510,8 @@ public class Cole extends GenericObject{
             if(this.hitBox.x + this.hitBox.width >= rectangle.x
                     && hitBox.x < rectangle.x
                     && !(this.hitBox.y >= rectangle.y + rectangle.height)
-                    && this.hitBox.y >= rectangle.y){
+                    && this.hitBox.y >= rectangle.y
+                    && !isRiding){
                 this.hitBox.x = rectangle.x - this.hitBox.width;
                 velocity.x = 0; //Stops movement
             }
@@ -507,7 +519,8 @@ public class Cole extends GenericObject{
             else if(this.hitBox.x <= rectangle.x + rectangle.width
                     && this.hitBox.x > rectangle.x
                     && !(this.hitBox.y >= rectangle.y + rectangle.height)
-                    && this.hitBox.y >= rectangle.y){
+                    && this.hitBox.y >= rectangle.y
+                    && !isRiding){
                 this.hitBox.x = rectangle.x + rectangle.width;
                 velocity.x = 0; //Stop movement
             }

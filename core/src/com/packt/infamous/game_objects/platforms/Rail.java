@@ -1,8 +1,8 @@
-package com.packt.infamous.game_objects;
+package com.packt.infamous.game_objects.platforms;
 
 
-import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
+import com.packt.infamous.game_objects.Cole;
 
 public class Rail extends Platforms{
     public Rail(float x, float y, float width, float height, Alignment alignment){
