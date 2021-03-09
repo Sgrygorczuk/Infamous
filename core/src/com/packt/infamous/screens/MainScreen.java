@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -149,12 +150,13 @@ class MainScreen extends ScreenAdapter {
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
-        cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet);
+        cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet,
+                mainScreenTextures.railSparkSpriteSheet);
 
         Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("Pole");
         Array<Vector2> poleDimensions = tiledSetUp.getLayerDimensions("Pole");
         for(int i = 0; i < polePositions.size; i++){
-            poles.add(new Pole(polePositions.get(i).x + poleDimensions.get(i).x/2f, polePositions.get(i).y));
+            poles.add(new Pole(polePositions.get(i).x + poleDimensions.get(i).x/4f, polePositions.get(i).y));
             poles.get(i).setWidth(poleDimensions.get(i).x/2f);
             poles.get(i).setHeight(poleDimensions.get(i).y);
         }
@@ -162,7 +164,7 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> ledgePositions = tiledSetUp.getLayerCoordinates("Ledge");
         Array<Vector2> ledgeDimensions = tiledSetUp.getLayerDimensions("Ledge");
         for(int i = 0; i < ledgePositions.size; i++){
-            ledges.add(new Ledge(ledgePositions.get(i).x, ledgePositions.get(i).y + ledgeDimensions.get(i).y/2f));
+            ledges.add(new Ledge(ledgePositions.get(i).x, ledgePositions.get(i).y + ledgeDimensions.get(i).y/4f));
             ledges.get(i).setWidth(ledgeDimensions.get(i).x);
             ledges.get(i).setHeight(ledgeDimensions.get(i).y/2f);
         }
@@ -181,15 +183,16 @@ class MainScreen extends ScreenAdapter {
             waters.add(new Water(waterPositions.get(i).x, waterPositions.get(i).y, Alignment.ENEMY));
             waters.get(i).setWidth(waterDimensions.get(i).x);
             waters.get(i).setHeight(waterDimensions.get(i).y);
+            waters.get(i).setTexture(mainScreenTextures.waterTexture);
         }
 
         Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
         Array<Vector2> railDimensions = tiledSetUp.getLayerDimensions("Rail");
         for(int i = 0; i < railPositions.size; i++){
             float x = railPositions.get(i).x;
-            float y = railPositions.get(i).y;
+            float y = railPositions.get(i).y +  railDimensions.get(i).y/2f;
             float width = railDimensions.get(i).x;
-            float height = railDimensions.get(i).y;
+            float height = railDimensions.get(i).y/2f;
             rails.add(new Rail(x, y+height, width, height,Alignment.BACKGROUND));
             Platforms rail_platform = new Platforms(x, y, Alignment.BACKGROUND);
             rail_platform.setWidth(width);
@@ -312,6 +315,7 @@ class MainScreen extends ScreenAdapter {
         updateProjectiles(tiledSetUp.getLevelWidth(), delta);
         handleInput(delta);
         cole.update(tiledSetUp.getLevelWidth(), delta);
+        for(Water water : waters){water.updatePosition();}
     }
 
     //======================= Input Handling ======================================================
@@ -391,7 +395,7 @@ class MainScreen extends ScreenAdapter {
         //================================= Drain =========================================
         if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
                 Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-        { cole.drainEnergy(); }
+        { cole.drainEnergy(delta); }
 
         //================================== Attacks ======================================
         else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
@@ -558,12 +562,13 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Check if Cole is on rails
      */
     private void isCollidingRails(){
-        boolean hasGround = false;
+        boolean riding = false;
         for (Rail rail : rails){
             if(rail.rideRail(cole)){
-                hasGround = true;
+                riding = true;
             }
         }
+        cole.setIsRiding(riding);
     }
 
     //========================= Player-Attack Related =========================
@@ -609,7 +614,7 @@ class MainScreen extends ScreenAdapter {
         //If an explosive, create temporary bullet
         if (proj.isIsExplosive()){
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION));
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
         }
         projectiles.removeValue(proj, true);
     }
@@ -621,11 +626,11 @@ class MainScreen extends ScreenAdapter {
         }
         if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
             projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
         else {
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
     }
 
@@ -677,19 +682,19 @@ class MainScreen extends ScreenAdapter {
         batch.setProjectionMatrix(camera.projection);
         batch.setTransformMatrix(camera.view);
 
-        //======================== Draws ==============================
-        batch.begin();
-        batch.draw(mainScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-        if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
-        for (DrainableObject drainable : drainables){
-            drainable.draw(batch);
-        }
-        cole.drawAnimations(batch);
-        batch.end();
-
-
         //======================== Draws Titled =============================
         tiledSetUp.drawTiledMap();
+
+        //======================== Draws ==============================
+
+        batch.begin();
+        if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
+        for (DrainableObject drainable : drainables){ drainable.draw(batch); }
+        cole.drawAnimations(batch);
+        for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
+        for(Water water : waters){water.draw(batch);}
+        batch.end();
+
 
         //=================== Draws the Menu Background =====================
         drawUIBackground();

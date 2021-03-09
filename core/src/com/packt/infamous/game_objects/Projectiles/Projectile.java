@@ -1,5 +1,8 @@
 package com.packt.infamous.game_objects.Projectiles;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.Enum;
 import com.packt.infamous.game_objects.GenericObject;
@@ -21,12 +24,17 @@ public class Projectile extends GenericObject {
 
     private boolean destroy = false;
 
+    protected TextureRegion[][] bulletSpriteSheet;
+    protected Animation<TextureRegion> bulletAnimation;
+    protected float bulletTime = 0;
+
+
     //For Bombs
     protected boolean isAttached;
     GenericObject followObject;
 
     public Projectile(float x, float y, Alignment align, int width, int height,
-                      int direction, Enum type) {
+                      int direction, Enum type, TextureRegion[][] bulletSpriteSheet) {
         super(x, y, align);
 
         this.setWidth(width);
@@ -51,6 +59,9 @@ public class Projectile extends GenericObject {
             projectileTimer = EXPLOSIVE_LINGER;
             projectileTimer_enabled = true;
         }
+
+        this.bulletSpriteSheet = bulletSpriteSheet;
+        this.bulletAnimation = setUpAnimation(bulletSpriteSheet, 5, 0, Animation.PlayMode.NORMAL);
     }
 
     public void update(float levelWidth, float delta){
@@ -58,6 +69,8 @@ public class Projectile extends GenericObject {
         derezTimer(delta);
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;
+
+        bulletTime += delta;
     }
 
     /**
@@ -87,5 +100,11 @@ public class Projectile extends GenericObject {
     public void setDerezTimer(boolean state) {projectileTimer_enabled = state;}
     public void setDestroy(boolean state) {destroy = state;}
     public boolean canDestroy() {return destroy;}
+
+    public void drawAnimation(SpriteBatch batch){
+        TextureRegion currentFrame = bulletAnimation.getKeyFrame(bulletTime);
+
+        batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+    }
 
 }

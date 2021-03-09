@@ -24,6 +24,7 @@ public class Cole extends GenericObject{
     private boolean isFalling = false;    //Used to tell if Cole if falling off a platform
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
+    private boolean isRiding = false;
     private boolean isFacingRight = true; //Tells us which way cole is facing
     private boolean isDraining = false;   //Tells us to use the drain animation
     private boolean invincibilityFlag = false; //Tells us if he's invincible
@@ -36,6 +37,10 @@ public class Cole extends GenericObject{
     protected TextureRegion[][] drainingParticleEffectSpriteSheet;
     protected Animation<TextureRegion> drainingParticleEffectAnimation;
     protected float drainingParticleEffectTime = 0;
+
+    protected TextureRegion[][] railSparkEffectSpriteSheet;
+    protected Animation<TextureRegion> railSparkEffectAnimation;
+    protected float railSparkEffectTime = 0;
 
     protected Animation<TextureRegion> shimmyAnimation;
     protected float shimmyTime = 0;
@@ -55,7 +60,12 @@ public class Cole extends GenericObject{
     //Timer counting down until we turn the draw function on/Off
     private static final float FLASHING_TIME = 0.1F;
     private float flashingTimer = FLASHING_TIME;
-  
+
+    //Timer counting down until we turn the draw function on/Off
+    private static final float DRAIN_TIME = 0.1F;
+    private float drainTimer = DRAIN_TIME;
+    private boolean isSucking = false;
+
     //============================= Climbing Stuff ===============================
     private boolean isTouchPole = false;
     private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
@@ -94,13 +104,15 @@ public class Cole extends GenericObject{
     }
 
 
-    public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] chargeTexture){
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] chargeTexture,
+                                 TextureRegion[][] railSparkEffectSpriteSheet){
         this.spriteSheet = textureRegions;
         this.drainingParticleEffectSpriteSheet = chargeTexture;
+        this.railSparkEffectSpriteSheet = railSparkEffectSpriteSheet;
         setUpAnimations();
         setUpShimmyAnimation();
-        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/2f,0, Animation.PlayMode.LOOP_PINGPONG);
-
+        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/4f,0, Animation.PlayMode.LOOP_PINGPONG);
+        railSparkEffectAnimation = setUpAnimation(railSparkEffectSpriteSheet, 1/6f,0, Animation.PlayMode.LOOP_PINGPONG);
     }
 
     protected void setUpShimmyAnimation(){
@@ -140,6 +152,7 @@ public class Cole extends GenericObject{
         }
 
         if(isDraining){ drainingParticleEffectTime += delta; }
+        if(isRiding){railSparkEffectTime += delta;}
 
         updateDucking();
 
@@ -228,6 +241,10 @@ public class Cole extends GenericObject{
     public boolean canColeMove(){
         return !isClimbingPole && !isHangingLedge;
     }
+
+    //====================== Rail Riding ==============================================
+
+    public void setIsRiding(boolean isRiding){ this.isRiding = isRiding;}
 
     //================================== Respawn ========================================
 
@@ -373,11 +390,10 @@ public class Cole extends GenericObject{
     /**
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
-    public void drainEnergy(){
+    public void drainEnergy(float delta){
         if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
         }
-
         else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
             if (canDrain && (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
                 int source_energy = previousDrainable.removeEnergy();
@@ -387,8 +403,8 @@ public class Cole extends GenericObject{
                         this.currentHealth += source_energy;
                     }
                     currentEnergy += source_energy;
-
-                } else {
+                }
+                else {
                     //Play fail sound
                 }
             }
@@ -507,7 +523,8 @@ public class Cole extends GenericObject{
         TextureRegion currentFrame = spriteSheet[0][0];
 
         //=========================== Cole ============================================
-        if(isClimbingPole || isHangingLedge){ currentFrame = shimmyAnimation.getKeyFrame(shimmyTime);}
+        if(isRiding){ currentFrame = spriteSheet[2][3]; }
+        else if(isClimbingPole || isHangingLedge){ currentFrame = shimmyAnimation.getKeyFrame(shimmyTime);}
         else if(isDraining){ currentFrame = spriteSheet[1][3]; }
         else if(isJumping || isFalling){ currentFrame = spriteSheet[1][1];}
         else if(isAttacking){ currentFrame = spriteSheet[1][2];}
@@ -523,10 +540,18 @@ public class Cole extends GenericObject{
         batch.draw(currentFrame, isFacingRight ? hitBox.x + currentFrame.getRegionWidth() : hitBox.x , hitBox.y , isFacingRight ? -currentFrame.getRegionWidth() : currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
 
         //========================== Particle Effects =================================
+        TextureRegion currentParticleFrame;
+
         if(isDraining){
-            TextureRegion currentParticleFrame = drainingParticleEffectAnimation.getKeyFrame(drainingParticleEffectTime);
-            batch.draw(currentParticleFrame, hitBox.x - hitBox.width, hitBox.y , hitBox.width * 3f,  hitBox.height);
+            currentParticleFrame = drainingParticleEffectAnimation.getKeyFrame(drainingParticleEffectTime);
+            batch.draw(currentParticleFrame, isFacingRight ? hitBox.x + 2 * hitBox.width : hitBox.x - hitBox.width, hitBox.y, isFacingRight ? -hitBox.width * 3 : hitBox.width * 3, hitBox.height);
+
         }
+        else if(isRiding){
+            currentParticleFrame = railSparkEffectAnimation.getKeyFrame(railSparkEffectTime);
+            batch.draw(currentParticleFrame, isFacingRight ? hitBox.x + 2 *hitBox.width : hitBox.x - hitBox.width, hitBox.y,  isFacingRight ? - hitBox.width * 2 : hitBox.width * 2, hitBox.height);
+        }
+
     }
 
     public boolean getIsFacingRight(){

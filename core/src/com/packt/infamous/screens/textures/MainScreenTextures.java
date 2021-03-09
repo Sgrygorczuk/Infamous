@@ -11,9 +11,12 @@ public class MainScreenTextures {
     public Texture menuBackgroundTexture;   //Pop up menu to show menu buttons and Help screen
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
+    public Texture waterTexture;
     public TextureRegion[][] buttonSpriteSheet;
     public TextureRegion[][] coleSpriteSheet;
     public TextureRegion[][] drainSpriteSheet;
+    public TextureRegion[][] railSparkSpriteSheet;
+    public TextureRegion[][] bulletSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -25,6 +28,7 @@ public class MainScreenTextures {
         menuBackgroundTexture = new Texture(Gdx.files.internal("UI/TestPopUp.png"));
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
+        waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
 
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
@@ -37,6 +41,15 @@ public class MainScreenTextures {
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(
                 drainTexturePath.getWidth()/2, drainTexturePath.getHeight());
+
+        Texture railSparkTexturePath = new Texture(Gdx.files.internal("Sprites/RailSparks.png"));
+        railSparkSpriteSheet = new TextureRegion(railSparkTexturePath).split(
+                railSparkTexturePath.getWidth()/3, railSparkTexturePath.getHeight());
+
+        Texture bulletTexturePath = new Texture(Gdx.files.internal("Sprites/Bullet.png"));
+        bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(
+                bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
+
 
     }
 

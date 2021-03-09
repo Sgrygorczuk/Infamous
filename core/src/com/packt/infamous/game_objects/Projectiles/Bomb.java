@@ -1,5 +1,6 @@
 package com.packt.infamous.game_objects.Projectiles;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.Enum;
 import com.packt.infamous.game_objects.GenericObject;
@@ -7,8 +8,8 @@ import com.packt.infamous.game_objects.GenericObject;
 public class Bomb extends Projectile{
     GenericObject followObject;
 
-    public Bomb(float x, float y, Alignment align, int width, int height, int direction, Enum type) {
-        super(x, y, align, width, height, direction, Enum.BOMB);
+    public Bomb(float x, float y, Alignment align, int width, int height, int direction, Enum type, TextureRegion[][] bulletSpriteSheet) {
+        super(x, y, align, width, height, direction, Enum.BOMB, bulletSpriteSheet);
         isExplosive = true;
     }
 
