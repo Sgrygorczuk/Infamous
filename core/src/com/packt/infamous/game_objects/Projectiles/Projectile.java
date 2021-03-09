@@ -36,6 +36,7 @@ public class Projectile extends GenericObject {
         damage =  BOLT_DAMAGE;
 
         projectileTimer = PROJ_TIME;
+        this.type = type;
 
         if (type != Enum.BOLT && type != Enum.EXPLOSION){
             isExplosive = true;
@@ -44,6 +45,7 @@ public class Projectile extends GenericObject {
             }
         }
         else if (type == Enum.EXPLOSION){
+            isExplosive = false;
             velocity.x = 0;
             velocity.y = 0;
             projectileTimer = EXPLOSIVE_LINGER;

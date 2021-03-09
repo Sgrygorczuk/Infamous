@@ -79,8 +79,8 @@ public class Cole extends GenericObject{
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
         currentHealth = 60;
-        currentEnergy = 10000;
-        maxEnergy = maxHealth = 1000;
+        currentEnergy = 60;
+        maxEnergy = maxHealth = 100;
 
         setAttackNames();
 
