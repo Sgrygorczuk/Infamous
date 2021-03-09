@@ -50,8 +50,8 @@ public class GenericObject {
 
     public void setTexture(Texture texture){
         this.texture = texture;
-        this.hitBox.height = texture.getHeight()/2f;
-        this.hitBox.width = texture.getWidth()/2f;
+        this.hitBox.height = texture.getHeight();
+        this.hitBox.width = texture.getWidth();
     }
 
     public void setWidth(float width){hitBox.width = width;}
