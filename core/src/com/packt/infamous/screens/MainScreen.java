@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -247,8 +248,9 @@ class MainScreen extends ScreenAdapter {
         }
 
         Array<Vector2> enemyPositions = tiledSetUp.getLayerCoordinates("Enemy");
+        Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
-            enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, Alignment.ENEMY));
+            enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY));
         }
 
     }

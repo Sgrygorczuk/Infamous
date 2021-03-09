@@ -12,16 +12,17 @@ public class Enemy extends  GenericObject{
     protected static float reloadTime = 3f;
     protected static float shooting = 0;
     protected static float shootTime = 1f;
-    protected static float walkingDistance = 50f;
-    protected static float moveSpeed = 15f;
+    protected static float moveSpeed = 20f;
+    protected  float walkingDistance;
     protected boolean isFacingRight = false;
     protected float initialX;
 
 
-    public Enemy(float x, float y, Alignment alignment){
+    public Enemy(float x, float y, float distance, Alignment alignment){
         super(x, y, alignment);
         hitBox.height = COLE_HEIGHT;
         hitBox.width = COLE_WIDTH;
+        walkingDistance = distance-COLE_WIDTH;
         initialX = x;
         currentHealth = maxHealth = 100;
         ammo = 10;
