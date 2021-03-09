@@ -1,13 +1,14 @@
-package com.packt.infamous.game_objects;
+package com.packt.infamous.game_objects.platforms;
 
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.packt.infamous.game_objects.GenericObject;
 
 import static com.packt.infamous.Const.TILED_HEIGHT;
 import static com.packt.infamous.Const.TILED_WIDTH;
 
-public class Pole extends GenericObject{
+public class Pole extends GenericObject {
 
     public Pole(float xStart, float yStart){
         hitBox = new Rectangle(xStart, yStart, TILED_WIDTH, TILED_HEIGHT);
