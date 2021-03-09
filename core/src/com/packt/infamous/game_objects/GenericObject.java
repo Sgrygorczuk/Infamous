@@ -69,8 +69,6 @@ public class GenericObject {
     public void setY(float y){hitBox.y = y;}
     public void setX(float x){hitBox.x = x;}
 
-    public void setX(float x){hitBox.x = x;}
-
     public float getHeight(){return hitBox.height;}
 
     public float getMaxHealth(){return maxHealth;}

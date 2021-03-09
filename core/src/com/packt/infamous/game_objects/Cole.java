@@ -1,6 +1,5 @@
 package com.packt.infamous.game_objects;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -15,9 +14,6 @@ import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
-import static com.packt.infamous.Enum.BOLT;
-import static com.packt.infamous.Enum.BOMB;
-import static com.packt.infamous.Enum.TORPEDO;
 
 import com.packt.infamous.Enum;
 
@@ -263,7 +259,7 @@ public class Cole extends GenericObject{
     }
 
 
-    public boolean getIsDucking(){return isDucking;}
+    public boolean getIsDucking(){return !isDucking;}
 
     /**
      * Purpose: Allow use to change Cole's stance
@@ -377,10 +373,9 @@ public class Cole extends GenericObject{
     /**
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
-    public void drainEnergy() {
+    public void drainEnergy(){
         if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
-        } else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
         }
 
         else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
@@ -390,12 +385,10 @@ public class Cole extends GenericObject{
                 if (this.currentEnergy < this.maxEnergy) {
                     if (this.currentHealth < this.maxHealth) {
                         this.currentHealth += source_energy;
-                        isDraining = true;
                     }
                     currentEnergy += source_energy;
 
                 } else {
-                    isDraining = false;
                     //Play fail sound
                 }
             }
@@ -404,8 +397,6 @@ public class Cole extends GenericObject{
 
 
     /* ============================ Utility Functions =========================== */
-
-
     /**
      * Purpose: Keeps Cole within the level
      * @param levelWidth tells where the map ends
