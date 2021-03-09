@@ -400,9 +400,8 @@ class MainScreen extends ScreenAdapter {
         //================================== Attacks ======================================
         else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
             cole.attack();
-            if (cole.isAttacking){
+            if (cole.isIsAttacking()){
                 createProjectile();
-                cole.isAttacking = false;
             }
         }
 
@@ -571,6 +570,17 @@ class MainScreen extends ScreenAdapter {
         cole.setIsRiding(riding);
     }
 
+    /**
+     * Purpose: Check if Cole can Melee an Enemy
+     */
+    private void isCollidingMelee(){
+        for (Enemy enemy : enemies){
+            if(cole.isCollidingMelee(enemy.getHitBox())){
+                cole.setCanMelee(true);
+            }
+        }
+    }
+
     //========================= Player-Attack Related =========================
     /**
      * Purpose: Updates projectile position each tick, processes collisions from projectiles
@@ -609,7 +619,11 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-
+    /**
+     * Purpose: Removes projectiles from the vector, if proj isExplosive,
+     * then create explosive projectile first.
+     * @param proj
+     */
     private void projectileRemove(Projectile proj){
         //If an explosive, create temporary bullet
         if (proj.isIsExplosive()){
@@ -619,12 +633,20 @@ class MainScreen extends ScreenAdapter {
         projectiles.removeValue(proj, true);
     }
 
+    /**
+     * Purpose: Adds projectile to vector with specified properties from the ``cole``  instance.
+     */
     private void createProjectile(){
         int direction = -1;
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
-        if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
+        if (cole.isCanMelee()){
+            projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                    (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
+            cole.setCanMelee(false);
+        }
+        else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
             projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                     1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
@@ -632,6 +654,8 @@ class MainScreen extends ScreenAdapter {
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
                     1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
+        cole.setIsAttacking(false);
+        cole.resetAttackTimer();
     }
 
     /**
