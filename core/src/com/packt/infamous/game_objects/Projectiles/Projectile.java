@@ -9,9 +9,7 @@ import com.packt.infamous.game_objects.GenericObject;
 
 import static com.packt.infamous.Const.BOLT_DAMAGE;
 import static com.packt.infamous.Const.BOLT_SPEED;
-import static com.packt.infamous.Const.EXPLOSIVE_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_LINGER;
-import static com.packt.infamous.Const.MELEE_TIME;
 import static com.packt.infamous.Const.PROJ_TIME;
 
 public class Projectile extends GenericObject {
@@ -48,11 +46,7 @@ public class Projectile extends GenericObject {
         projectileTimer = PROJ_TIME;
         this.type = type;
 
-        if (type == Enum.MELEE){
-            projectileTimer = MELEE_TIME;
-        }
-
-        else if (type != Enum.BOLT && type != Enum.EXPLOSION){
+        if (type != Enum.BOLT && type != Enum.EXPLOSION){
             isExplosive = true;
             if (type == Enum.BOMB){
                 projectileTimer_enabled = false;
@@ -62,10 +56,8 @@ public class Projectile extends GenericObject {
             isExplosive = false;
             velocity.x = 0;
             velocity.y = 0;
-            damage = EXPLOSIVE_DAMAGE;
             projectileTimer = EXPLOSIVE_LINGER;
             projectileTimer_enabled = true;
-
         }
 
         this.bulletSpriteSheet = bulletSpriteSheet;

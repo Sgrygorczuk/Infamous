@@ -50,6 +50,7 @@ public final class Const{
     public static final float JUMP_PEAK = 30f;
     public static final float ACCELERATION = 1f;
     public static final float FRICTION = 0.5f;
+    public static final float FRICTION_AFTER_RIDE = 0.2f;
     public static final float MAX_VELOCITY = 3f;
 
     //======================== Combat Related ===========================

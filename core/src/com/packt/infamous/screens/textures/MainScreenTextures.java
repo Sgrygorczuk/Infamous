@@ -17,6 +17,7 @@ public class MainScreenTextures {
     public TextureRegion[][] drainSpriteSheet;
     public TextureRegion[][] railSparkSpriteSheet;
     public TextureRegion[][] bulletSpriteSheet;
+    public TextureRegion[][] collectibleSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -50,6 +51,9 @@ public class MainScreenTextures {
         bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(
                 bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
 
+        Texture collectibleTexturePath = new Texture(Gdx.files.internal("Sprites/BlastShard.png"));
+        collectibleSpriteSheet = new TextureRegion(bulletTexturePath).split(
+                bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
 
     }
 

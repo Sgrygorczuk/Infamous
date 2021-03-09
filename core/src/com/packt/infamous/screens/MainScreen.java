@@ -9,21 +9,21 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
+import com.packt.infamous.game_objects.Collectible;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
-import com.packt.infamous.game_objects.Ledge;
-import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.platforms.Ledge;
+import com.packt.infamous.game_objects.platforms.Platforms;
 import com.packt.infamous.game_objects.Projectiles.Bomb;
 import com.packt.infamous.game_objects.Projectiles.Projectile;
-import com.packt.infamous.game_objects.Pole;
-import com.packt.infamous.game_objects.Rail;
+import com.packt.infamous.game_objects.platforms.Pole;
+import com.packt.infamous.game_objects.platforms.Rail;
 import com.packt.infamous.game_objects.Water;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.MainScreenTextures;
@@ -81,6 +81,7 @@ class MainScreen extends ScreenAdapter {
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
     private float polePosition = 0;
     private float ledgePosition = 0;
+    private int collectibleSum = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final String[] menuButtonText = new String[]{"Help", "Sound Off", "Main Menu", "Back", "Sound On"};
@@ -96,6 +97,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Rail> rails = new Array<>();
     private final Array<Enemy> enemies = new Array<>();
     private final Array<Projectile> projectiles = new Array<>();
+    private final Array<Collectible> collectibles = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -169,6 +171,12 @@ class MainScreen extends ScreenAdapter {
             ledges.get(i).setHeight(ledgeDimensions.get(i).y/2f);
         }
 
+        Array<Vector2> collectiblePositions = tiledSetUp.getLayerCoordinates("BlastShard");
+        for(int i = 0; i < collectiblePositions.size; i++){
+            collectibles.add(new Collectible(collectiblePositions.get(i).x, collectiblePositions.get(i).y, mainScreenTextures.collectibleSpriteSheet));
+        }
+        collectibleSum = collectibles.size;
+
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
         Array<Vector2> platformsDimensions = tiledSetUp.getLayerDimensions("Platforms");
         for(int i = 0; i < platformsPositions.size; i++){
@@ -194,8 +202,8 @@ class MainScreen extends ScreenAdapter {
             float width = railDimensions.get(i).x;
             float height = railDimensions.get(i).y/2f;
             rails.add(new Rail(x, y+height, width, height,Alignment.BACKGROUND));
-            Platforms rail_platform = new Platforms(x, y, Alignment.BACKGROUND);
-            rail_platform.setWidth(width);
+            Platforms rail_platform = new Platforms(x + 5, y, Alignment.BACKGROUND);
+            rail_platform.setWidth(width - 10);
             rail_platform.setHeight(height);
             platforms.add(rail_platform);
         }
@@ -288,7 +296,7 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endBackgroundRender();
 
         debugRendering.startCollectibleRender();
-        //TODO set up collectibles to render
+        for(Collectible collectible : collectibles){collectible.drawDebug(debugRendering.getShapeRendererCollectible());}
         debugRendering.endCollectibleRender();
     }
 
@@ -315,6 +323,7 @@ class MainScreen extends ScreenAdapter {
         updateProjectiles(tiledSetUp.getLevelWidth(), delta);
         handleInput(delta);
         cole.update(tiledSetUp.getLevelWidth(), delta);
+        for(Collectible collectible : collectibles){collectible.update(delta);}
         for(Water water : waters){water.updatePosition();}
     }
 
@@ -381,7 +390,7 @@ class MainScreen extends ScreenAdapter {
 
         if (cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
         { cole.moveHorizontally(-1); }
-        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
+        else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))){
             cole.jump();
             cole.setIsClimbingPole(false);
         }
@@ -411,6 +420,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsClimbingPole(true);
                 cole.setX(polePosition);
                 cole.setIsJumping(false);
+                cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingPole() && cole.getIsClimbingPole()){
                 cole.setIsClimbingPole(false);
@@ -420,6 +430,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsHangingLedge(true);
                 cole.setY(ledgePosition);
                 cole.setIsJumping(false);
+                cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingLedge() && cole.getIsHangingLedge()){
                 cole.setIsHangingLedge(false);
@@ -477,6 +488,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingRails();
         isCollidingPole();
         isCollidingLedge();
+        isCollidingCollectibles();
     }
 
 
@@ -489,14 +501,15 @@ class MainScreen extends ScreenAdapter {
         for (int i = 0; i < platforms.size; i++) {
            if(cole.updateCollision(platforms.get(i).getHitBox())){
                hasGround = true;                //Tells us that he's standing
-               if(cole.getX() >= platforms.get(i).getX()
+               if(!cole.getIsRiding()
+                       &&cole.getX() >= platforms.get(i).getX()
                        && cole.getX() + cole.getWidth() <= platforms.get(i).getX() + platforms.get(i).getWidth()) {
                    cole.setLastTouchedGround();     //Saves that position for respawn
                }
            }
         }
         //If there is no ground below Cole he should fall
-        if(!hasGround){cole.setFalling();}
+        if(!hasGround){cole.setFalling(true);}
     }
 
     /**
@@ -565,6 +578,8 @@ class MainScreen extends ScreenAdapter {
         for (Rail rail : rails){
             if(rail.rideRail(cole)){
                 riding = true;
+                cole.setFalling(false);
+                cole.setFriction(true);
             }
         }
         cole.setIsRiding(riding);
@@ -579,6 +594,19 @@ class MainScreen extends ScreenAdapter {
                 cole.setCanMelee(true);
             }
         }
+    }
+
+    /**
+     * Purpose: Check if Cole is on rails
+     */
+    private void isCollidingCollectibles(){
+        Collectible touchedCollectible =  new Collectible(0,0, mainScreenTextures.collectibleSpriteSheet);
+        for (Collectible collectible : collectibles){
+            if(collectible.isColliding(cole.getHitBox())){
+                touchedCollectible = collectible;
+            }
+        }
+        collectibles.removeValue(touchedCollectible, true);
     }
 
     //========================= Player-Attack Related =========================
@@ -714,6 +742,7 @@ class MainScreen extends ScreenAdapter {
         batch.begin();
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
         for (DrainableObject drainable : drainables){ drainable.draw(batch); }
+        for(Collectible collectible : collectibles) {collectible.draw(batch);}
         cole.drawAnimations(batch);
         for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
         for(Water water : waters){water.draw(batch);}
@@ -727,6 +756,7 @@ class MainScreen extends ScreenAdapter {
         batch.begin();
         drawUIText();
         drawPopUpMenu();
+        drawCollectibleSum();
 
         //=================== Draws the Menu Buttons =========================
         if(pausedFlag || endFlag || helpFlag){drawMainButtons();}
@@ -766,7 +796,8 @@ class MainScreen extends ScreenAdapter {
         textAlignment.centerText(batch, bitmapFont, "Health", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 5);
         textAlignment.centerText(batch, bitmapFont, "Energy", 20 + xCameraDelta,yCameraDelta + WORLD_HEIGHT - 15 - 5);
 
-        textAlignment.centerText(batch, bitmapFont, cole.getCurrentAttack(), xCameraDelta + WORLD_WIDTH/2f + 80,yCameraDelta + WORLD_HEIGHT - 14);
+        bitmapFont.getData().setScale(0.25f);
+        textAlignment.centerText(batch, bitmapFont, cole.getCurrentAttack(), xCameraDelta + WORLD_WIDTH/2f + 50,yCameraDelta + WORLD_HEIGHT - 14);
     }
 
     /**
@@ -777,8 +808,15 @@ class MainScreen extends ScreenAdapter {
         makeBar((int) cole.getCurrentEnergy()/20, (int) cole.getMaxEnergy()/20, Color.BLUE, 15);
 
         debugRendering.startBoarderRender();
-        debugRendering.getShapeRendererBoarder().rect(xCameraDelta + WORLD_WIDTH/2f + 20,  yCameraDelta + WORLD_HEIGHT - 27 , 20, 20);
+        debugRendering.getShapeRendererBoarder().rect(xCameraDelta + WORLD_WIDTH/2f,  yCameraDelta + WORLD_HEIGHT - 27 , 20, 20);
         debugRendering.endBoarderRender();
+    }
+
+    private void drawCollectibleSum(){
+        batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 15 , 8, 8);
+
+        bitmapFont.getData().setScale(0.25f);
+        textAlignment.centerText(batch, bitmapFont, collectibleSum-collectibles.size + "/" + collectibleSum, xCameraDelta + WORLD_WIDTH/2f + 110,  yCameraDelta + WORLD_HEIGHT - 8 );
     }
 
     /**
