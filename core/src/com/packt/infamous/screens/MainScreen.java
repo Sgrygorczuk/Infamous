@@ -223,8 +223,14 @@ class MainScreen extends ScreenAdapter {
                     drainablePositions.get(i).y, Alignment.BACKGROUND));
 
             drainables.get(i+currDrainableNum).setTexture(mainScreenTextures.junctionBoxTexture);
-            }
         }
+
+        Array<Vector2> enemyPositions = tiledSetUp.getLayerCoordinates("Enemy");
+        for(int i = 0; i < enemyPositions.size; i++){
+            enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, Alignment.ENEMY));
+        }
+
+    }
 
 
     /**
@@ -293,6 +299,11 @@ class MainScreen extends ScreenAdapter {
         for(Rail rail : rails){
             rail.drawDebug(debugRendering.getShapeRendererBackground());
         }
+
+        debugRendering.setShapeRendererBackgroundColor(Color.RED);
+        for(Enemy enemy : enemies){
+            enemy.drawDebug(debugRendering.getShapeRendererBackground());
+        }
         debugRendering.endBackgroundRender();
 
         debugRendering.startCollectibleRender();
@@ -322,6 +333,7 @@ class MainScreen extends ScreenAdapter {
         updateColliding();
         updateProjectiles(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         handleInput(delta);
+        updateEnemies(delta);
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(Water water : waters){water.updatePosition();}
@@ -686,6 +698,14 @@ class MainScreen extends ScreenAdapter {
         cole.setIsAttacking(false);
         cole.resetAttackTimer();
     }
+    /**
+     * Purpose: Update enemy pathing
+     */
+    public void updateEnemies(float delta){
+        for(Enemy enemy : enemies){
+            enemy.update(delta);
+        }
+    }
 
     /**
      * Purpose: Resize the menuStage viewport in case the screen gets resized (Desktop)
@@ -747,6 +767,7 @@ class MainScreen extends ScreenAdapter {
         cole.drawAnimations(batch);
         for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
         for(Water water : waters){water.draw(batch);}
+//        for(Enemy enemy : enemies){enemy.draw(batch);} // TODO: add a sprite for enemy
         batch.end();
 
 
