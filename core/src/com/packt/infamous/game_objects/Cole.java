@@ -22,20 +22,16 @@ import static com.packt.infamous.Enum.TORPEDO;
 import com.packt.infamous.Enum;
 
 public class Cole extends GenericObject{
-
-    private boolean touchPole = false;
-    private boolean ridingPole = false;
-
     private DrainableObject previousDrainable = null;
 
     private boolean isJumping = false;    //Used to tell that it's not touching a platform
     private boolean isFalling = false;    //Used to tell if Cole if falling off a platform
     private boolean isRising = false;     //Used to create a arc for the jump
     private boolean isDucking = false;    //Tells us if cole is ducking
-    private boolean isFacingRight = true; //
-    private boolean isDraining = false;
-    private boolean invincibilityFlag = false;
-    protected boolean flashing = false;
+    private boolean isFacingRight = true; //Tells us which way cole is facing
+    private boolean isDraining = false;   //Tells us to use the drain animation
+    private boolean invincibilityFlag = false; //Tells us if he's invincible
+    protected boolean flashing = false;      //Tells the animation to flash or not
     private float initialY;               //Where the jump starts from
 
     private float lastTouchedGroundX;
@@ -44,6 +40,9 @@ public class Cole extends GenericObject{
     protected TextureRegion[][] drainingParticleEffectSpriteSheet;
     protected Animation<TextureRegion> drainingParticleEffectAnimation;
     protected float drainingParticleEffectTime = 0;
+
+    protected Animation<TextureRegion> shimmyAnimation;
+    protected float shimmyTime = 0;
 
     private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
 
@@ -60,7 +59,18 @@ public class Cole extends GenericObject{
     //Timer counting down until we turn the draw function on/Off
     private static final float FLASHING_TIME = 0.1F;
     private float flashingTimer = FLASHING_TIME;
+  
+    //============================= Climbing Stuff ===============================
+    private boolean isTouchPole = false;
+    private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
+    private boolean isTouchingLedge = false;
+    private boolean isHangingLedge = false; //Tells us if Cole is holding on a ledge
 
+    private float poleMin;
+    private float poleMax;
+
+    private float ledgeMin;
+    private float ledgeMax;
 
     /* =========================== Movement Variables =========================== */
 
@@ -92,9 +102,15 @@ public class Cole extends GenericObject{
         this.spriteSheet = textureRegions;
         this.drainingParticleEffectSpriteSheet = chargeTexture;
         setUpAnimations();
+        setUpShimmyAnimation();
         drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/2f,0, Animation.PlayMode.LOOP_PINGPONG);
+
     }
 
+    protected void setUpShimmyAnimation(){
+        shimmyAnimation = new Animation<TextureRegion>(1/6f, spriteSheet[2][0], spriteSheet[2][1], spriteSheet[2][2]);
+        shimmyAnimation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
+    }
 
     /**
      * Purpose: Sets up all the attacks that are available to Cole
@@ -115,10 +131,8 @@ public class Cole extends GenericObject{
     public void update(float levelWidth, float delta){
         assertWorldBound(levelWidth);
         updateDrainableRange();
-        if(!ridingPole){
-            updateVelocityY();
-            decelerate();
-        }
+        updateVelocityY();
+        decelerate();
 
         if(velocity.x > 0){
             animationLeftTime += delta;
@@ -156,6 +170,10 @@ public class Cole extends GenericObject{
             else if (isRising) { isRising = false; }
             //Starts falling back down
             else if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
+        }
+        //================== Is holding onto something ======================
+        else if(isClimbingPole || isHangingLedge){
+            velocity.y = 0;
         }
         //================== Player Walked Off A Platform ===========
         else if(isFalling) {
@@ -196,11 +214,15 @@ public class Cole extends GenericObject{
      */
     public void setFalling(){isFalling = true;}
 
+    public boolean getIsFalling(){return isFalling;}
+
     /**
      * Purpose: To tell MainScreen that the use can click Jump
      * @return returns isJumping state
      */
     public boolean getIsJumping(){return isJumping;}
+
+    public void setIsJumping(boolean isJumping){this.isJumping = isJumping;}
 
     /**
      * Purpose: If cole is doing something that stops him from walking, it disables users
@@ -208,8 +230,7 @@ public class Cole extends GenericObject{
      * @return tells us if Cole can move
      */
     public boolean canColeMove(){
-        if(isDucking){ return false; }
-        else { return true; }
+        return !isClimbingPole && !isHangingLedge;
     }
 
     //================================== Respawn ========================================
@@ -241,6 +262,9 @@ public class Cole extends GenericObject{
         else{ hitBox.height = 2 * COLE_HEIGHT / 3f; }
     }
 
+
+    public boolean getIsDucking(){return isDucking;}
+
     /**
      * Purpose: Allow use to change Cole's stance
      * @param isDucking sets if he's ducking or not
@@ -249,19 +273,46 @@ public class Cole extends GenericObject{
 
     //=============================== Pole ===============================================
 
-    public void setTouchPole(boolean touchPole){this.touchPole = touchPole;}
+    public boolean getIsClimbingPole(){return isClimbingPole;}
 
-    public boolean isTouchPole(){return touchPole;}
+    public boolean getIsTouchingPole(){return isTouchPole;}
 
-    public boolean isRidingPole(){return ridingPole;}
+    public void setIsTouchingPole(boolean touchingPole){this.isTouchPole = touchingPole; }
 
+    public void setIsClimbingPole(boolean climbingPole){this.isClimbingPole = climbingPole; }
 
-    public void setRidingPole(boolean ridingPole) { this.ridingPole = ridingPole; }
-
-    public void setPoleVelocity(){
-        velocity.x = 0;
-        velocity.y = 5;
+    public void setPoleLimits(float min, float max){
+        poleMin = min;
+        poleMax = max;
     }
+
+    public void climbPole(boolean direction, float delta){
+        if(direction && hitBox.y + hitBox.height < poleMax){ hitBox.y += 1; }
+        else if(!direction && hitBox.y > poleMin){ hitBox.y -= 1; }
+        shimmyTime += delta;
+    }
+
+    //================================= Ledge ========================================
+
+    public boolean getIsHangingLedge(){return isHangingLedge;}
+
+    public boolean getIsTouchingLedge(){return isTouchingLedge;}
+
+    public void setIsTouchingLedge(boolean touchingLedge){this.isTouchingLedge = touchingLedge; }
+
+    public void setIsHangingLedge(boolean hangingLedge){this.isHangingLedge = hangingLedge; }
+
+    public void setLedgeLimits(float min, float max){
+        ledgeMin = min;
+        ledgeMax = max;
+    }
+
+    public void shimmyLedge(boolean direction, float delta){
+        if(direction && hitBox.x + hitBox.width < ledgeMax){ hitBox.x += 1;}
+        else if(!direction && hitBox.x > ledgeMin){ hitBox.x -= 1; }
+        shimmyTime += delta;
+    }
+
 
     /* ============================ Combat Functions =========================== */
 
@@ -326,9 +377,10 @@ public class Cole extends GenericObject{
     /**
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy
      */
-    public void drainEnergy(){
+    public void drainEnergy() {
         if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
+        } else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
         }
 
         else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
@@ -338,10 +390,12 @@ public class Cole extends GenericObject{
                 if (this.currentEnergy < this.maxEnergy) {
                     if (this.currentHealth < this.maxHealth) {
                         this.currentHealth += source_energy;
+                        isDraining = true;
                     }
                     currentEnergy += source_energy;
 
                 } else {
+                    isDraining = false;
                     //Play fail sound
                 }
             }
@@ -462,8 +516,9 @@ public class Cole extends GenericObject{
         TextureRegion currentFrame = spriteSheet[0][0];
 
         //=========================== Cole ============================================
-        if(isDraining){ currentFrame = spriteSheet[1][3]; }
-        else if(isJumping){ currentFrame = spriteSheet[1][1];}
+        if(isClimbingPole || isHangingLedge){ currentFrame = shimmyAnimation.getKeyFrame(shimmyTime);}
+        else if(isDraining){ currentFrame = spriteSheet[1][3]; }
+        else if(isJumping || isFalling){ currentFrame = spriteSheet[1][1];}
         else if(isAttacking){ currentFrame = spriteSheet[1][2];}
         else if(isDucking){ currentFrame = spriteSheet[1][0];
         }
