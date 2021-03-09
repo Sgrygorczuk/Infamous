@@ -12,12 +12,15 @@ public class MainScreenTextures {
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
     public Texture waterTexture;
+    public Texture actionTexture;
     public TextureRegion[][] buttonSpriteSheet;
     public TextureRegion[][] coleSpriteSheet;
     public TextureRegion[][] drainSpriteSheet;
     public TextureRegion[][] railSparkSpriteSheet;
     public TextureRegion[][] bulletSpriteSheet;
     public TextureRegion[][] collectibleSpriteSheet;
+    public TextureRegion[][] peopleDownSpriteSheet;
+    public TextureRegion[][] peopleUpSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -30,6 +33,7 @@ public class MainScreenTextures {
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
         waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
+        actionTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
 
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
@@ -54,6 +58,14 @@ public class MainScreenTextures {
         Texture collectibleTexturePath = new Texture(Gdx.files.internal("Sprites/BlastShard.png"));
         collectibleSpriteSheet = new TextureRegion(collectibleTexturePath).split(
                 collectibleTexturePath.getWidth()/3, collectibleTexturePath.getHeight());
+
+        Texture peopleDownTexturePath = new Texture(Gdx.files.internal("Sprites/InjuredPeople.png"));
+        peopleDownSpriteSheet = new TextureRegion(peopleDownTexturePath).split(
+                peopleDownTexturePath.getWidth(), peopleDownTexturePath.getHeight()/4);
+
+        Texture peopleUpTexturePath = new Texture(Gdx.files.internal("Sprites/PeopleHealed.png"));
+        peopleUpSpriteSheet = new TextureRegion(peopleUpTexturePath).split(
+                peopleUpTexturePath.getWidth()/4, peopleUpTexturePath.getHeight());
 
     }
 
