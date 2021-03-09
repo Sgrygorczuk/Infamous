@@ -37,6 +37,9 @@ public class Cole extends GenericObject{
     protected Animation<TextureRegion> drainingParticleEffectAnimation;
     protected float drainingParticleEffectTime = 0;
 
+    protected Animation<TextureRegion> shimmyAnimation;
+    protected float shimmyTime = 0;
+
     private final Rectangle meleeRangeBox;      //Used to tell if the player is in range to do melee attack
 
     private Array<String> attackNames;
@@ -95,9 +98,15 @@ public class Cole extends GenericObject{
         this.spriteSheet = textureRegions;
         this.drainingParticleEffectSpriteSheet = chargeTexture;
         setUpAnimations();
+        setUpShimmyAnimation();
         drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/2f,0, Animation.PlayMode.LOOP_PINGPONG);
+
     }
 
+    protected void setUpShimmyAnimation(){
+        shimmyAnimation = new Animation<TextureRegion>(1/6f, spriteSheet[2][0], spriteSheet[2][1], spriteSheet[2][2]);
+        shimmyAnimation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
+    }
 
     /**
      * Purpose: Sets up all the attacks that are available to Cole
@@ -217,7 +226,7 @@ public class Cole extends GenericObject{
      * @return tells us if Cole can move
      */
     public boolean canColeMove(){
-        return !isDucking && !isClimbingPole && !isHangingLedge;
+        return !isClimbingPole && !isHangingLedge;
     }
 
     //================================== Respawn ========================================
@@ -249,6 +258,9 @@ public class Cole extends GenericObject{
         else{ hitBox.height = 2 * COLE_HEIGHT / 3f; }
     }
 
+
+    public boolean getIsDucking(){return isDucking;}
+
     /**
      * Purpose: Allow use to change Cole's stance
      * @param isDucking sets if he's ducking or not
@@ -270,9 +282,10 @@ public class Cole extends GenericObject{
         poleMax = max;
     }
 
-    public void climbPole(boolean direction){
+    public void climbPole(boolean direction, float delta){
         if(direction && hitBox.y + hitBox.height < poleMax){ hitBox.y += 1; }
         else if(!direction && hitBox.y > poleMin){ hitBox.y -= 1; }
+        shimmyTime += delta;
     }
 
     //================================= Ledge ========================================
@@ -290,9 +303,10 @@ public class Cole extends GenericObject{
         ledgeMax = max;
     }
 
-    public void shimmyLedge(boolean direction){
+    public void shimmyLedge(boolean direction, float delta){
         if(direction && hitBox.x + hitBox.width < ledgeMax){ hitBox.x += 1;}
         else if(!direction && hitBox.x > ledgeMin){ hitBox.x -= 1; }
+        shimmyTime += delta;
     }
 
 
@@ -483,7 +497,7 @@ public class Cole extends GenericObject{
         TextureRegion currentFrame = spriteSheet[0][0];
 
         //=========================== Cole ============================================
-        if(isClimbingPole || isHangingLedge){ currentFrame = spriteSheet[2][0];}
+        if(isClimbingPole || isHangingLedge){ currentFrame = shimmyAnimation.getKeyFrame(shimmyTime);}
         else if(isDraining){ currentFrame = spriteSheet[1][3]; }
         else if(isJumping || isFalling){ currentFrame = spriteSheet[1][1];}
         else if(isAttacking){ currentFrame = spriteSheet[1][2];}

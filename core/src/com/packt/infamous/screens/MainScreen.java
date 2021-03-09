@@ -294,7 +294,7 @@ class MainScreen extends ScreenAdapter {
         updateCamera();
         updateColliding();
         updateProjectiles(tiledSetUp.getLevelWidth());
-        handleInput();
+        handleInput(delta);
         cole.update(tiledSetUp.getLevelWidth(), delta);
     }
 
@@ -303,13 +303,13 @@ class MainScreen extends ScreenAdapter {
     /**
      * Purpose: Central Input Handling function
      */
-    private void handleInput() {
+    private void handleInput(float delta) {
         //TODO add user inputs
         //Pause and un-pause the game with ESC
         handlePause();
         //Allows user to turn on dev mode
         if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) { developerMode = !developerMode; }
-        handleInputs();
+        handleInputs(delta);
     }
 
     /**
@@ -324,14 +324,14 @@ class MainScreen extends ScreenAdapter {
     /**
      * Purpose: Actions that can only be done in developer mode, used for testing
      */
-    private void handleInputs(){
+    private void handleInputs(float delta){
         //======================== Movement Vertically ====================================
         if (cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
                 Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.jump();
         }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
-            cole.climbPole(true);
+            cole.climbPole(true, delta);
         }
         else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.jump();
@@ -342,31 +342,31 @@ class MainScreen extends ScreenAdapter {
             cole.setDucking(true);
         }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN))){
-            cole.climbPole(false);
+            cole.climbPole(false, delta);
         }
         else{
             cole.setDucking(false);
         }
 
         //==================== Movement Horizontally ======================================
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
+        if (!cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
         { cole.moveHorizontally(1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
             cole.jump();
             cole.setIsClimbingPole(false);
         }
         else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
-            cole.shimmyLedge(true);
+            cole.shimmyLedge(true, delta);
         }
 
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
+        if (!cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
         { cole.moveHorizontally(-1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
             cole.jump();
             cole.setIsClimbingPole(false);
         }
         else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))){
-            cole.shimmyLedge(false);
+            cole.shimmyLedge(false, delta);
         }
 
         //=========================== Switch Power ========================================
