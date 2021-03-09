@@ -15,7 +15,11 @@ import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
-import static com.packt.infamous.Const.WORLD_HEIGHT;
+import static com.packt.infamous.Enum.BOLT;
+import static com.packt.infamous.Enum.BOMB;
+import static com.packt.infamous.Enum.TORPEDO;
+
+import com.packt.infamous.Enum;
 
 public class Cole extends GenericObject{
 
@@ -57,6 +61,7 @@ public class Cole extends GenericObject{
     private static final float FLASHING_TIME = 0.1F;
     private float flashingTimer = FLASHING_TIME;
 
+
     /* =========================== Movement Variables =========================== */
 
     protected float yAccel;     //value of jump speed
@@ -74,8 +79,8 @@ public class Cole extends GenericObject{
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
         currentHealth = 60;
-        currentEnergy = 80;
-        maxEnergy = maxHealth = 100;
+        currentEnergy = 10000;
+        maxEnergy = maxHealth = 1000;
 
         setAttackNames();
 
@@ -287,8 +292,16 @@ public class Cole extends GenericObject{
      */
     public void attack(){
         //If out of melee range, projectile: uses energy
+        //TODO: Create melee attack
         if (currentEnergy > 0){
-            currentEnergy -= 5;
+            switch(Enum.fromInteger(attackIndex)){
+                case BOLT:
+                    currentEnergy -= 5;
+                case BOMB:
+                    currentEnergy -= 10;
+                case TORPEDO:
+                    currentEnergy -= 15;
+            }
             isAttacking = true;
         }
     }
@@ -296,6 +309,10 @@ public class Cole extends GenericObject{
     public void updateAttackIndex(){
         attackIndex++;
         if(attackIndex == attackNames.size){ attackIndex = 0; }
+    }
+
+    public int getAttackIndex() {
+        return attackIndex;
     }
 
     public String getCurrentAttack(){return attackNames.get(attackIndex);}

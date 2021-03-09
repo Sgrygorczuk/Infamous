@@ -67,6 +67,7 @@ public class GenericObject {
     public float getWidth(){return hitBox.width;}
 
     public void setY(float y){hitBox.y = y;}
+    public void setX(float x){hitBox.x = x;}
 
     public float getHeight(){return hitBox.height;}
 

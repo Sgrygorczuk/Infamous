@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -19,7 +20,9 @@ import com.packt.infamous.Alignment;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
+import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.Projectiles.Bomb;
 import com.packt.infamous.game_objects.Projectiles.Projectile;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.game_objects.Rail;
@@ -30,11 +33,13 @@ import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
+import com.packt.infamous.Enum;
 
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
+import static com.packt.infamous.Const.EXPLOSIVE_RADIUS;
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
 import static com.packt.infamous.Const.INSTRUCTION_BUTTON_Y;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
@@ -413,50 +418,51 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Purpose: Checks for collision between enemies and player-made projectiles
-     */
-    private void processProjectileCollision(){
-        for (int i = 0; i < projectiles.size; i++){
-            Projectile proj = projectiles.get(i);
-            boolean removeProjectile = false;
-            //If projectile is no longer moving, or collided with world barrier
-            if (proj.getVelocity().x == 0 && proj.getVelocity().y == 0 ||
-                    proj.isTouchingCeiling()){
-                removeProjectile = true;
-            }
-            else {
-                //Check if Projectile is colliding with an enemy
-                for (Enemy enemy : enemies){
-                    if (proj.isColliding(enemy.getHitBox())){
-                        removeProjectile = true;
-                        enemy.takeDamage(proj.getDamage());
-                    }
-                }
-            }
-            if (removeProjectile || proj.canDestroy()){
-                projectileRemove(proj);
-            }
-        }
-    }
-
     //========================= Player-Attack Related =========================
-
     /**
      * Purpose: Updates projectile position each tick, processes collisions from projectiles
      * @param levelWidth the end of the level
+     * @param delta engine-defined time keeping
      */
     private void updateProjectiles(float levelWidth, float delta){
-        processProjectileCollision();
         for (Projectile proj : projectiles){
-            proj.update(levelWidth, delta);
             if (proj.canDestroy()){
                 projectileRemove(proj);
             }
+            System.out.println(proj.getType());
+            proj.update(levelWidth, delta);
+            //Check if colliding with a platform
+            for (Platforms platform : platforms){
+                if (proj.isColliding(platform.getHitBox())){
+                    proj.setVelocity(0, 0);
+                    if (proj.getType() == Enum.BOMB){
+                        proj.setDerezTimer(true);
+                    }
+                }
+            }
+            //Check if Projectile is colliding with an enemy
+            for (Enemy enemy : enemies){
+                if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB){
+                    proj.setVelocity(0, 0);
+                    proj.setAttached(enemy);
+                    proj.setDerezTimer(true);
+                }
+                else if (proj.isColliding(enemy.getHitBox())){
+                    enemy.takeDamage(proj.getDamage());
+                    proj.setDestroy(true);
+                }
+            }
+
         }
     }
 
+
     private void projectileRemove(Projectile proj){
+        //If an explosive, create temporary bullet
+        if (proj.isIsExplosive()){
+            projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION));
+        }
         projectiles.removeValue(proj, true);
     }
 
@@ -465,10 +471,14 @@ class MainScreen extends ScreenAdapter {
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
-
-        projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                1, 1, direction));
-        System.out.println(projectiles.size);
+        if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
+            projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+        }
+        else {
+            projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+        }
     }
 
 
@@ -493,10 +503,9 @@ class MainScreen extends ScreenAdapter {
         if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
 
 
-        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
-                Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-        { cole.drainEnergy(); }
-
+        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            cole.drainEnergy();
+        }
 
         else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
             cole.attack();
