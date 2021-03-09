@@ -386,10 +386,13 @@ public class Cole extends GenericObject{
             switch(Enum.fromInteger(attackIndex)){
                 case BOLT:
                     currentEnergy -= 5;
+                    break;
                 case BOMB:
                     currentEnergy -= 10;
+                    break;
                 case TORPEDO:
                     currentEnergy -= 15;
+                    break;
             }
             isAttacking = true;
         }
