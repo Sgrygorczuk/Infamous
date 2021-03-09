@@ -36,13 +36,13 @@ public class Projectile extends GenericObject {
     GenericObject followObject;
 
     public Projectile(float x, float y, Alignment align, int width, int height,
-                      int direction, Enum type, TextureRegion[][] bulletSpriteSheet) {
+                      int direction, float startVelocity, Enum type, TextureRegion[][] bulletSpriteSheet) {
         super(x, y, align);
 
         this.setWidth(width);
         this.setHeight(height);
 
-        velocity.x = BOLT_SPEED * direction;
+        velocity.x = (startVelocity + BOLT_SPEED) * direction;
         damage =  BOLT_DAMAGE;
 
         projectileTimer = PROJ_TIME;

@@ -8,8 +8,8 @@ import com.packt.infamous.game_objects.GenericObject;
 public class Bomb extends Projectile{
     GenericObject followObject;
 
-    public Bomb(float x, float y, Alignment align, int width, int height, int direction, Enum type, TextureRegion[][] bulletSpriteSheet) {
-        super(x, y, align, width, height, direction, Enum.BOMB, bulletSpriteSheet);
+    public Bomb(float x, float y, Alignment align, int width, int height, int direction, float startVelocity, Enum type, TextureRegion[][] bulletSpriteSheet) {
+        super(x, y, align, width, height, direction, startVelocity, Enum.BOMB, bulletSpriteSheet);
         isExplosive = true;
     }
 
