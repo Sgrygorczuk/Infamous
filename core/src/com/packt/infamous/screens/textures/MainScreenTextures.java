@@ -52,8 +52,8 @@ public class MainScreenTextures {
                 bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
 
         Texture collectibleTexturePath = new Texture(Gdx.files.internal("Sprites/BlastShard.png"));
-        collectibleSpriteSheet = new TextureRegion(bulletTexturePath).split(
-                bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
+        collectibleSpriteSheet = new TextureRegion(collectibleTexturePath).split(
+                collectibleTexturePath.getWidth()/3, collectibleTexturePath.getHeight());
 
     }
 

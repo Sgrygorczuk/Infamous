@@ -14,8 +14,8 @@ public class Bomb extends Projectile{
     }
 
     @Override
-    public void update(float levelWidth, float delta){
-        checkIfWorldBound(levelWidth);
+    public void update(float levelWidth, float levelHeight, float delta){
+        checkIfWorldBound(levelWidth, levelHeight);
         derezTimer(delta);
         arcDown(delta);
         if(!isAttached){

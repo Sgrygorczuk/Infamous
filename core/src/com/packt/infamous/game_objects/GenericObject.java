@@ -106,7 +106,7 @@ public class GenericObject {
      * Purpose: Keeps Object within the level
      * @param levelWidth tells where the map ends
      */
-    protected void checkIfWorldBound(float levelWidth) {
+    protected void checkIfWorldBound(float levelWidth, float levelHeight) {
         //Makes sure we're bound by x
         if (hitBox.x < 0) {
             hitBox.x = 0;
@@ -122,8 +122,8 @@ public class GenericObject {
             hitBox.y = 0;
             velocity.y = 0;
         }
-        else if (hitBox.y + hitBox.height > WORLD_HEIGHT){
-            hitBox.y = WORLD_HEIGHT - hitBox.height;
+        else if (hitBox.y + hitBox.height > levelHeight){
+            hitBox.y = levelHeight - hitBox.height;
             touchedCeiling = true;
         }
     }

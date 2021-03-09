@@ -320,9 +320,9 @@ class MainScreen extends ScreenAdapter {
         updateCamera();
         isCollidingPlatform();
         updateColliding();
-        updateProjectiles(tiledSetUp.getLevelWidth(), delta);
+        updateProjectiles(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         handleInput(delta);
-        cole.update(tiledSetUp.getLevelWidth(), delta);
+        cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(Water water : waters){water.updatePosition();}
     }
@@ -616,13 +616,13 @@ class MainScreen extends ScreenAdapter {
      * @param levelWidth the end of the level
      * @param delta engine-defined time keeping
      */
-    private void updateProjectiles(float levelWidth, float delta){
+    private void updateProjectiles(float levelWidth, float levelHeight, float delta){
         for (Projectile proj : projectiles){
             if (proj.canDestroy()){
                 projectileRemove(proj);
             }
             System.out.println(proj.getType());
-            proj.update(levelWidth, delta);
+            proj.update(levelWidth, levelHeight, delta);
             //Check if colliding with a platform
             for (Platforms platform : platforms){
                 if (proj.isColliding(platform.getHitBox())){

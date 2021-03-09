@@ -72,8 +72,8 @@ public class Projectile extends GenericObject {
         this.bulletAnimation = setUpAnimation(bulletSpriteSheet, 5, 0, Animation.PlayMode.NORMAL);
     }
 
-    public void update(float levelWidth, float delta){
-        checkIfWorldBound(levelWidth);
+    public void update(float levelWidth, float levelHeight, float delta){
+        checkIfWorldBound(levelWidth, levelHeight);
         derezTimer(delta);
         hitBox.y += velocity.y;
         hitBox.x += velocity.x;

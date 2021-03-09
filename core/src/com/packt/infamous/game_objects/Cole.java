@@ -69,11 +69,6 @@ public class Cole extends GenericObject{
     private static final float FLASHING_TIME = 0.1F;
     private float flashingTimer = FLASHING_TIME;
 
-    //Timer counting down until we turn the draw function on/Off
-    private static final float DRAIN_TIME = 0.1F;
-    private float drainTimer = DRAIN_TIME;
-    private boolean isSucking = false;
-
     //============================= Climbing Stuff ===============================
     private boolean isTouchPole = false;
     private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
@@ -142,8 +137,8 @@ public class Cole extends GenericObject{
      * @param levelWidth the end of the level
      */
 
-    public void update(float levelWidth, float delta){
-        assertWorldBound(levelWidth);
+    public void update(float levelWidth, float levelHeight, float delta){
+        assertWorldBound(levelWidth, levelHeight);
         updateDrainableRange();
         updateVelocityY();
         decelerate();
@@ -455,8 +450,8 @@ public class Cole extends GenericObject{
      * @param levelWidth tells where the map ends
      */
 
-    private void assertWorldBound(float levelWidth) {
-        checkIfWorldBound(levelWidth);
+    private void assertWorldBound(float levelWidth, float levelHeight) {
+        checkIfWorldBound(levelWidth, levelHeight);
         if (touchedCeiling) {isFalling = true; touchedCeiling = false;}
     }
 
