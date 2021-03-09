@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -657,7 +658,7 @@ class MainScreen extends ScreenAdapter {
         //If an explosive, create temporary bullet
         if (proj.isIsExplosive()){
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, 0, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
         }
         projectiles.removeValue(proj, true);
     }
@@ -666,22 +667,24 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Adds projectile to vector with specified properties from the ``cole``  instance.
      */
     private void createProjectile(){
+        TextureRegion[][] bulletSpriteSheet = mainScreenTextures.bulletSpriteSheet;
+        float startVelocity = cole.getVelocity().x;
         int direction = -1;
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
         if (cole.isCanMelee()){
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                    (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
+                    (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, startVelocity, Enum.MELEE, bulletSpriteSheet));
             cole.setCanMelee(false);
         }
         else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
             projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                    1, 1, direction, startVelocity, Enum.fromInteger(cole.getAttackIndex()), bulletSpriteSheet));
         }
         else {
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                    1, 1, direction, startVelocity, Enum.fromInteger(cole.getAttackIndex()), bulletSpriteSheet));
         }
         cole.setIsAttacking(false);
         cole.resetAttackTimer();
