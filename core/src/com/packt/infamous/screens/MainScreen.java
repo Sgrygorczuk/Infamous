@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -18,7 +19,9 @@ import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
 import com.packt.infamous.game_objects.Ledge;
+import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
+import com.packt.infamous.game_objects.Projectiles.Bomb;
 import com.packt.infamous.game_objects.Projectiles.Projectile;
 import com.packt.infamous.game_objects.Pole;
 import com.packt.infamous.game_objects.Rail;
@@ -29,11 +32,13 @@ import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
+import com.packt.infamous.Enum;
 
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
+import static com.packt.infamous.Const.EXPLOSIVE_RADIUS;
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
 import static com.packt.infamous.Const.INSTRUCTION_BUTTON_Y;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
@@ -181,13 +186,17 @@ class MainScreen extends ScreenAdapter {
         }
 
         Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
-        Array<Vector2> railDimensions = tiledSetUp.getLayerCoordinates("Rail");
+        Array<Vector2> railDimensions = tiledSetUp.getLayerDimensions("Rail");
         for(int i = 0; i < railPositions.size; i++){
             float x = railPositions.get(i).x;
             float y = railPositions.get(i).y;
             float width = railDimensions.get(i).x;
             float height = railDimensions.get(i).y;
-            rails.add(new Rail(x, y, width, height,Alignment.BACKGROUND));
+            rails.add(new Rail(x, y+height, width, height,Alignment.BACKGROUND));
+            Platforms rail_platform = new Platforms(x, y, Alignment.BACKGROUND);
+            rail_platform.setWidth(width);
+            rail_platform.setHeight(height);
+            platforms.add(rail_platform);
         }
 
         Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
@@ -255,17 +264,25 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endUserRender();
 
         debugRendering.startBackgroundRender();
+        debugRendering.setShapeRendererBackgroundColor(Color.GRAY);
         for(Platforms platform : platforms){
             platform.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        debugRendering.setShapeRendererBackgroundColor(Color.BROWN);
         for(Pole pole : poles){
             pole.drawDebug(debugRendering.getShapeRendererBackground());
         }
         for(Ledge ledge : ledges){
             ledge.drawDebug(debugRendering.getShapeRendererBackground());
         }
+        debugRendering.setShapeRendererBackgroundColor(Color.BLUE);
         for(DrainableObject drainable :  drainables){
             drainable.drawDebug(debugRendering.getShapeRendererBackground());
+        }
+
+        debugRendering.setShapeRendererBackgroundColor(Color.YELLOW);
+        for(Rail rail : rails){
+            rail.drawDebug(debugRendering.getShapeRendererBackground());
         }
         debugRendering.endBackgroundRender();
 
@@ -295,6 +312,8 @@ class MainScreen extends ScreenAdapter {
         updateColliding();
         updateProjectiles(tiledSetUp.getLevelWidth());
         handleInput(delta);
+        updateProjectiles(tiledSetUp.getLevelWidth(), delta);
+        handleInput();
         cole.update(tiledSetUp.getLevelWidth(), delta);
     }
 
@@ -553,47 +572,52 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Purpose: Checks for collision between enemies and player-made projectiles
-     */
-    private void processProjectileCollision(){
-        for (int i = 0; i < projectiles.size; i++){
-            Projectile proj = projectiles.get(i);
-            boolean removeProjectile = false;
-            //If projectile is no longer moving, or collided with world barrier
-            if (proj.getVelocity().x == 0 && proj.getVelocity().y == 0 ||
-                    proj.isTouchingCeiling()){
-                removeProjectile = true;
-            }
-            else {
-                //Check if Projectile is colliding with an enemy
-                for (Enemy enemy : enemies){
-                    if (proj.isColliding(enemy.getHitBox())){
-                        removeProjectile = true;
-                        enemy.takeDamage(proj.getDamage());
-                    }
-                }
-            }
-            if (removeProjectile){
-                if (proj.isExplosive){
-                    //Explode
-                }
-                projectiles.removeValue(proj, true);
-            }
-        }
-    }
-
     //========================= Player-Attack Related =========================
-
     /**
      * Purpose: Updates projectile position each tick, processes collisions from projectiles
      * @param levelWidth the end of the level
+     * @param delta engine-defined time keeping
      */
-    private void updateProjectiles(float levelWidth){
-        processProjectileCollision();
+    private void updateProjectiles(float levelWidth, float delta){
         for (Projectile proj : projectiles){
-            proj.update(levelWidth);
+            if (proj.canDestroy()){
+                projectileRemove(proj);
+            }
+            System.out.println(proj.getType());
+            proj.update(levelWidth, delta);
+            //Check if colliding with a platform
+            for (Platforms platform : platforms){
+                if (proj.isColliding(platform.getHitBox())){
+                    proj.setVelocity(0, 0);
+                    if (proj.getType() == Enum.BOMB){
+                        proj.setDerezTimer(true);
+                    }
+                }
+            }
+            //Check if Projectile is colliding with an enemy
+            for (Enemy enemy : enemies){
+                if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB){
+                    proj.setVelocity(0, 0);
+                    proj.setAttached(enemy);
+                    proj.setDerezTimer(true);
+                }
+                else if (proj.isColliding(enemy.getHitBox())){
+                    enemy.takeDamage(proj.getDamage());
+                    proj.setDestroy(true);
+                }
+            }
+
         }
+    }
+
+
+    private void projectileRemove(Projectile proj){
+        //If an explosive, create temporary bullet
+        if (proj.isIsExplosive()){
+            projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION));
+        }
+        projectiles.removeValue(proj, true);
     }
 
     private void createProjectile(){
@@ -601,12 +625,87 @@ class MainScreen extends ScreenAdapter {
         if (!cole.getIsFacingRight()){
             direction = 1;
         }
-
-        projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                1, 1, direction));
-        System.out.println(projectiles.size);
+        if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
+            projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+        }
+        else {
+            projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
+                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
+        }
     }
 
+
+    /**
+     * Purpose: Actions that can only be done in developer mode, used for testing
+     */
+    private void handleInputs(){
+        //Movement Vertically
+        if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
+                Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.jump();
+        }
+
+        cole.setDucking(!cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)));
+
+        //Movement Horizontally
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
+        { cole.moveHorizontally(1); }
+        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
+        { cole.moveHorizontally(-1); }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
+
+
+        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            cole.drainEnergy();
+        }
+
+        else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
+            cole.attack();
+            if (cole.isAttacking){
+                createProjectile();
+                cole.isAttacking = false;
+            }
+        }
+
+
+    }
+
+    private void menuInputHandling(){
+        if(!helpFlag) {
+            //Movement Vertically
+            if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                buttonIndex--;
+                if (buttonIndex <= -1) {
+                    buttonIndex = NUM_BUTTONS_MAIN_SCREEN - 1;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                buttonIndex++;
+                if (buttonIndex >= NUM_BUTTONS_MAIN_SCREEN) {
+                    buttonIndex = 0;
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                //Launches the game
+                if (buttonIndex == 0) { helpFlag = true; }
+                //Turns on the help menu
+                else if (buttonIndex == 1) { musicControl.soundOnOff(); }
+                //Turns on the credits menu
+                else if(buttonIndex == 2){
+                    musicControl.stopMusic();
+                    infamous.setScreen(new LoadingScreen(infamous, 0));
+                }
+                else{ pausedFlag = false; }
+            }
+        }
+        else{
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) { helpFlag = false; }
+        }
+    }
 
     /**
      * Purpose: Resize the menuStage viewport in case the screen gets resized (Desktop)

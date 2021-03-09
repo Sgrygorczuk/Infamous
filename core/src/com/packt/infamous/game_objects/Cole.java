@@ -15,7 +15,11 @@ import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
-import static com.packt.infamous.Const.WORLD_HEIGHT;
+import static com.packt.infamous.Enum.BOLT;
+import static com.packt.infamous.Enum.BOMB;
+import static com.packt.infamous.Enum.TORPEDO;
+
+import com.packt.infamous.Enum;
 
 public class Cole extends GenericObject{
     private DrainableObject previousDrainable = null;
@@ -55,7 +59,7 @@ public class Cole extends GenericObject{
     //Timer counting down until we turn the draw function on/Off
     private static final float FLASHING_TIME = 0.1F;
     private float flashingTimer = FLASHING_TIME;
-
+  
     //============================= Climbing Stuff ===============================
     private boolean isTouchPole = false;
     private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
@@ -85,7 +89,7 @@ public class Cole extends GenericObject{
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
         currentHealth = 60;
-        currentEnergy = 80;
+        currentEnergy = 60;
         maxEnergy = maxHealth = 100;
 
         setAttackNames();
@@ -339,8 +343,16 @@ public class Cole extends GenericObject{
      */
     public void attack(){
         //If out of melee range, projectile: uses energy
+        //TODO: Create melee attack
         if (currentEnergy > 0){
-            currentEnergy -= 5;
+            switch(Enum.fromInteger(attackIndex)){
+                case BOLT:
+                    currentEnergy -= 5;
+                case BOMB:
+                    currentEnergy -= 10;
+                case TORPEDO:
+                    currentEnergy -= 15;
+            }
             isAttacking = true;
         }
     }
@@ -348,6 +360,10 @@ public class Cole extends GenericObject{
     public void updateAttackIndex(){
         attackIndex++;
         if(attackIndex == attackNames.size){ attackIndex = 0; }
+    }
+
+    public int getAttackIndex() {
+        return attackIndex;
     }
 
     public String getCurrentAttack(){return attackNames.get(attackIndex);}
@@ -364,8 +380,10 @@ public class Cole extends GenericObject{
     public void drainEnergy() {
         if (!canDrain || previousDrainable.getCurrentEnergy() == 0) {
             //Play fail sound
-            isDraining = false;
         } else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
+        }
+
+        else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
             if (canDrain && (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
                 int source_energy = previousDrainable.removeEnergy();
 
@@ -374,6 +392,7 @@ public class Cole extends GenericObject{
                         this.currentHealth += source_energy;
                         isDraining = true;
                     }
+                    currentEnergy += source_energy;
 
                 } else {
                     isDraining = false;
