@@ -9,9 +9,11 @@ import com.badlogic.gdx.utils.Array;
 import com.packt.infamous.Alignment;
 
 import static com.packt.infamous.Const.ACCELERATION;
+import static com.packt.infamous.Const.ATTACK_DELAY;
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.GRAVITY;
+import static com.packt.infamous.Const.INVINCIBILITY_TIME;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
 
@@ -51,10 +53,14 @@ public class Cole extends GenericObject{
     private int attackIndex = 0;
 
     private boolean canDrain = false;
-    public boolean isAttacking = false;
+    private boolean isAttacking = false;
+    private boolean canMelee = false;
+
+    //Timer for delaying attacks
+    private boolean canAttack = true;
+    private float attackTimer = ATTACK_DELAY;
 
     //Timer counting down until player can be hit again
-    private static final float INVINCIBILITY_TIME = 0.5F;
     private float invincibilityTimer = INVINCIBILITY_TIME;
 
     //Timer counting down until we turn the draw function on/Off
@@ -94,9 +100,7 @@ public class Cole extends GenericObject{
         xAccel = ACCELERATION;
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
-        currentHealth = 60;
-        currentEnergy = 60;
-        maxEnergy = maxHealth = 100;
+        maxEnergy = maxHealth = currentHealth = currentEnergy = 100;
 
         setAttackNames();
 
@@ -141,6 +145,7 @@ public class Cole extends GenericObject{
         updateDrainableRange();
         updateVelocityY();
         decelerate();
+        attackTimer(delta);
 
         if(velocity.x > 0){
             animationLeftTime += delta;
@@ -329,14 +334,13 @@ public class Cole extends GenericObject{
 
     /* ============================ Combat Functions =========================== */
 
-
     /**
      Input: Float delta
      Output: Void
      Purpose: Ticks down to turn off invincibility
      */
     public void invincibilityTimer(float delta){
-        invincibilityTimer -= delta;
+        attackTimer -= delta;
         flashingTimer -= delta;
 
         if (flashingTimer <= 0) {
@@ -352,12 +356,33 @@ public class Cole extends GenericObject{
     }
 
     /**
+     Input: Float delta
+     Output: Void
+     Purpose: Ticks down to delay attacks
+     */
+    public void attackTimer(float delta){
+        if (!canAttack) {
+            attackTimer -= delta;
+
+            if (attackTimer <= 0) {
+                canAttack = true;
+            }
+        }
+    }
+
+    /**
      * Purpose: Sets isAttacking to true, allows MainScreen to create projectile instance
      */
     public void attack(){
+        ///If attack timer not complete, do not not allow attack
+        if (!canAttack){
+            return;
+        }
         //If out of melee range, projectile: uses energy
-        //TODO: Create melee attack
-        if (currentEnergy > 0){
+        else if (canMelee){
+            return;
+        }
+        else if (currentEnergy > 0){
             switch(Enum.fromInteger(attackIndex)){
                 case BOLT:
                     currentEnergy -= 5;
@@ -557,4 +582,10 @@ public class Cole extends GenericObject{
     public boolean getIsFacingRight(){
         return isFacingRight;
     }
+    public boolean isIsAttacking() {return isAttacking;}
+    public boolean isCanMelee() {return canMelee;}
+    public void setCanMelee(boolean state) {canMelee = state;}
+    public boolean getCanAttack() {return canAttack;}
+    public void resetAttackTimer(){attackTimer = ATTACK_DELAY; canAttack = false;}
+    public void setIsAttacking(boolean state) {isAttacking = state;}
 }

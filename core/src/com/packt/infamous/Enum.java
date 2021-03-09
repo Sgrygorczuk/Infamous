@@ -4,7 +4,8 @@ public enum Enum {
     BOLT (0),
     BOMB (1),
     TORPEDO (2),
-    EXPLOSION (3);
+    EXPLOSION (3),
+    MELEE (4);
 
     Enum(int i) {
     }
@@ -19,6 +20,8 @@ public enum Enum {
                 return TORPEDO;
             case 3:
                 return EXPLOSION;
+            case 4:
+                return MELEE;
         }
         return null;
     }
