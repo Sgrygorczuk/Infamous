@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -19,7 +18,6 @@ import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.DrainableObject;
 import com.packt.infamous.game_objects.Enemy;
 import com.packt.infamous.game_objects.Ledge;
-import com.packt.infamous.game_objects.GenericObject;
 import com.packt.infamous.game_objects.Platforms;
 import com.packt.infamous.game_objects.Projectiles.Bomb;
 import com.packt.infamous.game_objects.Projectiles.Projectile;
@@ -309,11 +307,10 @@ class MainScreen extends ScreenAdapter {
     */
     private void update(float delta){
         updateCamera();
+        isCollidingPlatform();
         updateColliding();
-        updateProjectiles(tiledSetUp.getLevelWidth());
-        handleInput(delta);
         updateProjectiles(tiledSetUp.getLevelWidth(), delta);
-        handleInput();
+        handleInput(delta);
         cole.update(tiledSetUp.getLevelWidth(), delta);
     }
 
@@ -368,7 +365,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         //==================== Movement Horizontally ======================================
-        if (!cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
+        if (cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
         { cole.moveHorizontally(1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
             cole.jump();
@@ -378,7 +375,7 @@ class MainScreen extends ScreenAdapter {
             cole.shimmyLedge(true, delta);
         }
 
-        if (!cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
+        if (cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
         { cole.moveHorizontally(-1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
             cole.jump();
@@ -425,8 +422,6 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsHangingLedge(false);
             }
         }
-
-
     }
 
     /**
@@ -473,7 +468,6 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Central Colliding function, to make it update less cluttered
      */
     private void updateColliding(){
-        System.out.println(cole.getVelocity().y);
         isCollidingPlatform();
         isCollidingDrainable();
         isCollidingWater();
@@ -632,78 +626,6 @@ class MainScreen extends ScreenAdapter {
         else {
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
                     1, 1, direction, Enum.fromInteger(cole.getAttackIndex())));
-        }
-    }
-
-
-    /**
-     * Purpose: Actions that can only be done in developer mode, used for testing
-     */
-    private void handleInputs(){
-        //Movement Vertically
-        if (!cole.getIsJumping() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
-                Gdx.input.isKeyPressed(Input.Keys.UP))){
-            cole.jump();
-        }
-
-        cole.setDucking(!cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)));
-
-        //Movement Horizontally
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
-        { cole.moveHorizontally(1); }
-        if (cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
-        { cole.moveHorizontally(-1); }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
-
-
-        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            cole.drainEnergy();
-        }
-
-        else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
-            cole.attack();
-            if (cole.isAttacking){
-                createProjectile();
-                cole.isAttacking = false;
-            }
-        }
-
-
-    }
-
-    private void menuInputHandling(){
-        if(!helpFlag) {
-            //Movement Vertically
-            if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-                buttonIndex--;
-                if (buttonIndex <= -1) {
-                    buttonIndex = NUM_BUTTONS_MAIN_SCREEN - 1;
-                }
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-                buttonIndex++;
-                if (buttonIndex >= NUM_BUTTONS_MAIN_SCREEN) {
-                    buttonIndex = 0;
-                }
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                //Launches the game
-                if (buttonIndex == 0) { helpFlag = true; }
-                //Turns on the help menu
-                else if (buttonIndex == 1) { musicControl.soundOnOff(); }
-                //Turns on the credits menu
-                else if(buttonIndex == 2){
-                    musicControl.stopMusic();
-                    infamous.setScreen(new LoadingScreen(infamous, 0));
-                }
-                else{ pausedFlag = false; }
-            }
-        }
-        else{
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) { helpFlag = false; }
         }
     }
 
@@ -910,7 +832,7 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Set the screen to black so we can draw on top of it again
     */
     private void clearScreen() {
-        Gdx.gl.glClearColor(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b, Color.BROWN.a); //Sets color to black
+        Gdx.gl.glClearColor(Color.CLEAR.r, Color.CLEAR.g, Color.CLEAR.b, Color.CLEAR.a); //Sets color to black
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);										 //Sends it to the buffer
     }
 
