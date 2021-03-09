@@ -9,13 +9,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
+import com.packt.infamous.game_objects.Civilian;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Collectible;
 import com.packt.infamous.game_objects.DrainableObject;
@@ -100,6 +100,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Enemy> enemies = new Array<>();
     private final Array<Projectile> projectiles = new Array<>();
     private final Array<Collectible> collectibles = new Array<>();
+    private final Array<Civilian> civilians = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -150,6 +151,7 @@ class MainScreen extends ScreenAdapter {
     private void showTiled(){
         tiledSetUp = new TiledSetUp(infamous.getAssetManager(), batch, "Tiled/InfamousMapPlaceHolder.tmx");
 
+        //======================================== Cole =========================================
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
         cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
         cole.setWidth(COLE_WIDTH);
@@ -157,6 +159,17 @@ class MainScreen extends ScreenAdapter {
         cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet,
                 mainScreenTextures.railSparkSpriteSheet);
 
+        //========================================= Civilians ======================================
+        Array<Vector2> peoplePosition = tiledSetUp.getLayerCoordinates("People");
+        for(int i = 0; i < peoplePosition.size; i++){
+            int choice = MathUtils.random(0,3);
+            civilians.add(new Civilian(peoplePosition.get(i).x, peoplePosition.get(i).y,
+                    mainScreenTextures.peopleDownSpriteSheet[choice][0],
+                    mainScreenTextures.peopleUpSpriteSheet[0][choice]));
+        }
+
+
+        //========================================= Pole ======================================
         Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("Pole");
         Array<Vector2> poleDimensions = tiledSetUp.getLayerDimensions("Pole");
         for(int i = 0; i < polePositions.size; i++){
@@ -165,6 +178,7 @@ class MainScreen extends ScreenAdapter {
             poles.get(i).setHeight(poleDimensions.get(i).y);
         }
 
+        //======================================= Ledge ==============================================
         Array<Vector2> ledgePositions = tiledSetUp.getLayerCoordinates("Ledge");
         Array<Vector2> ledgeDimensions = tiledSetUp.getLayerDimensions("Ledge");
         for(int i = 0; i < ledgePositions.size; i++){
@@ -173,12 +187,14 @@ class MainScreen extends ScreenAdapter {
             ledges.get(i).setHeight(ledgeDimensions.get(i).y/2f);
         }
 
+        //================================= Collectible ===================================
         Array<Vector2> collectiblePositions = tiledSetUp.getLayerCoordinates("BlastShard");
         for(int i = 0; i < collectiblePositions.size; i++){
             collectibles.add(new Collectible(collectiblePositions.get(i).x, collectiblePositions.get(i).y, mainScreenTextures.collectibleSpriteSheet));
         }
         collectibleSum = collectibles.size;
 
+        //================================= Platforms =======================================
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
         Array<Vector2> platformsDimensions = tiledSetUp.getLayerDimensions("Platforms");
         for(int i = 0; i < platformsPositions.size; i++){
@@ -187,6 +203,7 @@ class MainScreen extends ScreenAdapter {
             platforms.get(i).setHeight(platformsDimensions.get(i).y);
         }
 
+        //============================ Water ============================================
         Array<Vector2> waterPositions = tiledSetUp.getLayerCoordinates("Water");
         Array<Vector2> waterDimensions = tiledSetUp.getLayerDimensions("Water");
         for(int i = 0; i < waterPositions.size; i++){
@@ -196,6 +213,7 @@ class MainScreen extends ScreenAdapter {
             waters.get(i).setTexture(mainScreenTextures.waterTexture);
         }
 
+        //=============================== Rails ===========================================
         Array<Vector2> railPositions = tiledSetUp.getLayerCoordinates("Rail");
         Array<Vector2> railDimensions = tiledSetUp.getLayerDimensions("Rail");
         for(int i = 0; i < railPositions.size; i++){
@@ -210,6 +228,7 @@ class MainScreen extends ScreenAdapter {
             platforms.add(rail_platform);
         }
 
+        //========================= Drainables ===========================================
         Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
         for(int i = 0; i < drainablePositions.size; i++){
             drainables.add(new DrainableObject(drainablePositions.get(i).x,
@@ -263,6 +282,7 @@ class MainScreen extends ScreenAdapter {
         debugRendering.startEnemyRender();
         for(Water water : waters){ water.drawDebug(debugRendering.getShapeRenderEnemy()); }
         for(Projectile proj : projectiles){ proj.drawDebug(debugRendering.getShapeRenderEnemy()); }
+        for(Civilian civilian : civilians){civilian.drawDebug(debugRendering.getShapeRenderEnemy());}
         debugRendering.endEnemyRender();
 
         debugRendering.startUserRender();
@@ -491,6 +511,7 @@ class MainScreen extends ScreenAdapter {
         isCollidingPole();
         isCollidingLedge();
         isCollidingCollectibles();
+        isCollidingMelee();
     }
 
 
@@ -591,11 +612,18 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Check if Cole can Melee an Enemy
      */
     private void isCollidingMelee(){
+        boolean isMelee = false;
         for (Enemy enemy : enemies){
             if(cole.isCollidingMelee(enemy.getHitBox())){
-                cole.setCanMelee(true);
+                isMelee = true;
             }
         }
+        for(Civilian civilian : civilians) {
+            if (cole.isCollidingMelee(civilian.getHitBox())) {
+                isMelee = true;
+            }
+        }
+        cole.setCanMelee(isMelee);
     }
 
 
@@ -659,7 +687,7 @@ class MainScreen extends ScreenAdapter {
         //If an explosive, create temporary bullet
         if (proj.isIsExplosive()){
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
         }
         projectiles.removeValue(proj, true);
     }
@@ -674,16 +702,16 @@ class MainScreen extends ScreenAdapter {
         }
         if (cole.isCanMelee()){
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                    (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
+                    (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
             cole.setCanMelee(false);
         }
         else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
             projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                    1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
         else {
             projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
-                    1, 1, direction, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                    1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
         }
         cole.setIsAttacking(false);
         cole.resetAttackTimer();
@@ -746,7 +774,9 @@ class MainScreen extends ScreenAdapter {
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
         for (DrainableObject drainable : drainables){ drainable.draw(batch); }
         for(Collectible collectible : collectibles) {collectible.draw(batch);}
+        for(Civilian civilian : civilians){civilian.draw(batch);}
         cole.drawAnimations(batch);
+        drawAction();
         for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
         for(Water water : waters){water.draw(batch);}
         batch.end();
@@ -768,6 +798,13 @@ class MainScreen extends ScreenAdapter {
         if(pausedFlag && !helpFlag){drawButtonText();}
         else if(pausedFlag){drawBackButtonText();}
         batch.end();
+    }
+
+    private void drawAction(){
+        if((cole.getIsTouchingLedge() || cole.getIsTouchingPole()) && !cole.getIsClimbingPole() && !cole.getIsHangingLedge()){
+            batch.draw(mainScreenTextures.actionTexture, cole.getX() + mainScreenTextures.actionTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 5 + mainScreenTextures.actionTexture.getHeight()/2f  );
+        }
     }
 
     /**
