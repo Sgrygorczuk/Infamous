@@ -1,5 +1,7 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
@@ -23,6 +25,8 @@ public class Enemy extends  GenericObject{
     public Rectangle visionCone;
     protected static float visionWidth = COLE_WIDTH*6;
     protected static float visionHeight = COLE_HEIGHT/2;
+    protected static float calloutTime = 1f;
+    protected float callout = 0f;
 
 
     public Enemy(float x, float y, float distance, Alignment alignment){
