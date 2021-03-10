@@ -324,9 +324,11 @@ class MainScreen extends ScreenAdapter {
             rail.drawDebug(debugRendering.getShapeRendererBackground());
         }
 
-        debugRendering.setShapeRendererBackgroundColor(Color.RED);
         for(Enemy enemy : enemies){
+            debugRendering.setShapeRendererBackgroundColor(Color.RED);
             enemy.drawDebug(debugRendering.getShapeRendererBackground());
+            debugRendering.setShapeRendererBackgroundColor(Color.GOLDENROD);
+
         }
         debugRendering.endBackgroundRender();
 

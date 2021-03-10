@@ -1,5 +1,6 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
 
@@ -16,6 +17,9 @@ public class Enemy extends  GenericObject{
     protected  float walkingDistance;
     protected boolean isFacingRight = false;
     protected float initialX;
+    public Rectangle visionCone;
+    protected static float visionWidth = COLE_WIDTH*6;
+    protected static float visionHeight = COLE_HEIGHT/2;
 
 
     public Enemy(float x, float y, float distance, Alignment alignment){
@@ -26,11 +30,13 @@ public class Enemy extends  GenericObject{
         initialX = x;
         currentHealth = maxHealth = 100;
         ammo = 10;
+        visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
     public void update(float delta){
         pathing(delta);
         action(delta);
+        visionCone();
     }
 
     public void action(float delta){
@@ -52,7 +58,6 @@ public class Enemy extends  GenericObject{
     }
 
     public void pathing(float delta){
-        System.out.println("Enemy at "+hitBox.x+". "+hitBox.y);
         if(isFacingRight){
             if(hitBox.x >= initialX + walkingDistance){
                 isFacingRight = false;
@@ -66,5 +71,17 @@ public class Enemy extends  GenericObject{
                 hitBox.x -= delta*moveSpeed;
             }
         }
+    }
+    public void visionCone(){
+        if(isFacingRight){
+            visionCone.setX(hitBox.x + COLE_WIDTH);
+        } else{
+            visionCone.setX(hitBox.x - visionWidth);
+        }
+    }
+
+    public void drawDebug(ShapeRenderer shapeRenderer) {
+        shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+        shapeRenderer.rect(visionCone.x, visionCone.y, visionCone.width, visionCone.height);
     }
 }
