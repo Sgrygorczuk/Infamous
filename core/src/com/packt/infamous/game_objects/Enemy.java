@@ -23,7 +23,9 @@ public class Enemy extends  GenericObject{
     public Rectangle visionCone;
     protected static float visionWidth = COLE_WIDTH*6;
     protected static float visionHeight = COLE_HEIGHT/2;
-
+    // debugging purposes
+    protected float callout = 0f;
+    protected float calloutTime = 1f;
 
     public Enemy(float x, float y, float distance, Alignment alignment){
         super(x, y, alignment);
@@ -43,19 +45,27 @@ public class Enemy extends  GenericObject{
     }
 
     public void action(float delta){
+        callout -= delta;
         if(reloading <= 0) {
-            if (ammo <= 0 || !inCombat) { // reloading action
+            if (ammo <= 0 || (!inCombat && ammo < maxAmmo)) { // reloading action
                 System.out.println("Reloading!");
+                callout = calloutTime;
                 reloading = reloadTime;
-            } else { // shooting action
+            } else if(ammo > 0 && inCombat) { // shooting action
                 if (shooting <= 0 && inCombat && !shootBullet) { // add conditional that enemy sees Cole.
                     System.out.println("Engaging!");
+                    callout = calloutTime;
                     // shoot a bullet here (throw a hitbox forward)
                     shootBullet = true;
                     ammo -= 1;
                     shooting = shootTime;
                 } else {
                     shooting -= delta;
+                }
+            } else{
+                if(callout <= 0){
+                    System.out.println("Standing By!");
+                    callout = calloutTime;
                 }
             }
         } else {
@@ -97,7 +107,6 @@ public class Enemy extends  GenericObject{
 
     public void takeDamage(int damage){
         currentHealth -= damage;
-        System.out.println("Enemy's New Health: "+ currentHealth);
     }
 
     public void setCombat(boolean combatState){

@@ -680,7 +680,7 @@ class MainScreen extends ScreenAdapter {
             if (proj.canDestroy()){
                 projectileRemove(proj);
             }
-            System.out.println(proj.getType());
+//            System.out.println(proj.getType());
             proj.update(levelWidth, levelHeight, delta);
             //Check if colliding with a platform
             for (Platforms platform : platforms){

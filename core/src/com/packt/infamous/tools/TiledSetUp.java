@@ -59,7 +59,7 @@ public class TiledSetUp {
         TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         levelHeight = tiledMapTileLayer.getHeight() * tiledMapTileLayer.getTileHeight();
         levelWidth = tiledMapTileLayer.getWidth() * tiledMapTileLayer.getTileWidth();
-        System.out.println(levelWidth);
+//        System.out.println(levelWidth);
 
     }
 
