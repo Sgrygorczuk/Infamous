@@ -84,4 +84,9 @@ public class Enemy extends  GenericObject{
         shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
         shapeRenderer.rect(visionCone.x, visionCone.y, visionCone.width, visionCone.height);
     }
+
+    public void takeDamage(int damage){
+        currentHealth -= damage;
+        System.out.println("Enemy's New Health: "+ currentHealth);
+    }
 }
