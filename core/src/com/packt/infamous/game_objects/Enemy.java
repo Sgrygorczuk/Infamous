@@ -10,12 +10,15 @@ import static com.packt.infamous.Const.COLE_WIDTH;
 public class Enemy extends  GenericObject{
     protected int ammo = 0;
     protected float reloading = 0;
-    protected static float reloadTime = 3f;
+    protected static int maxAmmo = 10;
+    protected static float reloadTime = 1f;
     protected static float shooting = 0;
-    protected static float shootTime = 1f;
+    protected static float shootTime = 0.3f;
     protected static float moveSpeed = 20f;
     protected  float walkingDistance;
-    protected boolean isFacingRight = false;
+    protected boolean inCombat = false; // True if they see cole
+    public boolean isFacingRight = false;
+    public boolean shootBullet = false;
     protected float initialX;
     public Rectangle visionCone;
     protected static float visionWidth = COLE_WIDTH*6;
@@ -29,35 +32,42 @@ public class Enemy extends  GenericObject{
         walkingDistance = distance-COLE_WIDTH;
         initialX = x;
         currentHealth = maxHealth = 100;
-        ammo = 10;
+        ammo = maxAmmo;
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
     public void update(float delta){
         pathing(delta);
-        action(delta);
         visionCone();
+        action(delta);
     }
 
     public void action(float delta){
         if(reloading <= 0) {
-            // TODO: or if enemy doesn't see cole, reload
-            if (ammo <= 0) { // reloading action
-                reloading -= delta;
+            if (ammo <= 0 || !inCombat) { // reloading action
+                System.out.println("Reloading!");
+                reloading = reloadTime;
             } else { // shooting action
-                // TODO: if enemy sees cole, do this
-                if (shooting == 0) { // add conditional that enemy sees Cole.
+                if (shooting <= 0 && inCombat && !shootBullet) { // add conditional that enemy sees Cole.
+                    System.out.println("Engaging!");
                     // shoot a bullet here (throw a hitbox forward)
+                    shootBullet = true;
                     ammo -= 1;
                     shooting = shootTime;
                 } else {
                     shooting -= delta;
                 }
             }
+        } else {
+            reloading -= delta;
+            if(reloading <= 0){
+                ammo = maxAmmo;
+            }
         }
     }
 
     public void pathing(float delta){
+        if(inCombat)return;
         if(isFacingRight){
             if(hitBox.x >= initialX + walkingDistance){
                 isFacingRight = false;
@@ -89,4 +99,13 @@ public class Enemy extends  GenericObject{
         currentHealth -= damage;
         System.out.println("Enemy's New Health: "+ currentHealth);
     }
+
+    public void setCombat(boolean combatState){
+        inCombat = combatState;
+    }
+
+    public void setCombat(Cole player){
+        inCombat = visionCone.overlaps(player.hitBox);
+    }
+
 }

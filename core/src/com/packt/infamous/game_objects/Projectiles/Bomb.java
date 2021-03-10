@@ -22,8 +22,8 @@ public class Bomb extends Projectile{
             hitBox.x += velocity.x;
         }
         else {
-            hitBox.y = followObject.getY();
-            hitBox.x = followObject.getX();
+            hitBox.y = followObject.getY()+disjoint.x;
+            hitBox.x = followObject.getX()+disjoint.y;
         }
     }
 

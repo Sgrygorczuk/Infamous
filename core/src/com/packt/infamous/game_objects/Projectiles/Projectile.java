@@ -3,12 +3,14 @@ package com.packt.infamous.game_objects.Projectiles;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.Enum;
 import com.packt.infamous.game_objects.GenericObject;
 
 import static com.packt.infamous.Const.BOLT_DAMAGE;
 import static com.packt.infamous.Const.BOLT_SPEED;
+import static com.packt.infamous.Const.BULLET_TIME;
 import static com.packt.infamous.Const.EXPLOSIVE_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_LINGER;
 import static com.packt.infamous.Const.MELEE_TIME;
@@ -34,6 +36,7 @@ public class Projectile extends GenericObject {
     //For Bombs
     protected boolean isAttached;
     GenericObject followObject;
+    Vector2 disjoint;
 
     public Projectile(float x, float y, Alignment align, int width, int height,
                       int direction, float startVelocity, Enum type, TextureRegion[][] bulletSpriteSheet) {
@@ -51,8 +54,9 @@ public class Projectile extends GenericObject {
         if (type == Enum.MELEE){
             projectileTimer = MELEE_TIME;
         }
-
-        else if (type != Enum.BOLT && type != Enum.EXPLOSION){
+        else if(type == Enum.BULLET){
+            projectileTimer = BULLET_TIME;
+        } else if (type != Enum.BOLT && type != Enum.EXPLOSION){
             isExplosive = true;
             if (type == Enum.BOMB){
                 projectileTimer_enabled = false;
@@ -65,7 +69,6 @@ public class Projectile extends GenericObject {
             damage = EXPLOSIVE_DAMAGE;
             projectileTimer = EXPLOSIVE_LINGER;
             projectileTimer_enabled = true;
-
         }
 
         this.bulletSpriteSheet = bulletSpriteSheet;
@@ -99,6 +102,7 @@ public class Projectile extends GenericObject {
     public void setAttached(GenericObject obj) {
         followObject = obj;
         isAttached = true;
+        disjoint = new Vector2(hitBox.x - obj.getX(), hitBox.y - obj.getY());
     }
 
     public int getDamage() {return damage;}
