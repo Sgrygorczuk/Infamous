@@ -1,8 +1,5 @@
 package com.packt.infamous.game_objects;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
@@ -65,10 +62,16 @@ public class Enemy extends  GenericObject{
                     shooting -= delta;
                 }
             }
+        } else {
+            reloading -= delta;
+            if(reloading <= 0){
+                ammo = maxAmmo;
+            }
         }
     }
 
     public void pathing(float delta){
+        if(inCombat)return;
         if(isFacingRight){
             if(hitBox.x >= initialX + walkingDistance){
                 isFacingRight = false;
@@ -95,6 +98,20 @@ public class Enemy extends  GenericObject{
         shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
         shapeRenderer.rect(visionCone.x, visionCone.y, visionCone.width, visionCone.height);
     }
+
+    public void takeDamage(int damage){
+        currentHealth -= damage;
+        System.out.println("Enemy's New Health: "+ currentHealth);
+    }
+
+    public void setCombat(boolean combatState){
+        inCombat = combatState;
+    }
+
+    public void setCombat(Cole player){
+        inCombat = visionCone.overlaps(player.hitBox);
+    }
+
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
 

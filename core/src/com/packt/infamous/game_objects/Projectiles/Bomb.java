@@ -3,11 +3,10 @@ package com.packt.infamous.game_objects.Projectiles;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.Enum;
+import com.packt.infamous.game_objects.Enemy;
 import com.packt.infamous.game_objects.GenericObject;
 
 public class Bomb extends Projectile{
-    GenericObject followObject;
-
     public Bomb(float x, float y, Alignment align, int width, int height, int direction, float startVelocity, Enum type, TextureRegion[][] bulletSpriteSheet) {
         super(x, y, align, width, height, direction, startVelocity, Enum.BOMB, bulletSpriteSheet);
         isExplosive = true;
@@ -23,8 +22,8 @@ public class Bomb extends Projectile{
             hitBox.x += velocity.x;
         }
         else {
-            hitBox.y = followObject.getY();
-            hitBox.x = followObject.getX();
+            hitBox.y = followObject.getY()+disjoint.x;
+            hitBox.x = followObject.getX()+disjoint.y;
         }
     }
 

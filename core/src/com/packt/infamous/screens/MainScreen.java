@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -354,8 +355,6 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void update(float delta){
-        System.out.println(cole.getVelocity().y);
-        System.out.println(cole.getIsHovering());
         updateCamera();
         isCollidingPlatform();
         updateColliding();
@@ -620,7 +619,7 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     * Purpose: Check if Cole is on railse
+     * Purpose: Check if Cole is on rails
      */
     private void isCollidingRails(){
         boolean riding = false;
@@ -746,7 +745,14 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Update enemy pathing
      */
     public void updateEnemies(float delta){
-        for(Enemy enemy : enemies){ enemy.update(delta); }
+        for(Enemy enemy : enemies){
+            enemy.update(delta);
+            enemy.setCombat(cole);
+            if(enemy.shootBullet){
+                enemy.shootBullet = false;
+                createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
+            }
+        }
     }
 
     /**

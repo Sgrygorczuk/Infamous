@@ -145,4 +145,5 @@ public class GenericObject {
         batch.draw(texture, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 
+    public Alignment getAlignment(){return align;}
 }
