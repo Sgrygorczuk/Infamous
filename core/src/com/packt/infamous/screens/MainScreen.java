@@ -690,6 +690,7 @@ class MainScreen extends ScreenAdapter {
             }
             //Check if Projectile is colliding with an enemy
             for (Enemy enemy : enemies){
+                if(proj.getAlignment() == Alignment.ENEMY) continue;
                 if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB){
                     proj.setVelocity(0, 0);
                     proj.setAttached(enemy);
@@ -699,6 +700,10 @@ class MainScreen extends ScreenAdapter {
                     enemy.takeDamage(proj.getDamage());
                     proj.setDestroy(true);
                 }
+            }
+            if(proj.isColliding(cole.getHitBox()) && proj.getAlignment() == Alignment.ENEMY){
+                cole.takeDamage(proj.getDamage());
+                proj.setDestroy(true);
             }
 
         }
