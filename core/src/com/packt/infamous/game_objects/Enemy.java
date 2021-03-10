@@ -10,12 +10,15 @@ import static com.packt.infamous.Const.COLE_WIDTH;
 public class Enemy extends  GenericObject{
     protected int ammo = 0;
     protected float reloading = 0;
-    protected static float reloadTime = 3f;
+    protected static int maxAmmo = 10;
+    protected static float reloadTime = 1f;
     protected static float shooting = 0;
-    protected static float shootTime = 1f;
+    protected static float shootTime = 0.3f;
     protected static float moveSpeed = 20f;
     protected  float walkingDistance;
-    protected boolean isFacingRight = false;
+    protected boolean inCombat = false; // True if they see cole
+    public boolean isFacingRight = false;
+    public boolean shootBullet = false;
     protected float initialX;
     public Rectangle visionCone;
     protected static float visionWidth = COLE_WIDTH*6;
@@ -29,7 +32,7 @@ public class Enemy extends  GenericObject{
         walkingDistance = distance-COLE_WIDTH;
         initialX = x;
         currentHealth = maxHealth = 100;
-        ammo = 10;
+        ammo = maxAmmo;
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
@@ -48,18 +51,27 @@ public class Enemy extends  GenericObject{
     }
 
     public void action(float delta){
+        callout -= delta;
         if(reloading <= 0) {
-            // TODO: or if enemy doesn't see cole, reload
-            if (ammo <= 0) { // reloading action
-                reloading -= delta;
-            } else { // shooting action
-                // TODO: if enemy sees cole, do this
-                if (shooting == 0) { // add conditional that enemy sees Cole.
+            if (ammo <= 0 || (!inCombat && ammo < maxAmmo)) { // reloading action
+                System.out.println("Reloading!");
+                callout = calloutTime;
+                reloading = reloadTime;
+            } else if(ammo > 0 && inCombat) { // shooting action
+                if (shooting <= 0 && inCombat && !shootBullet) { // add conditional that enemy sees Cole.
+                    System.out.println("Engaging!");
+                    callout = calloutTime;
                     // shoot a bullet here (throw a hitbox forward)
+                    shootBullet = true;
                     ammo -= 1;
                     shooting = shootTime;
                 } else {
                     shooting -= delta;
+                }
+            } else{
+                if(callout <= 0){
+                    System.out.println("Standing By!");
+                    callout = calloutTime;
                 }
             }
         } else {
