@@ -53,7 +53,7 @@ public final class Const{
     public static final float FRICTION_AFTER_RIDE = 0.2f;
     public static final float MAX_VELOCITY = 3f;
 
-    public static final float HOVER_GRAVITY = 0.5f;
+    public static final float HOVER_GRAVITY = 1f;
 
     //======================== Combat Related ===========================
     public static final float INVINCIBILITY_TIME = 0.5F;

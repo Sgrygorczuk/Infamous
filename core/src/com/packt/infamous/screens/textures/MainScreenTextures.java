@@ -17,10 +17,12 @@ public class MainScreenTextures {
     public TextureRegion[][] coleSpriteSheet;
     public TextureRegion[][] drainSpriteSheet;
     public TextureRegion[][] railSparkSpriteSheet;
+    public TextureRegion[][] hoverSpriteSheet;
     public TextureRegion[][] bulletSpriteSheet;
     public TextureRegion[][] collectibleSpriteSheet;
     public TextureRegion[][] peopleDownSpriteSheet;
     public TextureRegion[][] peopleUpSpriteSheet;
+    public TextureRegion[][] enemySpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -41,11 +43,16 @@ public class MainScreenTextures {
 
         Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
         coleSpriteSheet = new TextureRegion(coleTexturePath).split(
-                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/3);
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/4);
 
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(
                 drainTexturePath.getWidth()/2, drainTexturePath.getHeight());
+
+        Texture hoverTexturePath = new Texture(Gdx.files.internal("Sprites/FloatAction.png"));
+        hoverSpriteSheet = new TextureRegion(hoverTexturePath).split(
+                hoverTexturePath.getWidth()/3, hoverTexturePath.getHeight());
+
 
         Texture railSparkTexturePath = new Texture(Gdx.files.internal("Sprites/RailSparks.png"));
         railSparkSpriteSheet = new TextureRegion(railSparkTexturePath).split(
@@ -66,6 +73,11 @@ public class MainScreenTextures {
         Texture peopleUpTexturePath = new Texture(Gdx.files.internal("Sprites/PeopleHealed.png"));
         peopleUpSpriteSheet = new TextureRegion(peopleUpTexturePath).split(
                 peopleUpTexturePath.getWidth()/4, peopleUpTexturePath.getHeight());
+
+        Texture enemyTexturePath = new Texture(Gdx.files.internal("Sprites/Enemy.png"));
+        enemySpriteSheet = new TextureRegion(enemyTexturePath).split(
+                enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight());
+
 
     }
 

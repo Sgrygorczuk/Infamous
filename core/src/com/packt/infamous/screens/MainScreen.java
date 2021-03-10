@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -158,7 +157,7 @@ class MainScreen extends ScreenAdapter {
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
         cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet,
-                mainScreenTextures.railSparkSpriteSheet);
+                mainScreenTextures.railSparkSpriteSheet, mainScreenTextures.hoverSpriteSheet);
 
         //========================================= Civilians ======================================
         Array<Vector2> peoplePosition = tiledSetUp.getLayerCoordinates("People");
@@ -251,6 +250,7 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
             enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY));
+            enemies.get(i).setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
         }
 
     }
@@ -354,6 +354,8 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void update(float delta){
+        System.out.println(cole.getVelocity().y);
+        System.out.println(cole.getIsHovering());
         updateCamera();
         isCollidingPlatform();
         updateColliding();
@@ -393,16 +395,12 @@ class MainScreen extends ScreenAdapter {
      */
     private void handleInputs(float delta){
         //======================== Movement Vertically ====================================
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.W) ||
-                Gdx.input.isKeyPressed(Input.Keys.UP))){
-            if ((cole.getIsJumping() || cole.getIsFalling() || cole.getIsRising())
-                    && !cole.getIsHovering()){
-                cole.toggleHoverGravity(true);
-            }
-            else if (cole.canColeMove() && !cole.getIsJumping()
-                    && !cole.getIsFalling()){
-                cole.jump();
-            }
+        if(cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.jump();
+        }
+        else if (cole.getIsJumping() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            cole.setIsHovering(true);
+            cole.setIsJumping(false);
         }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.climbPole(true, delta);
@@ -413,7 +411,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         if(cole.getIsHovering() && Gdx.input.isKeyPressed(Input.Keys.S)){
-            cole.toggleHoverGravity(false);
+            cole.setIsHovering(false);
         }
         if(cole.canColeMove() && !cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN))){
             cole.setDucking(true);
@@ -468,7 +466,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsClimbingPole(true);
                 cole.setX(polePosition);
                 cole.setIsJumping(false);
-                cole.toggleHoverGravity(false);
+                cole.setIsHovering(false);
                 cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingPole() && cole.getIsClimbingPole()){
@@ -479,7 +477,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsHangingLedge(true);
                 cole.setY(ledgePosition);
                 cole.setIsJumping(false);
-                cole.toggleHoverGravity(false);
+                cole.setIsHovering(false);
                 cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingLedge() && cole.getIsHangingLedge()){
@@ -622,7 +620,7 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     * Purpose: Check if Cole is on rails
+     * Purpose: Check if Cole is on railse
      */
     private void isCollidingRails(){
         boolean riding = false;
@@ -748,9 +746,7 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Update enemy pathing
      */
     public void updateEnemies(float delta){
-        for(Enemy enemy : enemies){
-            enemy.update(delta);
-        }
+        for(Enemy enemy : enemies){ enemy.update(delta); }
     }
 
     /**
@@ -815,7 +811,7 @@ class MainScreen extends ScreenAdapter {
         drawAction();
         for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
         for(Water water : waters){water.draw(batch);}
-//        for(Enemy enemy : enemies){enemy.draw(batch);} // TODO: add a sprite for enemy
+        for(Enemy enemy : enemies){enemy.drawAnimations(batch);}
         batch.end();
 
 

@@ -1,5 +1,8 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.packt.infamous.Alignment;
@@ -33,10 +36,18 @@ public class Enemy extends  GenericObject{
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions){
+        this.spriteSheet = textureRegions;
+        setUpAnimations();
+  }
+
     public void update(float delta){
         pathing(delta);
         action(delta);
         visionCone();
+
+        if(!isFacingRight){ animationLeftTime += delta; }
+        else{ animationRightTime += delta; }
     }
 
     public void action(float delta){
@@ -84,4 +95,18 @@ public class Enemy extends  GenericObject{
         shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
         shapeRenderer.rect(visionCone.x, visionCone.y, visionCone.width, visionCone.height);
     }
+    public void drawAnimations(SpriteBatch batch){
+        TextureRegion currentFrame = spriteSheet[0][0];
+
+
+        if (isFacingRight) {
+            currentFrame = walkRightAnimation.getKeyFrame(animationRightTime);
+        }
+        else if(!isFacingRight){
+            currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime);
+        }
+
+        batch.draw(currentFrame, isFacingRight ? hitBox.x + currentFrame.getRegionWidth() : hitBox.x , hitBox.y , isFacingRight ? currentFrame.getRegionWidth() : -currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
+    }
+
 }

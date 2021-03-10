@@ -47,6 +47,10 @@ public class Cole extends GenericObject{
     protected Animation<TextureRegion> railSparkEffectAnimation;
     protected float railSparkEffectTime = 0;
 
+    protected TextureRegion[][] hoverEffectSpriteSheet;
+    protected Animation<TextureRegion> hoverEffectAnimation;
+    protected float hoverEffectTime = 0;
+
     protected Animation<TextureRegion> shimmyAnimation;
     protected float shimmyTime = 0;
 
@@ -112,13 +116,15 @@ public class Cole extends GenericObject{
 
 
     public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] chargeTexture,
-                                 TextureRegion[][] railSparkEffectSpriteSheet){
+                                 TextureRegion[][] railSparkEffectSpriteSheet, TextureRegion[][] hoverSpriteSheet){
         this.spriteSheet = textureRegions;
         this.drainingParticleEffectSpriteSheet = chargeTexture;
         this.railSparkEffectSpriteSheet = railSparkEffectSpriteSheet;
+        this.hoverEffectSpriteSheet = hoverSpriteSheet;
         setUpAnimations();
         setUpShimmyAnimation();
         drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/4f,0, Animation.PlayMode.LOOP_PINGPONG);
+        hoverEffectAnimation = setUpAnimation(hoverSpriteSheet, 1/6f, 0, Animation.PlayMode.LOOP);
         railSparkEffectAnimation = setUpAnimation(railSparkEffectSpriteSheet, 1/6f,0, Animation.PlayMode.LOOP_PINGPONG);
     }
 
@@ -161,6 +167,7 @@ public class Cole extends GenericObject{
 
         if(isDraining){ drainingParticleEffectTime += delta; }
         if(isRiding){railSparkEffectTime += delta;}
+        if(isHovering){hoverEffectTime += delta;}
 
         updateDucking();
 
@@ -188,6 +195,8 @@ public class Cole extends GenericObject{
             //Starts falling back down
             else if (velocity.y > -relativeGravity) { velocity.y -= relativeGravity; }
         }
+        //=========================== Hovering ==========================
+        else if(isHovering){velocity.y = -HOVER_GRAVITY;}
         //================== Is holding onto something ======================
         else if(isClimbingPole || isHangingLedge || isRiding){
             velocity.y = 0;
@@ -477,7 +486,7 @@ public class Cole extends GenericObject{
                 this.hitBox.y = rectangle.y + rectangle.height;
                 isJumping = false;  //Can jump again
                 isFalling = false;  //Is no longer falling
-                toggleHoverGravity(false);
+                setIsHovering(false);
                 ridingFriction = false;
                 velocity.y = 0;
             }
@@ -560,7 +569,8 @@ public class Cole extends GenericObject{
         TextureRegion currentFrame = spriteSheet[0][0];
 
         //=========================== Cole ============================================
-        if(isRiding){ currentFrame = spriteSheet[2][3]; }
+        if(isHovering){currentFrame = spriteSheet[3][0];}
+        else if(isRiding){ currentFrame = spriteSheet[2][3]; }
         else if(isClimbingPole || isHangingLedge){ currentFrame = shimmyAnimation.getKeyFrame(shimmyTime);}
         else if(isDraining){ currentFrame = spriteSheet[1][3]; }
         else if(isJumping || isFalling){ currentFrame = spriteSheet[1][1];}
@@ -588,19 +598,14 @@ public class Cole extends GenericObject{
             currentParticleFrame = railSparkEffectAnimation.getKeyFrame(railSparkEffectTime);
             batch.draw(currentParticleFrame, isFacingRight ? hitBox.x + 2 *hitBox.width : hitBox.x - hitBox.width, hitBox.y,  isFacingRight ? - hitBox.width * 2 : hitBox.width * 2, hitBox.height);
         }
+        else if(isHovering){
+            currentParticleFrame = hoverEffectAnimation.getKeyFrame(hoverEffectTime);
+            batch.draw(currentParticleFrame, isFacingRight ? hitBox.x + hitBox.width : hitBox.x, hitBox.y,  isFacingRight ? - hitBox.width : hitBox.width, hitBox.height);
 
-    }
-
-    public void toggleHoverGravity(boolean enabled) {
-        if (enabled) {
-            relativeGravity = HOVER_GRAVITY;
-            isHovering = true;
-        } else {
-            relativeGravity = GRAVITY;
-            isHovering = false;
         }
-
     }
+
+    public void setIsHovering(boolean enabled) { isHovering = enabled;}
     public boolean getIsRising() {return isRising;}
     public boolean getIsHovering() {return isHovering;}
     public boolean getIsFacingRight(){ return isFacingRight;}
