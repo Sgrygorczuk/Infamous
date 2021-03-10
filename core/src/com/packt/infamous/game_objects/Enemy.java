@@ -41,7 +41,7 @@ public class Enemy extends  GenericObject{
 
     public void action(float delta){
         if(reloading <= 0) {
-            // TOOD: or if enemy doesn't see cole, reload
+            // TODO: or if enemy doesn't see cole, reload
             if (ammo <= 0) { // reloading action
                 reloading -= delta;
             } else { // shooting action

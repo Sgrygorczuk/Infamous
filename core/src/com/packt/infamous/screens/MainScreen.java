@@ -393,9 +393,16 @@ class MainScreen extends ScreenAdapter {
      */
     private void handleInputs(float delta){
         //======================== Movement Vertically ====================================
-        if (cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && (Gdx.input.isKeyJustPressed(Input.Keys.W) ||
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.W) ||
                 Gdx.input.isKeyPressed(Input.Keys.UP))){
-            cole.jump();
+            if ((cole.getIsJumping() || cole.getIsFalling() || cole.getIsRising())
+                    && !cole.getIsHovering()){
+                cole.toggleHoverGravity(true);
+            }
+            else if (cole.canColeMove() && !cole.getIsJumping()
+                    && !cole.getIsFalling()){
+                cole.jump();
+            }
         }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
             cole.climbPole(true, delta);
@@ -405,6 +412,9 @@ class MainScreen extends ScreenAdapter {
             cole.setIsHangingLedge(false);
         }
 
+        if(cole.getIsHovering() && Gdx.input.isKeyPressed(Input.Keys.S)){
+            cole.toggleHoverGravity(false);
+        }
         if(cole.canColeMove() && !cole.getIsJumping() && (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN))){
             cole.setDucking(true);
         }
@@ -458,6 +468,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsClimbingPole(true);
                 cole.setX(polePosition);
                 cole.setIsJumping(false);
+                cole.toggleHoverGravity(false);
                 cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingPole() && cole.getIsClimbingPole()){
@@ -468,6 +479,7 @@ class MainScreen extends ScreenAdapter {
                 cole.setIsHangingLedge(true);
                 cole.setY(ledgePosition);
                 cole.setIsJumping(false);
+                cole.toggleHoverGravity(false);
                 cole.setVelocity(0,0);
             }
             else if(cole.getIsTouchingLedge() && cole.getIsHangingLedge()){

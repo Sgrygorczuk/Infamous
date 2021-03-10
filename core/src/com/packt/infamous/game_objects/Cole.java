@@ -14,6 +14,7 @@ import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.FRICTION_AFTER_RIDE;
 import static com.packt.infamous.Const.GRAVITY;
+import static com.packt.infamous.Const.HOVER_GRAVITY;
 import static com.packt.infamous.Const.INVINCIBILITY_TIME;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
@@ -54,6 +55,10 @@ public class Cole extends GenericObject{
     private Array<String> attackNames;
     private int attackIndex = 0;
 
+    private boolean isHovering = false;
+    private float relativeGravity;
+
+    //Attack Related
     private boolean canDrain = false;
     private boolean isAttacking = false;
     private boolean canMelee = false;
@@ -92,8 +97,9 @@ public class Cole extends GenericObject{
 
     public Cole(float x, float y, Alignment alignment) {
         super(x, y, alignment);
-        velocity.y = -GRAVITY;
-        yAccel = GRAVITY;
+        relativeGravity = GRAVITY;
+        velocity.y = -relativeGravity;
+        yAccel = relativeGravity;
         xAccel = ACCELERATION;
         xDecel = FRICTION;
         xMaxVel = MAX_VELOCITY;
@@ -176,11 +182,11 @@ public class Cole extends GenericObject{
         //=================== Player Initiated Jumping============
         if(isJumping) {
             //Is rising towards peak
-            if (isRising && hitBox.y < initialY + JUMP_PEAK) { velocity.y += GRAVITY; }
+            if (isRising && hitBox.y < initialY + JUMP_PEAK) { velocity.y += relativeGravity; }
             //Checks if we reached peaked or Cole hit something above him
             else if (isRising) { isRising = false; }
             //Starts falling back down
-            else if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
+            else if (velocity.y > -relativeGravity) { velocity.y -= relativeGravity; }
         }
         //================== Is holding onto something ======================
         else if(isClimbingPole || isHangingLedge || isRiding){
@@ -188,7 +194,7 @@ public class Cole extends GenericObject{
         }
         //================== Player Walked Off A Platform ===========
         else if(isFalling) {
-            if (velocity.y > -GRAVITY) { velocity.y -= GRAVITY; }
+            if (velocity.y > -relativeGravity) { velocity.y -= relativeGravity; }
         }
         //==================== Is Standing on a Platform =============
         else{
@@ -379,11 +385,8 @@ public class Cole extends GenericObject{
      */
     public void attack(){
         ///If attack timer not complete, do not not allow attack
-        if (!canAttack){
-            return;
-        }
         //If out of melee range, projectile: uses energy
-        if (canMelee){
+        if (!canAttack || canMelee){
             return;
         }
         else if (currentEnergy > 0){
@@ -427,18 +430,15 @@ public class Cole extends GenericObject{
             //Play fail sound
         }
         else if (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth) {
-            if (canDrain && (this.currentEnergy < this.maxEnergy || this.currentHealth < this.maxHealth)) {
-                int source_energy = previousDrainable.removeEnergy();
-
-                if (this.currentEnergy < this.maxEnergy) {
-                    if (this.currentHealth < this.maxHealth) {
-                        this.currentHealth += source_energy;
-                    }
-                    currentEnergy += source_energy;
-                }
-                else {
-                    //Play fail sound
-                }
+            int source_energy = previousDrainable.removeEnergy();
+            if (this.currentHealth < this.maxHealth) {
+                this.currentHealth += source_energy;
+            }
+            if (this.currentEnergy < this.maxEnergy) {
+                currentEnergy += source_energy;
+            }
+            else {
+                //Play fail sound
             }
         }
     }
@@ -477,6 +477,7 @@ public class Cole extends GenericObject{
                 this.hitBox.y = rectangle.y + rectangle.height;
                 isJumping = false;  //Can jump again
                 isFalling = false;  //Is no longer falling
+                toggleHoverGravity(false);
                 ridingFriction = false;
                 velocity.y = 0;
             }
@@ -590,13 +591,24 @@ public class Cole extends GenericObject{
 
     }
 
-    public boolean getIsFacingRight(){
-        return isFacingRight;
+    public void toggleHoverGravity(boolean enabled) {
+        if (enabled) {
+            relativeGravity = HOVER_GRAVITY;
+            isHovering = true;
+        } else {
+            relativeGravity = GRAVITY;
+            isHovering = false;
+        }
+
     }
+    public boolean getIsRising() {return isRising;}
+    public boolean getIsHovering() {return isHovering;}
+    public boolean getIsFacingRight(){ return isFacingRight;}
     public boolean isIsAttacking() {return isAttacking;}
     public boolean isCanMelee() {return canMelee;}
     public void setCanMelee(boolean state) {canMelee = state;}
     public boolean getCanAttack() {return canAttack;}
     public void resetAttackTimer(){attackTimer = ATTACK_DELAY; canAttack = false;}
     public void setIsAttacking(boolean state) {isAttacking = state;}
+
 }
