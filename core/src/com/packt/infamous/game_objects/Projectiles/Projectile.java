@@ -97,8 +97,8 @@ public class Projectile extends GenericObject {
     }
 
     public void setAttached(GenericObject obj) {
-        isAttached = true;
         followObject = obj;
+        isAttached = true;
     }
 
     public int getDamage() {return damage;}
