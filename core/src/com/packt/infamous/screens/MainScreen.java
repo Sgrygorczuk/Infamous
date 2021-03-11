@@ -133,6 +133,7 @@ class MainScreen extends ScreenAdapter {
         showObjects();      //Sets up player and font
         mainScreenTextures = new MainScreenTextures();
         musicControl.showMusic(0);
+        musicControl.setMusicVolume(0);
         showTiled();
         if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the redners
     }
@@ -159,7 +160,8 @@ class MainScreen extends ScreenAdapter {
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
         cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet,
-                mainScreenTextures.railSparkSpriteSheet, mainScreenTextures.hoverSpriteSheet);
+                mainScreenTextures.railSparkSpriteSheet, mainScreenTextures.hoverSpriteSheet,
+                mainScreenTextures.meleeSpriteSheet);
 
         //========================================= Civilians ======================================
         Array<Vector2> peoplePosition = tiledSetUp.getLayerCoordinates("People");
@@ -363,6 +365,7 @@ class MainScreen extends ScreenAdapter {
         handleInput(delta);
         updateEnemies(delta);
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
+        if(cole.getInvincibility()){cole.invincibilityTimer(delta);}
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(Water water : waters){water.updatePosition();}
     }
@@ -483,6 +486,9 @@ class MainScreen extends ScreenAdapter {
             else if(cole.getIsTouchingLedge() && cole.getIsHangingLedge()){
                 cole.setIsHangingLedge(false);
             }
+        }
+        else {
+            cole.setDraining(false);
         }
     }
 
@@ -644,8 +650,8 @@ class MainScreen extends ScreenAdapter {
                 isMelee = true;
             }
         }
-        for(Civilian civilian : civilians) {
-            if (cole.isCollidingMelee(civilian.getHitBox())) {
+        for (Civilian civilian : civilians){
+            if(cole.isCollidingMelee(civilian.getHitBox())){
                 isMelee = true;
             }
         }
@@ -702,7 +708,10 @@ class MainScreen extends ScreenAdapter {
                 }
             }
             if(proj.isColliding(cole.getHitBox()) && proj.getAlignment() == Alignment.ENEMY){
-                cole.takeDamage(proj.getDamage());
+                if(!cole.getInvincibility()){
+                    cole.takeDamage(proj.getDamage());
+                    cole.setInvincibility(true);
+                }
                 proj.setDestroy(true);
             }
 
@@ -727,15 +736,15 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Adds projectile to vector with specified properties from the ``cole``  instance.
      */
     private void createProjectile(Alignment alignment, boolean facing_direction, Rectangle shooter){
+        int direction = -1;
         if(alignment == Alignment.PLAYER){
-            int direction = -1;
             if (!cole.getIsFacingRight()){
                 direction = 1;
             }
+
             if (cole.isCanMelee()){
                 projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                        (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
-                cole.setCanMelee(false);
+                        (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x));
             }
             else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
                 projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
@@ -748,7 +757,6 @@ class MainScreen extends ScreenAdapter {
             cole.setIsAttacking(false);
             cole.resetAttackTimer();
         } else {
-            int direction = -1;
             float bulletX = shooter.x-5;
             float bulletY = shooter.y+shooter.height*(2/3f);
             if(facing_direction) {
@@ -762,6 +770,8 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Update enemy pathing
      */
     public void updateEnemies(float delta){
+        Array<Enemy> removeEnemies = new Array<>();
+
         for(Enemy enemy : enemies){
             enemy.update(delta);
             enemy.setCombat(cole);
@@ -769,6 +779,13 @@ class MainScreen extends ScreenAdapter {
                 enemy.shootBullet = false;
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
             }
+            if(enemy.getCurrentHealth() < 0){
+                removeEnemies.add(enemy);
+            }
+        }
+
+        for(Enemy enemy : removeEnemies){
+            enemies.removeValue(enemy, true);
         }
     }
 

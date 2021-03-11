@@ -14,11 +14,11 @@ public class Collectible extends GenericObject{
     public Collectible(float x, float y, TextureRegion[][] textureRegions){
         super(x, y, Alignment.BACKGROUND);
 
-        hitBox.width = 8;
-        hitBox.height = 8;
+        hitBox.width = 16;
+        hitBox.height = 16;
 
         collectibleSpriteSheet = textureRegions;
-        collectibleAnimation = setUpAnimation(collectibleSpriteSheet, 3, 0, Animation.PlayMode.LOOP_PINGPONG);
+        collectibleAnimation = setUpAnimation(collectibleSpriteSheet, 1/3f, 0, Animation.PlayMode.LOOP_PINGPONG);
 
     }
 

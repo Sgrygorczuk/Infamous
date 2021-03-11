@@ -13,15 +13,22 @@ public class MainScreenTextures {
     public Texture telephoneBoxTexture;
     public Texture waterTexture;
     public Texture actionTexture;
+
     public TextureRegion[][] buttonSpriteSheet;
+
+    //================================= Cole ===========================
     public TextureRegion[][] coleSpriteSheet;
     public TextureRegion[][] drainSpriteSheet;
     public TextureRegion[][] railSparkSpriteSheet;
     public TextureRegion[][] hoverSpriteSheet;
+    public TextureRegion[][] meleeSpriteSheet;
+
     public TextureRegion[][] bulletSpriteSheet;
     public TextureRegion[][] collectibleSpriteSheet;
+
     public TextureRegion[][] peopleDownSpriteSheet;
     public TextureRegion[][] peopleUpSpriteSheet;
+
     public TextureRegion[][] enemySpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
@@ -43,7 +50,7 @@ public class MainScreenTextures {
 
         Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
         coleSpriteSheet = new TextureRegion(coleTexturePath).split(
-                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/4);
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/5);
 
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(
@@ -57,6 +64,10 @@ public class MainScreenTextures {
         Texture railSparkTexturePath = new Texture(Gdx.files.internal("Sprites/RailSparks.png"));
         railSparkSpriteSheet = new TextureRegion(railSparkTexturePath).split(
                 railSparkTexturePath.getWidth()/3, railSparkTexturePath.getHeight());
+
+        Texture meleeTexturePath = new Texture(Gdx.files.internal("Sprites/MeleeEffect.png"));
+        meleeSpriteSheet = new TextureRegion(meleeTexturePath).split(
+                meleeTexturePath.getWidth()/5, meleeTexturePath.getHeight());
 
         Texture bulletTexturePath = new Texture(Gdx.files.internal("Sprites/Bullet.png"));
         bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(
@@ -76,7 +87,7 @@ public class MainScreenTextures {
 
         Texture enemyTexturePath = new Texture(Gdx.files.internal("Sprites/Enemy.png"));
         enemySpriteSheet = new TextureRegion(enemyTexturePath).split(
-                enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight());
+                enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight()/2);
 
 
     }

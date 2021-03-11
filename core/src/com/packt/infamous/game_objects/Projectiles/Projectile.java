@@ -51,10 +51,7 @@ public class Projectile extends GenericObject {
         projectileTimer = PROJ_TIME;
         this.type = type;
 
-        if (type == Enum.MELEE){
-            projectileTimer = MELEE_TIME;
-        }
-        else if(type == Enum.BULLET){
+        if(type == Enum.BULLET){
             projectileTimer = BULLET_TIME;
         } else if (type != Enum.BOLT && type != Enum.EXPLOSION){
             isExplosive = true;
@@ -73,6 +70,19 @@ public class Projectile extends GenericObject {
 
         this.bulletSpriteSheet = bulletSpriteSheet;
         this.bulletAnimation = setUpAnimation(bulletSpriteSheet, 5, 0, Animation.PlayMode.NORMAL);
+    }
+
+    public Projectile(float x, float y, Alignment alignment, float width, float height, int direction, float startVelocity){
+        super(x, y, alignment);
+
+        this.setWidth(width);
+        this.setHeight(height);
+
+        type = Enum.MELEE;
+        projectileTimer = MELEE_TIME;
+
+        velocity.x = (startVelocity + BOLT_SPEED) * direction;
+        damage = 40;
     }
 
     public void update(float levelWidth, float levelHeight, float delta){
@@ -114,9 +124,11 @@ public class Projectile extends GenericObject {
     public boolean canDestroy() {return destroy;}
 
     public void drawAnimation(SpriteBatch batch){
-        TextureRegion currentFrame = bulletAnimation.getKeyFrame(bulletTime);
+        if(this.type != Enum.MELEE) {
 
-        batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+            TextureRegion currentFrame = bulletAnimation.getKeyFrame(bulletTime);
+            batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+        }
     }
 
 }
