@@ -37,6 +37,12 @@ import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
 import com.packt.infamous.Enum;
 
+import static com.packt.infamous.Const.BOLT_HEIGHT;
+import static com.packt.infamous.Const.BOLT_SPEED;
+import static com.packt.infamous.Const.BOLT_WIDTH;
+import static com.packt.infamous.Const.BOMB_HEIGHT;
+import static com.packt.infamous.Const.BOMB_SPEED;
+import static com.packt.infamous.Const.BOMB_WIDTH;
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
@@ -49,6 +55,9 @@ import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.MENU_BUTTON_Y_START;
 import static com.packt.infamous.Const.NUM_BUTTONS_MAIN_SCREEN;
 import static com.packt.infamous.Const.TEXT_OFFSET;
+import static com.packt.infamous.Const.TORPEDO_HEIGHT;
+import static com.packt.infamous.Const.TORPEDO_SPEED;
+import static com.packt.infamous.Const.TORPEDO_WIDTH;
 import static com.packt.infamous.Const.UI_HEIGHT;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
@@ -741,11 +750,35 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Adds projectile to vector with specified properties from the ``cole``  instance.
      */
     private void createProjectile(Alignment alignment, boolean facing_direction, Rectangle shooter){
-        if(alignment == Alignment.PLAYER){
-            int direction = -1;
+        int direction = -1;
+        if (alignment == Alignment.PLAYER){
             if (!cole.getIsFacingRight()){
                 direction = 1;
             }
+
+            //Assign Projectile Characteristics
+            Enum attackIndex = Enum.fromInteger(cole.getAttackIndex());
+            int projWidth = 0;
+            int projHeight = 0;
+            float projVel = cole.getVelocity().x;
+            switch(attackIndex){
+                case BOLT:
+                    projWidth = BOLT_WIDTH;
+                    projHeight = BOLT_HEIGHT;
+                    projVel += BOLT_SPEED;
+                    break;
+                case BOMB:
+                    projWidth = BOMB_WIDTH;
+                    projHeight =  BOMB_HEIGHT;
+                    projVel += BOMB_SPEED;
+                    break;
+                case TORPEDO:
+                    projWidth = TORPEDO_WIDTH;
+                    projWidth = TORPEDO_HEIGHT;
+                    projVel += TORPEDO_SPEED;
+                    break;
+            }
+
             if (cole.isCanMelee()){
                 projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                         (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x, Enum.MELEE, mainScreenTextures.bulletSpriteSheet));
@@ -753,16 +786,15 @@ class MainScreen extends ScreenAdapter {
             }
             else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
                 projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                        1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             else {
-                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
-                        1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             cole.setIsAttacking(false);
             cole.resetAttackTimer();
         } else {
-            int direction = -1;
             float bulletX = shooter.x-5;
             float bulletY = shooter.y+shooter.height*(2/3f);
             if(facing_direction) {
@@ -777,6 +809,10 @@ class MainScreen extends ScreenAdapter {
      */
     public void updateEnemies(float delta){
         for(Enemy enemy : enemies){
+            //Removes enemies on death
+            if (enemy.getCurrentHealth() < 0){
+                enemies.removeValue(enemy, true);
+            }
             enemy.update(delta);
             enemy.setCombat(cole);
             enemy.nearDetector(cole);

@@ -9,7 +9,7 @@ import com.packt.infamous.Alignment;
 public class DrainableObject extends GenericObject{
     public DrainableObject(float x, float y, Alignment alignment) {
         super(x, y , alignment);
-        maxEnergy = currentEnergy = 100;
+        maxEnergy = currentEnergy = 500;
     }
 
     public void setTexture(Texture texture){
