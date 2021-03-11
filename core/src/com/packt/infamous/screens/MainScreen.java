@@ -21,6 +21,7 @@ import com.packt.infamous.game_objects.Civilian;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Collectible;
 import com.packt.infamous.game_objects.DrainableObject;
+import com.packt.infamous.game_objects.EndShard;
 import com.packt.infamous.game_objects.Enemy;
 import com.packt.infamous.game_objects.platforms.Ledge;
 import com.packt.infamous.game_objects.platforms.Platforms;
@@ -87,7 +88,17 @@ class MainScreen extends ScreenAdapter {
     private float ledgePosition = 0;
     private int collectibleSum = 0;
 
+    private int touchedPersonIndex;
+    private boolean isTouchingPerson = false;
+    private float killText = -1;
+    private float healText = 1;
+    private boolean textDirection = false;
+    private int healed = 0;
+    private int killed = 0;
+
     //=================================== Miscellaneous Vars =======================================
+    private Array<String> levelNames = new Array<>();
+    private int tiledSelection;
     private final String[] menuButtonText = new String[]{"Help", "Sound Off", "Main Menu", "Back", "Sound On"};
 
 
@@ -103,6 +114,7 @@ class MainScreen extends ScreenAdapter {
     private final Array<Projectile> projectiles = new Array<>();
     private final Array<Collectible> collectibles = new Array<>();
     private final Array<Civilian> civilians = new Array<>();
+    private final Array<EndShard> endShards = new Array<>();
 
     //================================ Set Up ======================================================
 
@@ -110,7 +122,17 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Grabs the info from main screen that holds asset manager
      * Input: Infamous
     */
-    MainScreen(Infamous infamous) { this.infamous = infamous;}
+    MainScreen(Infamous infamous, int tiledSelection) {
+        this.infamous = infamous;
+
+        this.tiledSelection = tiledSelection;
+        levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
+        levelNames.add("Tiled/LevelOne.tmx");
+        levelNames.add("Tiled/LevelTwo.tmx");
+        levelNames.add("Tiled/LevelThree.tmx");
+        levelNames.add("Tiled/LevelFour.tmx");
+        levelNames.add("Tiled/LevelFive.tmx");
+    }
 
 
     /**
@@ -152,7 +174,7 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Sets up all the objects imported from tiled
      */
     private void showTiled(){
-        tiledSetUp = new TiledSetUp(infamous.getAssetManager(), batch, "Tiled/InfamousMapPlaceHolder.tmx");
+        tiledSetUp = new TiledSetUp(infamous.getAssetManager(), batch, levelNames.get(tiledSelection));
 
         //======================================== Cole =========================================
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
@@ -169,7 +191,8 @@ class MainScreen extends ScreenAdapter {
             int choice = MathUtils.random(0,3);
             civilians.add(new Civilian(peoplePosition.get(i).x, peoplePosition.get(i).y,
                     mainScreenTextures.peopleDownSpriteSheet[choice][0],
-                    mainScreenTextures.peopleUpSpriteSheet[0][choice]));
+                    mainScreenTextures.peopleUpSpriteSheet[0][choice],
+                    mainScreenTextures.peopleUpSpriteSheet[0][4]));
         }
 
 
@@ -197,6 +220,11 @@ class MainScreen extends ScreenAdapter {
             collectibles.add(new Collectible(collectiblePositions.get(i).x, collectiblePositions.get(i).y, mainScreenTextures.collectibleSpriteSheet));
         }
         collectibleSum = collectibles.size;
+
+        Array<Vector2> endPositions = tiledSetUp.getLayerCoordinates("EndShard");
+        for(int i = 0; i < endPositions.size; i++){
+            endShards.add(new EndShard(endPositions.get(i).x, endPositions.get(i).y, mainScreenTextures.collectibleSpriteSheet));
+        }
 
         //================================= Platforms =======================================
         Array<Vector2> platformsPositions = tiledSetUp.getLayerCoordinates("Platforms");
@@ -254,7 +282,8 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
             enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY));
-            enemies.get(i).setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
+            enemies.get(i).setUpSpriteSheet(mainScreenTextures.enemySpriteSheet,
+                    mainScreenTextures.enemyDeathSpriteSheet);
         }
 
     }
@@ -338,6 +367,7 @@ class MainScreen extends ScreenAdapter {
 
         debugRendering.startCollectibleRender();
         for(Collectible collectible : collectibles){collectible.drawDebug(debugRendering.getShapeRendererCollectible());}
+        for(EndShard endShard : endShards){endShard.drawDebug(debugRendering.getShapeRendererCollectible());}
         debugRendering.endCollectibleRender();
     }
 
@@ -367,7 +397,23 @@ class MainScreen extends ScreenAdapter {
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         if(cole.getInvincibility()){cole.invincibilityTimer(delta);}
         for(Collectible collectible : collectibles){collectible.update(delta);}
+        for(EndShard endShard : endShards){endShard.update(delta);}
         for(Water water : waters){water.updatePosition();}
+
+        if(textDirection){
+            healText += 0.5;
+            killText -= 0.5;
+            if(healText == 10){
+                textDirection = false;
+            }
+        }
+        else{
+            healText -= 0.5;
+            killText += 0.5;
+            if(killText == 10){
+                textDirection = true;
+            }
+        }
     }
 
     //======================= Input Handling ======================================================
@@ -376,7 +422,6 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Central Input Handling function
      */
     private void handleInput(float delta) {
-        //TODO add user inputs
         //Pause and un-pause the game with ESC
         handlePause();
         //Allows user to turn on dev mode
@@ -451,7 +496,17 @@ class MainScreen extends ScreenAdapter {
         if(Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){ cole.updateAttackIndex(); }
 
         //================================= Drain =========================================
-        if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
+        if(isTouchingPerson){
+            if(Gdx.input.isKeyPressed(Input.Keys.E)){
+                civilians.get(touchedPersonIndex).healed();
+                healed++;
+            }
+            else if(Gdx.input.isKeyPressed(Input.Keys.Q)){
+                civilians.get(touchedPersonIndex).kill();
+                killed++;
+            }
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
                 Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
         { cole.drainEnergy(delta); }
 
@@ -544,6 +599,8 @@ class MainScreen extends ScreenAdapter {
         isCollidingLedge();
         isCollidingCollectibles();
         isCollidingMelee();
+        isCollidingWithPerson();
+        isCollidingEndShard();
     }
 
 
@@ -650,12 +707,34 @@ class MainScreen extends ScreenAdapter {
                 isMelee = true;
             }
         }
+        cole.setCanMelee(isMelee);
+    }
+
+    private void isCollidingWithPerson(){
+        isTouchingPerson = false;
         for (Civilian civilian : civilians){
-            if(cole.isCollidingMelee(civilian.getHitBox())){
-                isMelee = true;
+            if(cole.isCollidingMelee(civilian.getHitBox()) && civilian.getState() == 0){
+                isTouchingPerson = true;
+                touchedPersonIndex = civilians.indexOf(civilian, true);
             }
         }
-        cole.setCanMelee(isMelee);
+    }
+
+    private void isCollidingEndShard() {
+        for (EndShard endShard : endShards) {
+            if (cole.isCollidingMelee(endShard.getHitBox())) {
+                if(tiledSelection + 1 < levelNames.size)
+                {
+                    musicControl.stopMusic();
+                    infamous.setScreen(new LoadingScreen(infamous, 1, tiledSelection + 1));
+                }
+                else{
+                    musicControl.stopMusic();
+                    infamous.setScreen(new LoadingScreen(infamous, 2));
+
+                }
+            }
+        }
     }
 
 
@@ -785,7 +864,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         for(Enemy enemy : removeEnemies){
-            enemies.removeValue(enemy, true);
+            if(enemy.finishedDying()){enemies.removeValue(enemy, true);}
         }
     }
 
@@ -846,6 +925,7 @@ class MainScreen extends ScreenAdapter {
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
         for (DrainableObject drainable : drainables){ drainable.draw(batch); }
         for(Collectible collectible : collectibles) {collectible.draw(batch);}
+        for(EndShard endShard : endShards){endShard.draw(batch);}
         for(Civilian civilian : civilians){civilian.draw(batch);}
         cole.drawAnimations(batch);
         drawAction();
@@ -875,8 +955,23 @@ class MainScreen extends ScreenAdapter {
 
     private void drawAction(){
         if((cole.getIsTouchingLedge() || cole.getIsTouchingPole()) && !cole.getIsClimbingPole() && !cole.getIsHangingLedge()){
-            batch.draw(mainScreenTextures.actionTexture, cole.getX() + mainScreenTextures.actionTexture.getWidth()/2f,
-                    cole.getY() + cole.getHeight() + 5 + mainScreenTextures.actionTexture.getHeight()/2f  );
+            batch.draw(mainScreenTextures.eTexture, cole.getX() + mainScreenTextures.eTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 5 + mainScreenTextures.eTexture.getHeight()/2f  );
+        }
+
+        if(cole.getCanDrain() || isTouchingPerson){
+            batch.draw(mainScreenTextures.eTexture, cole.getX() + 8 + mainScreenTextures.eTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 2 + mainScreenTextures.eTexture.getHeight()/2f  );
+            batch.draw(mainScreenTextures.qTexture, cole.getX() - 8 + mainScreenTextures.qTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 2 + mainScreenTextures.qTexture.getHeight()/2f  );
+        }
+
+        bitmapFont.getData().scale(0.01f);
+        if(isTouchingPerson){
+            textAlignment.centerText(batch, bitmapFont, "Heal", cole.getX() + 28 + mainScreenTextures.eTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 10 + healText  + mainScreenTextures.eTexture.getHeight()/2f  );
+            textAlignment.centerText(batch, bitmapFont, "Kill", cole.getX() - 15 + mainScreenTextures.qTexture.getWidth()/2f,
+                    cole.getY() + cole.getHeight() + 10 + killText + mainScreenTextures.qTexture.getHeight()/2f  );
         }
     }
 
@@ -926,10 +1021,20 @@ class MainScreen extends ScreenAdapter {
     }
 
     private void drawCollectibleSum(){
-        batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 15 , 8, 8);
-
         bitmapFont.getData().setScale(0.25f);
+
+        //============================= Shards
+        batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 15 , 8, 8);
         textAlignment.centerText(batch, bitmapFont, collectibleSum-collectibles.size + "/" + collectibleSum, xCameraDelta + WORLD_WIDTH/2f + 110,  yCameraDelta + WORLD_HEIGHT - 8 );
+
+        //=============================== Heals ===============================
+        batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 25 , 8, 8);
+        textAlignment.centerText(batch, bitmapFont, healed + "/" + civilians.size, xCameraDelta + WORLD_WIDTH/2f + 110,  yCameraDelta + WORLD_HEIGHT - 18 );
+
+        //========================= Kills ===============
+        batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][4], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 35 , 8, 8);
+        textAlignment.centerText(batch, bitmapFont, killed + "/" + civilians.size, xCameraDelta + WORLD_WIDTH/2f + 110,  yCameraDelta + WORLD_HEIGHT - 28 );
+
     }
 
     /**

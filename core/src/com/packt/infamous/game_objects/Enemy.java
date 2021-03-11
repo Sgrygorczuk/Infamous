@@ -30,9 +30,11 @@ public class Enemy extends  GenericObject{
     protected static float calloutTime = 1f;
     protected float callout = 0f;
 
-    protected TextureRegion[][] reloadSpriteSheet;
     protected Animation<TextureRegion> reloadAnimation;
     protected float reloadTimer = 0;
+
+    protected Animation<TextureRegion> deathAnimation;
+    protected float deathTimer = 0;
 
     public Enemy(float x, float y, float distance, Alignment alignment){
         super(x, y, alignment);
@@ -45,10 +47,11 @@ public class Enemy extends  GenericObject{
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
-    public void setUpSpriteSheet(TextureRegion[][] textureRegions){
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] deathSpriteSheet){
         this.spriteSheet = textureRegions;
         setUpAnimations();
         setUpReloadAnimation();
+        deathAnimation = setUpAnimation(deathSpriteSheet, 1/5f, 0, Animation.PlayMode.NORMAL);
   }
 
     protected void setUpReloadAnimation(){
@@ -57,13 +60,16 @@ public class Enemy extends  GenericObject{
     }
 
     public void update(float delta){
-        pathing(delta);
-        action(delta);
-        visionCone();
+        if(currentHealth > 0) {
+            pathing(delta);
+            action(delta);
+            visionCone();
+        }
 
         if(!isFacingRight){ animationLeftTime += delta; }
         if(isFacingRight){ animationRightTime += delta; }
         if(isReloading){reloadTimer += delta; }
+        if(currentHealth < 0){deathTimer += delta;}
     }
 
     public void action(float delta){
@@ -144,10 +150,13 @@ public class Enemy extends  GenericObject{
         inCombat = visionCone.overlaps(player.hitBox);
     }
 
+    public boolean finishedDying(){return deathAnimation.isAnimationFinished(deathTimer);}
+
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
 
-        if(isReloading){currentFrame = reloadAnimation.getKeyFrame(reloadTimer);}
+        if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
+        else if(isReloading){currentFrame = reloadAnimation.getKeyFrame(reloadTimer);}
         else if(inCombat){currentFrame = spriteSheet[1][0]; }
         else if (isFacingRight) { currentFrame = walkRightAnimation.getKeyFrame(animationRightTime); }
         else if(!isFacingRight){ currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime); }

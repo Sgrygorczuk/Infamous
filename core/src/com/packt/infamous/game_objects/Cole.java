@@ -91,7 +91,6 @@ public class Cole extends GenericObject{
     private static final float HAS_ATTACKED = 0.5F;
     private float hasAttackedTimer = HAS_ATTACKED;
 
-
     //============================= Climbing Stuff ===============================
     private boolean isTouchPole = false;
     private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
@@ -390,7 +389,6 @@ public class Cole extends GenericObject{
 
     /**
      Input: Float delta
-     Output: Void
      Purpose: Ticks down to turn off invincibility
      */
     public void invincibilityTimer(float delta){
@@ -474,6 +472,8 @@ public class Cole extends GenericObject{
      * @param state sets if he can drain
      */
     public void setCanDrain(boolean state){this.canDrain = state;}
+
+    public boolean getCanDrain(){return canDrain;}
 
     /**
      * Purpose: Plays fail sound if Cole cannot drain energy or is full, otherwise restores energy

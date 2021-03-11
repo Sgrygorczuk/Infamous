@@ -29,7 +29,7 @@ public final class Const{
     public static final float TEXT_OFFSET = 20;
 
     //====================== Menu Buttons =========================
-    public static final int NUM_BUTTONS_MENU_SCREEN = 3;
+    public static final int NUM_BUTTONS_MENU_SCREEN = 2;
     public static final int NUM_BUTTONS_MAIN_SCREEN = 4;
     public static final float MENU_BUTTON_Y_START = 240 * WORLD_HEIGHT/320;
     public static final float MENU_BUTTON_WIDTH = 150 * WORLD_WIDTH/480;
@@ -68,6 +68,9 @@ public final class Const{
     public static final int EXPLOSIVE_DAMAGE = 5;
     public static final int EXPLOSIVE_RADIUS = 15;
     public static final float EXPLOSIVE_LINGER = 0.5f;
+
+    //====================== Drainign =======================
+    public static final int REMOVE_ENERGY = 1;
 
 
 

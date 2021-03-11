@@ -12,7 +12,8 @@ public class MainScreenTextures {
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
     public Texture waterTexture;
-    public Texture actionTexture;
+    public Texture eTexture;
+    public Texture qTexture;
 
     public TextureRegion[][] buttonSpriteSheet;
 
@@ -30,6 +31,7 @@ public class MainScreenTextures {
     public TextureRegion[][] peopleUpSpriteSheet;
 
     public TextureRegion[][] enemySpriteSheet;
+    public TextureRegion[][] enemyDeathSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -42,7 +44,8 @@ public class MainScreenTextures {
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
         waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
-        actionTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
+        eTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
+        qTexture = new Texture(Gdx.files.internal("Sprites/Q.png"));
 
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
@@ -83,11 +86,15 @@ public class MainScreenTextures {
 
         Texture peopleUpTexturePath = new Texture(Gdx.files.internal("Sprites/PeopleHealed.png"));
         peopleUpSpriteSheet = new TextureRegion(peopleUpTexturePath).split(
-                peopleUpTexturePath.getWidth()/4, peopleUpTexturePath.getHeight());
+                peopleUpTexturePath.getWidth()/5, peopleUpTexturePath.getHeight());
 
         Texture enemyTexturePath = new Texture(Gdx.files.internal("Sprites/Enemy.png"));
         enemySpriteSheet = new TextureRegion(enemyTexturePath).split(
                 enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight()/2);
+
+        Texture enemyDeathTexturePath = new Texture(Gdx.files.internal("Sprites/EnemyDeath.png"));
+        enemyDeathSpriteSheet = new TextureRegion(enemyDeathTexturePath).split(
+                enemyDeathTexturePath.getWidth()/5, enemyDeathTexturePath.getHeight());
 
 
     }
