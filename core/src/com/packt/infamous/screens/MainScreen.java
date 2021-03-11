@@ -803,7 +803,7 @@ class MainScreen extends ScreenAdapter {
             Enum attackIndex = Enum.fromInteger(cole.getAttackIndex());
             int projWidth = 0;
             int projHeight = 0;
-            float projVel = cole.getVelocity().x;
+            float projVel = Math.abs(cole.getVelocity().x);
             switch(attackIndex){
                 case BOLT:
                     projWidth = BOLT_WIDTH;
