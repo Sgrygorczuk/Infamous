@@ -12,11 +12,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
+import com.packt.infamous.game_objects.Checkpoint;
+import com.packt.infamous.game_objects.CheckpointObject;
 import com.packt.infamous.game_objects.Civilian;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Collectible;
@@ -112,14 +113,25 @@ class MainScreen extends ScreenAdapter {
     private final Array<Projectile> projectiles = new Array<>();
     private final Array<Collectible> collectibles = new Array<>();
     private final Array<Civilian> civilians = new Array<>();
+    private final Array<CheckpointObject> checkpoints = new Array<>();
+
+    private Checkpoint checkpoint;
+    private boolean isCheckpointed = false;
 
     //================================ Set Up ======================================================
 
     /**
      * Purpose: Grabs the info from main screen that holds asset manager
-     * Input: Infamous
+     * @param infamous game, checkpoint if reloading level
+     * @param isReload checks if game is a starting from checkpoint
+     * @param checkpoint contains checkpoint information
     */
-    MainScreen(Infamous infamous) { this.infamous = infamous;}
+    MainScreen(Infamous infamous, boolean isReload) { this.infamous = infamous;}
+    MainScreen(Infamous infamous, boolean isReload, Checkpoint checkpoint) {
+        this(infamous, isReload);
+        this.checkpoint = checkpoint;
+        isCheckpointed = true;
+    }
 
 
     /**
@@ -143,7 +155,13 @@ class MainScreen extends ScreenAdapter {
         mainScreenTextures = new MainScreenTextures();
         musicControl.showMusic(0);
         showTiled();
-        if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the redners
+        if (isCheckpointed){
+            cole.setX(checkpoint.getLocation_x());
+            cole.setY(checkpoint.getLocation_y());
+            cole.setCurrentEnergy(checkpoint.getEnergy());
+            cole.setCurrentHealth(checkpoint.getHealth());
+        }
+        if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the renders
     }
 
     /**
@@ -237,6 +255,12 @@ class MainScreen extends ScreenAdapter {
             rail_platform.setWidth(width - 10);
             rail_platform.setHeight(height);
             platforms.add(rail_platform);
+        }
+
+        //========================= Checkpoints ==========================================
+        Array<Vector2> checkpointPositions = tiledSetUp.getLayerCoordinates("Checkpoint");
+        for (Vector2 position : checkpointPositions){
+            checkpoints.add(new CheckpointObject(position.x, position.y, Alignment.BACKGROUND));
         }
 
         //========================= Drainables ===========================================
@@ -344,6 +368,9 @@ class MainScreen extends ScreenAdapter {
             drainable.drawDebug(debugRendering.getShapeRendererBackground());
         }
 
+        debugRendering.setShapeRendererBackgroundColor(Color.MAGENTA);
+        for(CheckpointObject checkpoint : checkpoints){checkpoint.drawDebug(debugRendering.getShapeRendererBackground());}
+
         debugRendering.setShapeRendererBackgroundColor(Color.YELLOW);
         for(Rail rail : rails){
             rail.drawDebug(debugRendering.getShapeRendererBackground());
@@ -385,6 +412,7 @@ class MainScreen extends ScreenAdapter {
         updateProjectiles(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         handleInput(delta);
         updateEnemies(delta);
+        updateIfDead();
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(Water water : waters){water.updatePosition();}
@@ -561,6 +589,21 @@ class MainScreen extends ScreenAdapter {
         isCollidingLedge();
         isCollidingCollectibles();
         isCollidingMelee();
+        isCollidingCheckpoint();
+    }
+
+    /**
+     * Purpose: Check if cole is touching a checkpoint
+     *
+     */
+    private void isCollidingCheckpoint(){
+        for (CheckpointObject checkpoint : checkpoints){
+            if (checkpoint.isColliding(cole.getHitBox())){
+                isCheckpointed = true;
+                this.checkpoint = new Checkpoint(cole.getCurrentHealth(), cole.getCurrentEnergy(),
+                        cole.getX(), cole.getY());
+            }
+        }
     }
 
 
@@ -819,6 +862,21 @@ class MainScreen extends ScreenAdapter {
             if(enemy.shootBullet){
                 enemy.shootBullet = false;
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
+            }
+        }
+    }
+
+    /**
+     * Purpose: Checks if cole is dead yet, then reloads checkpoint if possible (or back to start)
+     */
+    public void updateIfDead(){
+        if (cole.getCurrentHealth() < 0){
+            if (this.isCheckpointed){
+                infamous.setScreen(new MainScreen(infamous, true, this.checkpoint));
+            }
+            //Reload screen if died with no checkpoint
+            else {
+                infamous.setScreen(new MenuScreen(infamous));
             }
         }
     }

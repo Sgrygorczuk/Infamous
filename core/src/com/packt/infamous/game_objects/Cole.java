@@ -278,12 +278,7 @@ public class Cole extends GenericObject{
     }
 
     public void touchedWater(){
-        if(currentHealth - 20 > 0){
-           takeDamage(20);
-        }
-        else{
-            //TODO: Game Over
-        }
+        takeDamage(20);
 
         hitBox.x = lastTouchedGroundX;
         hitBox.y = lastTouchedGroundY;

@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.packt.infamous.game_objects.Checkpoint;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
@@ -65,6 +66,9 @@ public class LoadingScreen extends ScreenAdapter{
     private float loadTimer = LOADING_TIME;
     private String loadingString = "Loading";
 
+    //Checkpoint for use with game screens
+    private Checkpoint checkpoint;
+
 
     /**
      * Purpose: The Constructor used when loading up the game for the first time showing off the logo
@@ -80,10 +84,16 @@ public class LoadingScreen extends ScreenAdapter{
      * Purpose: General Constructor for moving between screens
      * @param infamous game object with data
      * @param screenPath tells us which screen to go to from here
+     * @param checkpoint is used when transitioning from a different screen to maintain variables
      */
     public LoadingScreen(Infamous infamous, int screenPath) {
         this.infamous = infamous;
         this.screenPath = screenPath;
+    }
+
+    public LoadingScreen(Infamous infamous, int screenPath, Checkpoint checkpoint) {
+        this(infamous, screenPath);
+        this.checkpoint = checkpoint;
     }
 
     /**
@@ -214,7 +224,11 @@ public class LoadingScreen extends ScreenAdapter{
                 break;
             }
             case 1:{
-                infamous.setScreen(new MainScreen(infamous));
+                infamous.setScreen(new MainScreen(infamous, false));
+                break;
+            }
+            case 2:{
+                infamous.setScreen(new MainScreen(infamous, true, checkpoint));
                 break;
             }
             default:{
