@@ -33,9 +33,6 @@ import static com.packt.infamous.Const.TEXT_OFFSET;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
 
-//TODO : Since we're following NES no mouse controls for the buttons so we need to rework those
-//TODO cont: to use WASD/Arrow Keys
-
 public class MenuScreen extends ScreenAdapter{
 
     //=========================================== Variable =========================================
@@ -61,7 +58,7 @@ public class MenuScreen extends ScreenAdapter{
 
     //=================================== Miscellaneous Vars =======================================
     //String used on the buttons
-    private final String[] buttonText = new String[]{"Play", "Help", "Credits"};
+    private final String[] buttonText = new String[]{"Play", "Help"};
     private float backButtonY = 10;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
 
@@ -134,7 +131,7 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Allow user to navigate the menus
      */
     private void inputHandling(){
-        if(!creditsFlag && !helpFlag) {
+        if(!helpFlag) {
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
@@ -154,25 +151,15 @@ public class MenuScreen extends ScreenAdapter{
                 //Launches the game
                 if (buttonIndex == 0) {
                     musicControl.playSFX(0);
-                    infamous.setScreen(new LoadingScreen(infamous, 1));
+                    infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
                 //Turns on the help menu
                 else if (buttonIndex == 1) {
                     helpFlag = true;
                 }
-                //Turns on the credits menu
-                else {
-                    creditsFlag = true;
-                }
             }
         }
-        else if(creditsFlag && !helpFlag){
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                creditsFlag = false;
-                backButtonY = 40;
-                }
-            }
-        else{
+        else if(helpFlag){
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 helpFlag = false;
                 backButtonY = 10;
@@ -208,7 +195,6 @@ public class MenuScreen extends ScreenAdapter{
         //Draws the credits text
         else{
             drawBackButton();
-            drawCredits();
             drawBackButtonText();
         }
         batch.end();
@@ -246,7 +232,7 @@ public class MenuScreen extends ScreenAdapter{
     */
     private void drawButtonText(){
         bitmapFont.getData().setScale(MENU_BUTTON_FONT);
-        for(int i = 0; i < 3; i ++) {
+        for(int i = 0; i < NUM_BUTTONS_MENU_SCREEN; i ++) {
             textAlignment.centerText(batch, bitmapFont, buttonText[i], 10 + MENU_BUTTON_WIDTH/2f,
                     2*WORLD_HEIGHT/3 + 0.65f * MENU_BUTTON_HEIGHT - 15 - (MENU_BUTTON_HEIGHT + 15) * i);
         }
@@ -275,30 +261,6 @@ public class MenuScreen extends ScreenAdapter{
         textAlignment.centerText(batch, bitmapFont, "Actions #4", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 4 * TEXT_OFFSET);
     }
 
-
-    /**
-     *  Purpose: Draws the credits screen
-    */
-    private void drawCredits(){
-        //Title
-        bitmapFont.getData().setScale(0.5f);
-        textAlignment.centerText(batch, bitmapFont, "Credits", WORLD_WIDTH/2f, WORLD_HEIGHT-45);
-        bitmapFont.getData().setScale(0.32f);
-
-        textAlignment.centerText(batch, bitmapFont, "Programming & Art", WORLD_WIDTH/2f, WORLD_HEIGHT - 80);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 95);
-
-        textAlignment.centerText(batch, bitmapFont, "Music", WORLD_WIDTH/2f, WORLD_HEIGHT - 125);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 140);
-
-        textAlignment.centerText(batch, bitmapFont, "SFX - ########", WORLD_WIDTH/2f, WORLD_HEIGHT - 170);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f - 120, WORLD_HEIGHT - 190);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 190);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f + 120, WORLD_HEIGHT - 190);
-
-        textAlignment.centerText(batch, bitmapFont, "Font - ########", WORLD_WIDTH/2f, WORLD_HEIGHT - 255);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 275);
-    }
 
     /**
      * Purpose: Gets rid of all visuals

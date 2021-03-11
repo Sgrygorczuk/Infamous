@@ -12,17 +12,26 @@ public class MainScreenTextures {
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
     public Texture waterTexture;
-    public Texture actionTexture;
+    public Texture eTexture;
+    public Texture qTexture;
+
     public TextureRegion[][] buttonSpriteSheet;
+
+    //================================= Cole ===========================
     public TextureRegion[][] coleSpriteSheet;
     public TextureRegion[][] drainSpriteSheet;
     public TextureRegion[][] railSparkSpriteSheet;
     public TextureRegion[][] hoverSpriteSheet;
+    public TextureRegion[][] meleeSpriteSheet;
+
     public TextureRegion[][] bulletSpriteSheet;
     public TextureRegion[][] collectibleSpriteSheet;
+
     public TextureRegion[][] peopleDownSpriteSheet;
     public TextureRegion[][] peopleUpSpriteSheet;
+
     public TextureRegion[][] enemySpriteSheet;
+    public TextureRegion[][] enemyDeathSpriteSheet;
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -35,7 +44,8 @@ public class MainScreenTextures {
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
         waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
-        actionTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
+        eTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
+        qTexture = new Texture(Gdx.files.internal("Sprites/Q.png"));
 
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
@@ -43,7 +53,7 @@ public class MainScreenTextures {
 
         Texture coleTexturePath = new Texture(Gdx.files.internal("Sprites/ColeSpriteSheet.png"));
         coleSpriteSheet = new TextureRegion(coleTexturePath).split(
-                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/4);
+                coleTexturePath.getWidth()/4, coleTexturePath.getHeight()/5);
 
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(
@@ -57,6 +67,10 @@ public class MainScreenTextures {
         Texture railSparkTexturePath = new Texture(Gdx.files.internal("Sprites/RailSparks.png"));
         railSparkSpriteSheet = new TextureRegion(railSparkTexturePath).split(
                 railSparkTexturePath.getWidth()/3, railSparkTexturePath.getHeight());
+
+        Texture meleeTexturePath = new Texture(Gdx.files.internal("Sprites/MeleeEffect.png"));
+        meleeSpriteSheet = new TextureRegion(meleeTexturePath).split(
+                meleeTexturePath.getWidth()/5, meleeTexturePath.getHeight());
 
         Texture bulletTexturePath = new Texture(Gdx.files.internal("Sprites/Bullet.png"));
         bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(
@@ -72,11 +86,15 @@ public class MainScreenTextures {
 
         Texture peopleUpTexturePath = new Texture(Gdx.files.internal("Sprites/PeopleHealed.png"));
         peopleUpSpriteSheet = new TextureRegion(peopleUpTexturePath).split(
-                peopleUpTexturePath.getWidth()/4, peopleUpTexturePath.getHeight());
+                peopleUpTexturePath.getWidth()/5, peopleUpTexturePath.getHeight());
 
         Texture enemyTexturePath = new Texture(Gdx.files.internal("Sprites/Enemy.png"));
         enemySpriteSheet = new TextureRegion(enemyTexturePath).split(
-                enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight());
+                enemyTexturePath.getWidth()/4, enemyTexturePath.getHeight()/2);
+
+        Texture enemyDeathTexturePath = new Texture(Gdx.files.internal("Sprites/EnemyDeath.png"));
+        enemyDeathSpriteSheet = new TextureRegion(enemyDeathTexturePath).split(
+                enemyDeathTexturePath.getWidth()/5, enemyDeathTexturePath.getHeight());
 
 
     }

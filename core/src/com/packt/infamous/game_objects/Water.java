@@ -20,8 +20,8 @@ public class Water extends GenericObject{
         this.hitBox.height = texture.getHeight();
         this.hitBox.width = texture.getWidth();
 
-        yMin = hitBox.y - MathUtils.random(4,8);
-        yMax = hitBox.y;
+        yMin = hitBox.y - MathUtils.random(6,10);
+        yMax = hitBox.y - 2;
     }
 
     public void updatePosition(){

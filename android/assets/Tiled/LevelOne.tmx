@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="16" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="227">
+ <tileset firstgid="1" source="TileSet.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="16" height="15">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,14,14,0,0,0,0,0,0,
+0,0,0,0,0,0,0,14,14,14,0,0,0,0,0,0,
+0,0,0,0,0,0,14,14,0,14,0,0,0,0,0,0,
+0,0,0,0,0,14,14,0,0,14,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,
+0,0,0,0,0,0,0,14,14,14,14,14,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14
+</data>
+ </layer>
+ <objectgroup id="8" name="BlastShard"/>
+ <objectgroup id="13" name="Checkpoint"/>
+ <objectgroup id="14" name="EnemyStationaryL"/>
+ <objectgroup id="2" name="Cole">
+  <object id="223" x="16" y="192" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="15" name="EnemyStationaryR"/>
+ <objectgroup id="3" name="Platforms">
+  <object id="220" x="0" y="208" width="256" height="32"/>
+ </objectgroup>
+ <objectgroup id="8" name="Pole"/>
+ <objectgroup id="9" name="Enemy"/>
+ <objectgroup id="9" name="Ledge"/>
+ <objectgroup id="4" name="Water"/>
+ <objectgroup id="5" name="Rail"/>
+ <objectgroup id="6" name="ElePhone"/>
+ <objectgroup id="7" name="EleJunc"/>
+ <objectgroup id="11" name="People"/>
+ <objectgroup id="12" name="EndShard">
+  <object id="224" x="224" y="176" width="16" height="16"/>
+ </objectgroup>
+</map>

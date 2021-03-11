@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.packt.infamous.Alignment;
 
+import static com.packt.infamous.Const.REMOVE_ENERGY;
+
 public class DrainableObject extends GenericObject{
     public DrainableObject(float x, float y, Alignment alignment) {
         super(x, y , alignment);
@@ -20,8 +22,8 @@ public class DrainableObject extends GenericObject{
 
     public int removeEnergy() {
         if (this.currentEnergy > 0) {
-            currentEnergy -= 5;
-            return 5;
+            currentEnergy -= REMOVE_ENERGY;
+            return REMOVE_ENERGY;
         }
         else { return 0; } //Play fail sound
     }

@@ -1,5 +1,6 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -19,6 +20,7 @@ public class Enemy extends  GenericObject{
     protected static float moveSpeed = 20f;
     protected  float walkingDistance;
     protected boolean inCombat = false; // True if they see cole
+    private boolean isReloading = false;
     public boolean isFacingRight = false;
     public boolean shootBullet = false;
     protected float initialX;
@@ -28,6 +30,11 @@ public class Enemy extends  GenericObject{
     protected Rectangle lDetector;
     protected Rectangle rDetector;
 
+    protected Animation<TextureRegion> reloadAnimation;
+    protected float reloadTimer = 0;
+
+    protected Animation<TextureRegion> deathAnimation;
+    protected float deathTimer = 0;
 
     public Enemy(float x, float y, float distance, Alignment alignment, boolean direction){
         super(x, y, alignment);
@@ -43,17 +50,28 @@ public class Enemy extends  GenericObject{
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
-    public void setUpSpriteSheet(TextureRegion[][] textureRegions){
+    public void setUpSpriteSheet(TextureRegion[][] textureRegions, TextureRegion[][] deathSpriteSheet){
         this.spriteSheet = textureRegions;
         setUpAnimations();
+        setUpReloadAnimation();
+        deathAnimation = setUpAnimation(deathSpriteSheet, 1/5f, 0, Animation.PlayMode.NORMAL);
   }
 
+    protected void setUpReloadAnimation(){
+        reloadAnimation = new Animation<TextureRegion>(1/5f, spriteSheet[1][0], spriteSheet[1][2], spriteSheet[1][1],  spriteSheet[1][2], spriteSheet[1][0]);
+        reloadAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
     public void update(float delta){
-        pathing(delta);
-        action(delta);
-        visionCone();
+        if(currentHealth > 0) {
+            pathing(delta);
+            action(delta);
+            visionCone();
+        }
         if(!isFacingRight){ animationLeftTime += delta; }
-        else{ animationRightTime += delta; }
+        if(isFacingRight){ animationRightTime += delta; }
+        if(isReloading){reloadTimer += delta; }
+        if(currentHealth < 0){deathTimer += delta;}
     }
 
     public void action(float delta){
@@ -61,6 +79,7 @@ public class Enemy extends  GenericObject{
         if(reloading <= 0) {
             if (ammo <= 0 || (!inCombat && ammo < maxAmmo)) { // reloading action
                 reloading = reloadTime;
+                isReloading = true;
             } else if(ammo > 0 && inCombat) { // shooting action
                 if (shooting <= 0 && inCombat && !shootBullet) { // add conditional that enemy sees Cole.
 
@@ -77,6 +96,7 @@ public class Enemy extends  GenericObject{
             if(reloading <= 0){
                 ammo = maxAmmo;
             }
+            isReloading = true;
         }
     }
 
@@ -135,17 +155,18 @@ public class Enemy extends  GenericObject{
         inCombat = visionCone.overlaps(player.hitBox);
     }
 
+    public boolean finishedDying(){return deathAnimation.isAnimationFinished(deathTimer);}
+
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
-        if (isFacingRight) {
-            currentFrame = walkRightAnimation.getKeyFrame(animationRightTime);
-        }
-        else if(!isFacingRight){
-            currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime);
-        }
 
-        batch.draw(currentFrame, isFacingRight ? hitBox.x  : hitBox.x + COLE_WIDTH, hitBox.y , isFacingRight ? COLE_WIDTH : -COLE_WIDTH, currentFrame.getRegionHeight());
+        if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
+        else if(isReloading){currentFrame = reloadAnimation.getKeyFrame(reloadTimer);}
+        else if(inCombat){currentFrame = spriteSheet[1][0]; }
+        else if (isFacingRight) { currentFrame = walkRightAnimation.getKeyFrame(animationRightTime); }
+        else if(!isFacingRight){ currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime); }
 
+        batch.draw(currentFrame, isFacingRight ? hitBox.x : hitBox.x + currentFrame.getRegionWidth() , hitBox.y , isFacingRight ? currentFrame.getRegionWidth() : -currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
     }
 
 }

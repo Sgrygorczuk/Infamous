@@ -29,7 +29,7 @@ public final class Const{
     public static final float TEXT_OFFSET = 20;
 
     //====================== Menu Buttons =========================
-    public static final int NUM_BUTTONS_MENU_SCREEN = 3;
+    public static final int NUM_BUTTONS_MENU_SCREEN = 2;
     public static final int NUM_BUTTONS_MAIN_SCREEN = 4;
     public static final float MENU_BUTTON_Y_START = 240 * WORLD_HEIGHT/320;
     public static final float MENU_BUTTON_WIDTH = 150 * WORLD_WIDTH/480;
@@ -59,10 +59,9 @@ public final class Const{
     public static final float INVINCIBILITY_TIME = 0.5F;
     public static final float ATTACK_DELAY = 0.5f;
     public static final float PROJ_TIME = 0.5f;
-    public static final float MELEE_TIME = 0.2f;
-    public static final float BULLET_TIME = 1.5f;
 
-
+    public static final float MELEE_TIME = 0.1f;
+    public static final float BULLET_TIME = 0.8f;
 
     public static final int EXPLOSIVE_DAMAGE = 5;
     public static final int EXPLOSIVE_RADIUS = 20;
@@ -83,5 +82,8 @@ public final class Const{
     public static final int BOMB_HEIGHT = 1;
 
     public static final int EXPLOSION_DAMAGE = 30;
+
+    //====================== Draining =======================
+    public static final int REMOVE_ENERGY = 1;
 
 }

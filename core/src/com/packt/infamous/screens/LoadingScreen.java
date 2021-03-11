@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.game_objects.Checkpoint;
@@ -66,6 +67,8 @@ public class LoadingScreen extends ScreenAdapter{
     private float loadTimer = LOADING_TIME;
     private String loadingString = "Loading";
 
+    private int tiledSelection;
+
     //Checkpoint for use with game screens
     private Checkpoint checkpoint;
 
@@ -94,6 +97,17 @@ public class LoadingScreen extends ScreenAdapter{
     public LoadingScreen(Infamous infamous, int screenPath, Checkpoint checkpoint) {
         this(infamous, screenPath);
         this.checkpoint = checkpoint;
+    }
+
+    /**
+     * Purpose: General Constructor for moving between screens
+     * @param infamous game object with data
+     * @param screenPath tells us which screen to go to from here
+     */
+    public LoadingScreen(Infamous infamous, int screenPath, int tiledSelection) {
+        this.infamous = infamous;
+        this.screenPath = screenPath;
+        this.tiledSelection = tiledSelection;
     }
 
     /**
@@ -136,6 +150,8 @@ public class LoadingScreen extends ScreenAdapter{
         bitmapFont.setColor(Color.BLACK);
         if(infamous.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = infamous.getAssetManager().get("Fonts/Font.fnt");}
         bitmapFont.getData().setScale(0.45f);
+
+
     }
 
     /**
@@ -155,6 +171,11 @@ public class LoadingScreen extends ScreenAdapter{
 
         //========================= Load Tiled Maps ================================================
         infamous.getAssetManager().load("Tiled/InfamousMapPlaceHolder.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelOne.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelTwo.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelThree.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelFour.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelFive.tmx", TiledMap.class);
     }
 
     //=================================== Execute Time Methods =====================================
@@ -224,12 +245,11 @@ public class LoadingScreen extends ScreenAdapter{
                 break;
             }
             case 1:{
-                infamous.setScreen(new MainScreen(infamous, false));
+                infamous.setScreen(new MainScreen(infamous,  tiledSelection));
                 break;
             }
-            case 2:{
-                infamous.setScreen(new MainScreen(infamous, true, checkpoint));
-                break;
+            case 2: {
+                infamous.setScreen(new CreditsScreen(infamous));
             }
             default:{
                 infamous.setScreen(new MenuScreen(infamous));
