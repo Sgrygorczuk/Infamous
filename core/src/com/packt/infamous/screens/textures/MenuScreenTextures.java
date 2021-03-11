@@ -10,6 +10,7 @@ public class MenuScreenTextures {
     public Texture backgroundTexture;
     public Texture menuBackgroundTexture;   //Pop up menu to show menu buttons and Help screen
     public TextureRegion[][] buttonSpriteSheet;
+    public Texture controlsTexture;
 
     public MenuScreenTextures(){ showTextures(); }
 
@@ -18,7 +19,7 @@ public class MenuScreenTextures {
      */
     private void showTextures(){
         backgroundTexture = new Texture(Gdx.files.internal("UI/MenuBackground.png"));
-        menuBackgroundTexture = new Texture(Gdx.files.internal("UI/TestPopUp.png"));
+        controlsTexture = new Texture(Gdx.files.internal("UI/Instructions.png"));
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
                 menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());

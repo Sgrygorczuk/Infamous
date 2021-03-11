@@ -91,6 +91,7 @@ class MainScreen extends ScreenAdapter {
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean endFlag = false;            //Tells us game has been lost
     private boolean helpFlag = false;           //Tells us if help flag is on or off
+    private boolean skinFlag = false;
     private float xCameraDelta = 0;
     private float yCameraDelta = 0;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
@@ -106,10 +107,13 @@ class MainScreen extends ScreenAdapter {
     private int healed = 0;
     private int killed = 0;
 
+    private int skinIndex = 0;
+    private boolean skinExit = false;
+
     //=================================== Miscellaneous Vars =======================================
     private Array<String> levelNames = new Array<>();
     private int tiledSelection;
-    private final String[] menuButtonText = new String[]{"Help", "Sound Off", "Main Menu", "Back", "Sound On"};
+    private final String[] menuButtonText = new String[]{"Controls", "Skins", "Sound Off", "Main Menu", "Back", "Sound On"};
 
 
     //========================================= Game Objects ========================================
@@ -141,7 +145,7 @@ class MainScreen extends ScreenAdapter {
         this.infamous = infamous;
 
         this.tiledSelection = tiledSelection;
-        levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
+        //levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
         levelNames.add("Tiled/LevelOne.tmx");
         levelNames.add("Tiled/LevelTwo.tmx");
         levelNames.add("Tiled/LevelThree.tmx");
@@ -206,7 +210,7 @@ class MainScreen extends ScreenAdapter {
 
         //======================================== Cole =========================================
         Array<Vector2> colePosition = tiledSetUp.getLayerCoordinates("Cole");
-        cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER);
+        cole = new Cole(colePosition.get(0).x, colePosition.get(0).y, Alignment.PLAYER, infamous.getTextureChoice());
         cole.setWidth(COLE_WIDTH);
         cole.setHeight(COLE_HEIGHT);
         cole.setUpSpriteSheet(mainScreenTextures.coleSpriteSheet, mainScreenTextures.drainSpriteSheet,
@@ -599,13 +603,15 @@ class MainScreen extends ScreenAdapter {
         else {
             cole.setDraining(false);
         }
+
     }
 
     /**
      * Purpose: allows user to control the menus
      */
     private void menuInputHandling(){
-        if(!helpFlag) {
+        //================================= General Menu ==========================
+        if(!helpFlag && !skinFlag) {
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
@@ -624,20 +630,76 @@ class MainScreen extends ScreenAdapter {
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 //Launches the game
                 if (buttonIndex == 0) { helpFlag = true; }
+                else if(buttonIndex == 1){ skinFlag = true;}
                 //Turns on the help menu
-                else if (buttonIndex == 1) { musicControl.soundOnOff(); }
+                else if (buttonIndex == 2) { musicControl.soundOnOff(); }
                 //Turns on the credits menu
-                else if(buttonIndex == 2){
+                else if(buttonIndex == 3){
                     musicControl.stopMusic();
                     infamous.setScreen(new LoadingScreen(infamous, 0));
                 }
-                else{ pausedFlag = false; }
+                else{
+                    pausedFlag = false;
+                    buttonIndex = 0;
+                }
+            }
+
+            if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+                pausedFlag = false;
+                buttonIndex = 0;
             }
         }
-        else{
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) { helpFlag = false; }
+        //========================= Controls ===============================
+        else if(helpFlag){
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) { helpFlag = false; }
+        }
+        //===================== Skin Menu ==================================
+        else if(skinFlag){
+            if((Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))){
+                skinFlag = false;
+                skinExit = false;
+                skinIndex = 0;
+            }
+            if(skinExit){
+                if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                    skinExit = false;
+                }
+                else if((Gdx.input.isKeyJustPressed(Input.Keys.E))){
+                    skinFlag = false;
+                    skinExit = false;
+                    skinIndex = 0;
+                }
+            }
+            else{
+                if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                    skinExit = true;
+                }
+                else if(Gdx.input.isKeyPressed(Input.Keys.E)){
+                    if((skinIndex == 1 && infamous.getIfCollectibleComplete())
+                    || (skinIndex == 2 && infamous.getIfHealsComplete())
+                    || (skinIndex == 3 && infamous.getIfKillsComplete())){
+                        updateTextureChoice(skinIndex);
+                    }
+                }
+                else if(skinIndex < 3 && (Gdx.input.isKeyJustPressed(Input.Keys.D))){
+                    skinIndex ++;
+                }
+                else if(skinIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A))){
+                    skinIndex --;
+                }
+            }
         }
     }
+
+    /**
+     * Purpose: Change the animation effect around cole based on users choice
+     * @param textureChoice the texture row we want to use
+     */
+    private void updateTextureChoice(int textureChoice){
+        infamous.setTextureChoice(textureChoice);
+        cole.updateTextureChoice(infamous.getTextureChoice());
+    }
+
 
     //============================== Collision ============================================
 
@@ -1005,16 +1067,6 @@ class MainScreen extends ScreenAdapter {
         yCameraDelta = camera.position.y - WORLD_HEIGHT/2f;
     }
 
-    /**
-    Purpose: Puts the game in end game state
-    */
-    private void endGame(){ endFlag = true; }
-
-    /**
-     Purpose: Restarts the game to it's basic settings
-     */
-    private void restart(){
-    }
 
     //========================================== Drawing ===========================================
 
@@ -1054,14 +1106,15 @@ class MainScreen extends ScreenAdapter {
 
         batch.begin();
         drawUIText();
-        drawPopUpMenu();
         drawCollectibleSum();
+        drawPopUpMenu();
 
         //=================== Draws the Menu Buttons =========================
-        if(pausedFlag || endFlag || helpFlag){drawMainButtons();}
+        if(pausedFlag && !skinFlag && !helpFlag){drawMainButtons();}
 
         //================= Draw Menu Button Text =============================
-        if(pausedFlag && !helpFlag){drawButtonText();}
+        if(skinFlag){ drawSkins(); }
+        else if(pausedFlag && !helpFlag && !skinFlag){drawButtonText();}
         else if(pausedFlag){drawBackButtonText();}
         batch.end();
     }
@@ -1093,8 +1146,8 @@ class MainScreen extends ScreenAdapter {
      */
     private void drawPopUpMenu() {
         bitmapFont.getData().setScale(0.3f);
-        if (pausedFlag || endFlag || helpFlag) {
-            batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta + WORLD_WIDTH / 2f - WORLD_WIDTH / 4, yCameraDelta + WORLD_HEIGHT / 2 - 5 * WORLD_HEIGHT / 12, WORLD_WIDTH / 2, 5 * WORLD_HEIGHT / 6);
+        if ((pausedFlag && !skinFlag) || endFlag || helpFlag) {
+            batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta + WORLD_WIDTH / 2f - WORLD_WIDTH / 4, 10, WORLD_WIDTH / 2, WORLD_HEIGHT - 20);
             if (helpFlag) { drawInstructions();}
         }
     }
@@ -1178,16 +1231,69 @@ class MainScreen extends ScreenAdapter {
      * Purpose: Draws the text for instructions
      */
     private void drawInstructions() {
-        textAlignment.centerText(batch, bitmapFont, "Health", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + WORLD_HEIGHT/2f);
+        batch.draw(mainScreenTextures.controlsTexture, xCameraDelta, yCameraDelta);
+  }
 
-        bitmapFont.getData().setScale(.5f);
-        textAlignment.centerText(batch, bitmapFont, "Instruction", xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + INSTRUCTIONS_Y_START);
-        bitmapFont.getData().setScale(.35f);
 
-        textAlignment.centerText(batch, bitmapFont, "Move - WASD", xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + INSTRUCTIONS_Y_START - TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #2", xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + INSTRUCTIONS_Y_START - 2 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #3", xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + INSTRUCTIONS_Y_START  - 3 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Actions #4", xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + INSTRUCTIONS_Y_START - 4 * TEXT_OFFSET);
+    /**
+     * Input: Void
+     * Output: Void
+     * Purpose: Draws the text for instructions
+     */
+    private void drawSkins() {
+        bitmapFont.setColor(Color.WHITE);
+        bitmapFont.getData().setScale(0.5f);
+
+        batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta, yCameraDelta);
+
+        textAlignment.centerText(batch, bitmapFont, "Lighting Skin Selection", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + WORLD_HEIGHT - 30);
+
+
+        //============================= Draws the boxes Cole in them with different colors =========
+        for(int i = 0; i < 4; i++){
+            if(skinIndex == i){
+                batch.draw(mainScreenTextures.buttonSpriteSheet[0][1], xCameraDelta + 12 + (50 + 10) * i, yCameraDelta + WORLD_HEIGHT/2f, 50, 50);
+                batch.draw(mainScreenTextures.coleSpriteSheet[3][3], xCameraDelta + 38 -  25/2f  + (50 + 10) * i,
+                        yCameraDelta  + WORLD_HEIGHT/2f + 25/2f, 25, 25);
+                batch.draw(mainScreenTextures.meleeSpriteSheet[i][2],xCameraDelta + 47 -  25/2f  + (50 + 10) * i,
+                        yCameraDelta + WORLD_HEIGHT/2f + 25/2f, 25, 25);
+            }
+            else{
+                batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + 12 + (50 + 10) * i, yCameraDelta + WORLD_HEIGHT/2f, 50, 50);
+                batch.draw(mainScreenTextures.coleSpriteSheet[3][3], xCameraDelta + 38 -  25/2f  + (50 + 10) * i,
+                        yCameraDelta + WORLD_HEIGHT/2f + 25/2f, 25, 25);
+                batch.draw(mainScreenTextures.meleeSpriteSheet[i][2],xCameraDelta + 47 -  25/2f  + (50 + 10) * i,
+                        yCameraDelta + WORLD_HEIGHT/2f + 25/2f, 25, 25);
+            }
+
+            //========================= Draws Locks on those that are no complete ==================
+            bitmapFont.getData().setScale(0.3f);
+            if(i == 1 && !infamous.getIfCollectibleComplete()){
+                batch.draw(mainScreenTextures.lockTexture, xCameraDelta + 12 + (50 + 10) * i, yCameraDelta + WORLD_HEIGHT/2f, 50, 50);
+                textAlignment.centerText(batch, bitmapFont, "Collect all", xCameraDelta + 12 + (50 + 31) * i, yCameraDelta + WORLD_HEIGHT/2f - 10);
+                batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + 12 + (50 + 15) * i, yCameraDelta + WORLD_HEIGHT/2f - 50, 30, 30);
+            }
+            else if(i == 2 && !infamous.getIfHealsComplete()){
+                batch.draw(mainScreenTextures.lockTexture, xCameraDelta + 12 + (50 + 10) * i, yCameraDelta + WORLD_HEIGHT/2f, 50, 50);
+                textAlignment.centerText(batch, bitmapFont, "Heal all", xCameraDelta + 12 + (50 + 22) * i, yCameraDelta + WORLD_HEIGHT/2f - 10);
+                batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][0], xCameraDelta + 12 + (50 + 15) * i, yCameraDelta + WORLD_HEIGHT/2f - 50, 30, 30);
+            }
+            else if(i == 3 && !infamous.getIfKillsComplete()){
+                batch.draw(mainScreenTextures.lockTexture, xCameraDelta + 12 + (50 + 10) * i, yCameraDelta + WORLD_HEIGHT/2f, 50, 50);
+                textAlignment.centerText(batch, bitmapFont, "Kill all", xCameraDelta + 12 + (50 + 19) * i, yCameraDelta + WORLD_HEIGHT/2f - 10);
+                batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][4], xCameraDelta + 12 + (50 + 13) * i, yCameraDelta + WORLD_HEIGHT/2f - 50, 30, 30);
+            }
+        }
+
+        //======================= Draws exit button ==========================================
+        if(skinExit){
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][1], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, yCameraDelta + 10, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+        else{
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, yCameraDelta + 10, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+        bitmapFont.getData().setScale(0.3f);
+        textAlignment.centerText(batch, bitmapFont, "Back", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + 27);
     }
 
 
@@ -1205,6 +1311,10 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    private void drawBackButton(){
+        batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, 10, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+    }
+
     /**
         Purpose: Draws text over the menu buttons, Restart, Help, Sound Off/On and Main Menu
      */
@@ -1214,7 +1324,7 @@ class MainScreen extends ScreenAdapter {
         for (int i = 0; i < menuButtonText.length - 1; i++) {
             string = menuButtonText[i];
             //If the volume is off draw Sound On else Sound off
-            if (i ==1 && musicControl.getSFXVolume() == 0) { string = menuButtonText[menuButtonText.length - 1]; }
+            if (i == 2 && musicControl.getSFXVolume() == 0) { string = menuButtonText[menuButtonText.length - 1]; }
             textAlignment.centerText(batch, bitmapFont, string, xCameraDelta + WORLD_WIDTH / 2f,  yCameraDelta - 10 + MENU_BUTTON_Y_START + MENU_BUTTON_HEIGHT/2f - (10 + MENU_BUTTON_HEIGHT) * i);
         }
     }

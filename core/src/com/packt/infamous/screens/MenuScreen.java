@@ -54,11 +54,11 @@ public class MenuScreen extends ScreenAdapter{
 
     //============================================= Flags ==========================================
     private boolean helpFlag;      //Tells if help menu is up or not
-    private boolean creditsFlag;   //Tells if credits menu is up or not
+    private boolean levelSelectFlag;   //Tells if credits menu is up or not
 
     //=================================== Miscellaneous Vars =======================================
     //String used on the buttons
-    private final String[] buttonText = new String[]{"Play", "Help"};
+    private final String[] buttonText = new String[]{"Play", "Level Select", "Controls"};
     private float backButtonY = 10;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
 
@@ -153,14 +153,17 @@ public class MenuScreen extends ScreenAdapter{
                     musicControl.playSFX(0);
                     infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
+                else if(buttonIndex == 1){
+                    levelSelectFlag = true;
+                }
                 //Turns on the help menu
-                else if (buttonIndex == 1) {
+                else if (buttonIndex == 2) {
                     helpFlag = true;
                 }
             }
         }
         else if(helpFlag){
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
                 helpFlag = false;
                 backButtonY = 10;
             }
@@ -181,20 +184,14 @@ public class MenuScreen extends ScreenAdapter{
         batch.begin();
         batch.draw(menuScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         //Draw the pop up menu
-        if(helpFlag  || creditsFlag){batch.draw(menuScreenTextures.menuBackgroundTexture, 10, 10, WORLD_WIDTH - 20, WORLD_HEIGHT-20);}
         //Draws the Play|Help|Credits text on buttons
-        if(!helpFlag && !creditsFlag){
+        if(!helpFlag){
             drawMainButtons();
             drawButtonText();
         }
         else if(helpFlag){
             drawBackButton();
             drawInstructions();
-            drawBackButtonText();
-        }
-        //Draws the credits text
-        else{
-            drawBackButton();
             drawBackButtonText();
         }
         batch.end();
@@ -251,14 +248,7 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Draws the text for instructions
      */
     private void drawInstructions() {
-        bitmapFont.getData().setScale(.5f);
-        textAlignment.centerText(batch, bitmapFont, "Instruction", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START);
-        bitmapFont.getData().setScale(.35f);
-
-        textAlignment.centerText(batch, bitmapFont, "Move - WASD", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #2", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 2 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #3", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START  - 3 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Actions #4", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 4 * TEXT_OFFSET);
+        batch.draw(menuScreenTextures.controlsTexture, 0, 0);
     }
 
 
