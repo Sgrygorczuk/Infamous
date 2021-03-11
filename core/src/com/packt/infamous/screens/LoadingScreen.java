@@ -251,6 +251,7 @@ public class LoadingScreen extends ScreenAdapter{
             }
             case 2: {
                 infamous.setScreen(new CreditsScreen(infamous));
+                break;
             }
             default:{
                 infamous.setScreen(new MenuScreen(infamous));

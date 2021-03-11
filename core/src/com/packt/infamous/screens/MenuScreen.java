@@ -68,7 +68,7 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Grabs the info from main screen that holds asset manager
      * Input: Infamous
      */
-    MenuScreen(Infamous infamous) { this.infamous = infamous;}
+    MenuScreen(Infamous infamous) { this.infamous = infamous; }
 
     /**
      Purpose: Updates the dimensions of the screen

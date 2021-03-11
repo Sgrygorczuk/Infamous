@@ -15,9 +15,9 @@ public class Infamous extends Game {
 	private final AssetManager assetManager = new AssetManager();
 	private int textureChoice = 0;
 
-	private boolean[] collectibleComplete = new boolean[]{false, true, true, true, true};
-	private boolean[] healsComplete = new boolean[]{true, false, true, true, true};
-	private boolean[] killsComplete = new boolean[]{false, true, true, true, true};
+	private boolean[] collectibleComplete = new boolean[]{true, true, true, true, true};
+	private boolean[] healsComplete = new boolean[]{true, true, true, true, true};
+	private boolean[] killsComplete = new boolean[]{true, true, true, true, true};
 
 	public int getTextureChoice() {
 		return textureChoice;
