@@ -17,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.packt.infamous.game_objects.Checkpoint;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
@@ -68,6 +69,8 @@ public class LoadingScreen extends ScreenAdapter{
 
     private int tiledSelection;
 
+    //Checkpoint for use with game screens
+    private Checkpoint checkpoint;
 
 
     /**
@@ -84,10 +87,16 @@ public class LoadingScreen extends ScreenAdapter{
      * Purpose: General Constructor for moving between screens
      * @param infamous game object with data
      * @param screenPath tells us which screen to go to from here
+     * @param checkpoint is used when transitioning from a different screen to maintain variables
      */
     public LoadingScreen(Infamous infamous, int screenPath) {
         this.infamous = infamous;
         this.screenPath = screenPath;
+    }
+
+    public LoadingScreen(Infamous infamous, int screenPath, Checkpoint checkpoint) {
+        this(infamous, screenPath);
+        this.checkpoint = checkpoint;
     }
 
     /**
@@ -239,9 +248,8 @@ public class LoadingScreen extends ScreenAdapter{
                 infamous.setScreen(new MainScreen(infamous,  tiledSelection));
                 break;
             }
-            case 2:{
+            case 2: {
                 infamous.setScreen(new CreditsScreen(infamous));
-                break;
             }
             default:{
                 infamous.setScreen(new MenuScreen(infamous));

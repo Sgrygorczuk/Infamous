@@ -37,6 +37,7 @@ public class GenericObject {
     protected float animationLeftTime = 0;
 
     protected boolean touchedCeiling;
+    protected boolean isDead;
 
 
     public GenericObject(float x , float y, Alignment align){
@@ -71,11 +72,14 @@ public class GenericObject {
 
     public float getHeight(){return hitBox.height;}
 
-    public float getMaxHealth(){return maxHealth;}
-    public float getCurrentHealth(){return currentHealth;}
+    public int getMaxHealth(){return maxHealth;}
+    public int getCurrentHealth(){return currentHealth;}
 
-    public float getMaxEnergy(){return maxEnergy;}
-    public float getCurrentEnergy(){return currentEnergy;}
+    public int getMaxEnergy(){return maxEnergy;}
+    public int getCurrentEnergy(){return currentEnergy;}
+
+    public void setCurrentEnergy(int energy){currentEnergy = energy;}
+    public void setCurrentHealth(int health){currentHealth = health;}
 
     public void setVelocity(float x, float y){
         velocity.x = x;

@@ -12,11 +12,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.Alignment;
+import com.packt.infamous.game_objects.Checkpoint;
+import com.packt.infamous.game_objects.CheckpointObject;
 import com.packt.infamous.game_objects.Civilian;
 import com.packt.infamous.game_objects.Cole;
 import com.packt.infamous.game_objects.Collectible;
@@ -38,6 +39,12 @@ import com.packt.infamous.tools.TextAlignment;
 import com.packt.infamous.tools.TiledSetUp;
 import com.packt.infamous.Enum;
 
+import static com.packt.infamous.Const.BOLT_HEIGHT;
+import static com.packt.infamous.Const.BOLT_SPEED;
+import static com.packt.infamous.Const.BOLT_WIDTH;
+import static com.packt.infamous.Const.BOMB_HEIGHT;
+import static com.packt.infamous.Const.BOMB_SPEED;
+import static com.packt.infamous.Const.BOMB_WIDTH;
 import static com.packt.infamous.Const.COLE_HEIGHT;
 import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
@@ -50,6 +57,9 @@ import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.MENU_BUTTON_Y_START;
 import static com.packt.infamous.Const.NUM_BUTTONS_MAIN_SCREEN;
 import static com.packt.infamous.Const.TEXT_OFFSET;
+import static com.packt.infamous.Const.TORPEDO_HEIGHT;
+import static com.packt.infamous.Const.TORPEDO_SPEED;
+import static com.packt.infamous.Const.TORPEDO_WIDTH;
 import static com.packt.infamous.Const.UI_HEIGHT;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
@@ -115,12 +125,17 @@ class MainScreen extends ScreenAdapter {
     private final Array<Collectible> collectibles = new Array<>();
     private final Array<Civilian> civilians = new Array<>();
     private final Array<EndShard> endShards = new Array<>();
+    private final Array<CheckpointObject> checkpoints = new Array<>();
+
+    private Checkpoint checkpoint;
+    private boolean isCheckpointed = false;
 
     //================================ Set Up ======================================================
 
     /**
      * Purpose: Grabs the info from main screen that holds asset manager
-     * Input: Infamous
+     * @param infamous game, checkpoint if reloading level
+     * @param tiledSelection stores the map choice
     */
     MainScreen(Infamous infamous, int tiledSelection) {
         this.infamous = infamous;
@@ -132,6 +147,13 @@ class MainScreen extends ScreenAdapter {
         levelNames.add("Tiled/LevelThree.tmx");
         levelNames.add("Tiled/LevelFour.tmx");
         levelNames.add("Tiled/LevelFive.tmx");
+    }
+
+    MainScreen(Infamous infamous, int tiledSelection, Checkpoint checkpoint) {
+        this(infamous, tiledSelection);
+        this.checkpoint = checkpoint;
+        isCheckpointed = true;
+
     }
 
 
@@ -157,7 +179,13 @@ class MainScreen extends ScreenAdapter {
         musicControl.showMusic(0);
         musicControl.setMusicVolume(0);
         showTiled();
-        if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the redners
+        if (isCheckpointed){
+            cole.setX(checkpoint.getLocation_x());
+            cole.setY(checkpoint.getLocation_y());
+            cole.setCurrentEnergy(checkpoint.getEnergy());
+            cole.setCurrentHealth(checkpoint.getHealth());
+        }
+        if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the renders
     }
 
     /**
@@ -260,6 +288,12 @@ class MainScreen extends ScreenAdapter {
             platforms.add(rail_platform);
         }
 
+        //========================= Checkpoints ==========================================
+        Array<Vector2> checkpointPositions = tiledSetUp.getLayerCoordinates("Checkpoint");
+        for (Vector2 position : checkpointPositions){
+            checkpoints.add(new CheckpointObject(position.x, position.y, Alignment.BACKGROUND));
+        }
+
         //========================= Drainables ===========================================
         Array<Vector2> drainablePositions = tiledSetUp.getLayerCoordinates("ElePhone");
         for(int i = 0; i < drainablePositions.size; i++){
@@ -281,9 +315,24 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> enemyPositions = tiledSetUp.getLayerCoordinates("Enemy");
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
-            enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY));
-            enemies.get(i).setUpSpriteSheet(mainScreenTextures.enemySpriteSheet,
+            Enemy newEnemy = new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY, true);
+
+            enemies.add(newEnemy);
+        }
+
+        Array<Vector2> stationaryL = tiledSetUp.getLayerCoordinates("EnemyStationaryL");
+        Array<Vector2> stationaryR = tiledSetUp.getLayerCoordinates("EnemyStationaryR");
+        for(int i = 0; i < stationaryL.size; i++){
+            Enemy newEnemy = new Enemy(stationaryL.get(i).x, stationaryL.get(i).y, 0, Alignment.ENEMY, false);
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet,
                     mainScreenTextures.enemyDeathSpriteSheet);
+            enemies.add(newEnemy);
+        }
+        for(int i = 0; i < stationaryR.size; i++){
+            Enemy newEnemy = new Enemy(stationaryR.get(i).x, stationaryR.get(i).y, 0, Alignment.ENEMY, true);
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet,
+                    mainScreenTextures.enemyDeathSpriteSheet);
+            enemies.add(newEnemy);
         }
 
     }
@@ -352,6 +401,9 @@ class MainScreen extends ScreenAdapter {
             drainable.drawDebug(debugRendering.getShapeRendererBackground());
         }
 
+        debugRendering.setShapeRendererBackgroundColor(Color.MAGENTA);
+        for(CheckpointObject checkpoint : checkpoints){checkpoint.drawDebug(debugRendering.getShapeRendererBackground());}
+
         debugRendering.setShapeRendererBackgroundColor(Color.YELLOW);
         for(Rail rail : rails){
             rail.drawDebug(debugRendering.getShapeRendererBackground());
@@ -394,6 +446,7 @@ class MainScreen extends ScreenAdapter {
         updateProjectiles(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         handleInput(delta);
         updateEnemies(delta);
+        updateIfDead();
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         if(cole.getInvincibility()){cole.invincibilityTimer(delta);}
         for(Collectible collectible : collectibles){collectible.update(delta);}
@@ -601,6 +654,21 @@ class MainScreen extends ScreenAdapter {
         isCollidingMelee();
         isCollidingWithPerson();
         isCollidingEndShard();
+        isCollidingCheckpoint();
+    }
+
+    /**
+     * Purpose: Check if cole is touching a checkpoint
+     *
+     */
+    private void isCollidingCheckpoint(){
+        for (CheckpointObject checkpoint : checkpoints){
+            if (checkpoint.isColliding(cole.getHitBox())){
+                isCheckpointed = true;
+                this.checkpoint = new Checkpoint(cole.getCurrentHealth(), cole.getCurrentEnergy(),
+                        cole.getX(), cole.getY());
+            }
+        }
     }
 
 
@@ -816,9 +884,32 @@ class MainScreen extends ScreenAdapter {
      */
     private void createProjectile(Alignment alignment, boolean facing_direction, Rectangle shooter){
         int direction = -1;
-        if(alignment == Alignment.PLAYER){
+        if (alignment == Alignment.PLAYER){
             if (!cole.getIsFacingRight()){
                 direction = 1;
+            }
+
+            //Assign Projectile Characteristics
+            Enum attackIndex = Enum.fromInteger(cole.getAttackIndex());
+            int projWidth = 0;
+            int projHeight = 0;
+            float projVel = Math.abs(cole.getVelocity().x);
+            switch(attackIndex){
+                case BOLT:
+                    projWidth = BOLT_WIDTH;
+                    projHeight = BOLT_HEIGHT;
+                    projVel += BOLT_SPEED;
+                    break;
+                case BOMB:
+                    projWidth = BOMB_WIDTH;
+                    projHeight =  BOMB_HEIGHT;
+                    projVel += BOMB_SPEED;
+                    break;
+                case TORPEDO:
+                    projWidth = TORPEDO_WIDTH;
+                    projWidth = TORPEDO_HEIGHT;
+                    projVel += TORPEDO_SPEED;
+                    break;
             }
 
             if (cole.isCanMelee()){
@@ -827,11 +918,11 @@ class MainScreen extends ScreenAdapter {
             }
             else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
                 projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                        1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             else {
-                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2 / 3f), Alignment.PLAYER,
-                        1, 1, direction, cole.getVelocity().x, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             cole.setIsAttacking(false);
             cole.resetAttackTimer();
@@ -840,9 +931,10 @@ class MainScreen extends ScreenAdapter {
             float bulletY = shooter.y+shooter.height*(2/3f);
             if(facing_direction) {
                 direction = 1;
-                bulletX += shooter.width;
+                bulletX += shooter.width+5;
             }
-            projectiles.add(new Projectile(bulletX, bulletY, Alignment.ENEMY, 5,5, direction, 0f, Enum.BULLET, mainScreenTextures.bulletSpriteSheet));
+            System.out.println("direction"+direction);
+            projectiles.add(new Projectile(bulletX, bulletY, Alignment.ENEMY, 5,5, direction, 1f, Enum.BULLET, mainScreenTextures.bulletSpriteSheet));
         }
     }
     /**
@@ -852,8 +944,13 @@ class MainScreen extends ScreenAdapter {
         Array<Enemy> removeEnemies = new Array<>();
 
         for(Enemy enemy : enemies){
+            //Removes enemies on death
+            if (enemy.getCurrentHealth() < 0){
+                enemies.removeValue(enemy, true);
+            }
             enemy.update(delta);
             enemy.setCombat(cole);
+            enemy.nearDetector(cole);
             if(enemy.shootBullet){
                 enemy.shootBullet = false;
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
@@ -865,6 +962,21 @@ class MainScreen extends ScreenAdapter {
 
         for(Enemy enemy : removeEnemies){
             if(enemy.finishedDying()){enemies.removeValue(enemy, true);}
+        }
+    }
+
+    /**
+     * Purpose: Checks if cole is dead yet, then reloads checkpoint if possible (or back to start)
+     */
+    public void updateIfDead(){
+        if (cole.getCurrentHealth() < 0){
+            if (this.isCheckpointed){
+                infamous.setScreen(new MainScreen(infamous, tiledSelection, this.checkpoint));
+            }
+            //Reload screen if died with no checkpoint
+            else {
+                infamous.setScreen(new MenuScreen(infamous));
+            }
         }
     }
 

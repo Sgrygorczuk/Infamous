@@ -59,20 +59,31 @@ public final class Const{
     public static final float INVINCIBILITY_TIME = 0.5F;
     public static final float ATTACK_DELAY = 0.5f;
     public static final float PROJ_TIME = 0.5f;
+
     public static final float MELEE_TIME = 0.1f;
     public static final float BULLET_TIME = 0.8f;
 
-    public static final float BOLT_SPEED = 2f;
-    public static final int BOLT_DAMAGE = 1;
-
     public static final int EXPLOSIVE_DAMAGE = 5;
-    public static final int EXPLOSIVE_RADIUS = 15;
+    public static final int EXPLOSIVE_RADIUS = 20;
     public static final float EXPLOSIVE_LINGER = 0.5f;
 
-    //====================== Drainign =======================
+
+    public static final float BOLT_SPEED = 3f;
+    public static final int BOLT_DAMAGE = 10;
+    public static final int BOLT_WIDTH = 4;
+    public static final int BOLT_HEIGHT = 3;
+
+    public static final float TORPEDO_SPEED = 4f;
+    public static final int TORPEDO_WIDTH = 7;
+    public static final int TORPEDO_HEIGHT = 3;
+
+    public static final float BOMB_SPEED = 2f;
+    public static final int BOMB_WIDTH = 1;
+    public static final int BOMB_HEIGHT = 1;
+
+    public static final int EXPLOSION_DAMAGE = 30;
+
+    //====================== Draining =======================
     public static final int REMOVE_ENERGY = 1;
-
-
-
 
 }
