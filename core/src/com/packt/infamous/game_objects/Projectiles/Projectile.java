@@ -11,6 +11,7 @@ import com.packt.infamous.game_objects.GenericObject;
 import static com.packt.infamous.Const.BOLT_DAMAGE;
 import static com.packt.infamous.Const.BOLT_SPEED;
 import static com.packt.infamous.Const.BULLET_TIME;
+import static com.packt.infamous.Const.EXPLOSION_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_LINGER;
 import static com.packt.infamous.Const.MELEE_TIME;
@@ -45,8 +46,17 @@ public class Projectile extends GenericObject {
         this.setWidth(width);
         this.setHeight(height);
 
-        velocity.x = (startVelocity + BOLT_SPEED) * direction;
+        velocity.x = startVelocity * direction;
+
         damage =  BOLT_DAMAGE;
+
+        if (type == Enum.TORPEDO || type == Enum.BOMB){
+            damage = 1;
+        }
+
+        if (type == Enum.EXPLOSION){
+            damage = EXPLOSION_DAMAGE;
+        }
 
         projectileTimer = PROJ_TIME;
         this.type = type;

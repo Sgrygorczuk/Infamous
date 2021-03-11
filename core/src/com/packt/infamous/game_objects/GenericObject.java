@@ -37,6 +37,7 @@ public class GenericObject {
     protected float animationLeftTime = 0;
 
     protected boolean touchedCeiling;
+    protected boolean isDead;
 
 
     public GenericObject(float x , float y, Alignment align){
