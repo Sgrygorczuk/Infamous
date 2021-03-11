@@ -842,9 +842,10 @@ class MainScreen extends ScreenAdapter {
             float bulletY = shooter.y+shooter.height*(2/3f);
             if(facing_direction) {
                 direction = 1;
-                bulletX += shooter.width;
+                bulletX += shooter.width+5;
             }
-            projectiles.add(new Projectile(bulletX, bulletY, Alignment.ENEMY, 5,5, direction, 0f, Enum.BULLET, mainScreenTextures.bulletSpriteSheet));
+            System.out.println("direction"+direction);
+            projectiles.add(new Projectile(bulletX, bulletY, Alignment.ENEMY, 5,5, direction, 1f, Enum.BULLET, mainScreenTextures.bulletSpriteSheet));
         }
     }
     /**
