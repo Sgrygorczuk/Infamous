@@ -25,18 +25,21 @@ public class Enemy extends  GenericObject{
     public Rectangle visionCone;
     protected static float visionWidth = COLE_WIDTH*6;
     protected static float visionHeight = COLE_HEIGHT/2;
-    protected static float calloutTime = 1f;
-    protected float callout = 0f;
+    protected Rectangle lDetector;
+    protected Rectangle rDetector;
 
 
-    public Enemy(float x, float y, float distance, Alignment alignment){
+    public Enemy(float x, float y, float distance, Alignment alignment, boolean direction){
         super(x, y, alignment);
         hitBox.height = COLE_HEIGHT;
         hitBox.width = COLE_WIDTH;
         walkingDistance = distance-COLE_WIDTH;
         initialX = x;
+        isFacingRight = direction;
         currentHealth = maxHealth = 100;
         ammo = maxAmmo;
+        lDetector = new Rectangle(x-COLE_WIDTH, y, COLE_WIDTH, COLE_HEIGHT);
+        rDetector = new Rectangle(x+COLE_WIDTH, y, COLE_WIDTH, COLE_HEIGHT);
         visionCone = new Rectangle(x, y+visionHeight, visionWidth, visionHeight);
     }
 
@@ -49,33 +52,24 @@ public class Enemy extends  GenericObject{
         pathing(delta);
         action(delta);
         visionCone();
-
         if(!isFacingRight){ animationLeftTime += delta; }
         else{ animationRightTime += delta; }
     }
 
     public void action(float delta){
-        callout -= delta;
+
         if(reloading <= 0) {
             if (ammo <= 0 || (!inCombat && ammo < maxAmmo)) { // reloading action
-                System.out.println("Reloading!");
-                callout = calloutTime;
                 reloading = reloadTime;
             } else if(ammo > 0 && inCombat) { // shooting action
                 if (shooting <= 0 && inCombat && !shootBullet) { // add conditional that enemy sees Cole.
-                    System.out.println("Engaging!");
-                    callout = calloutTime;
+
                     // shoot a bullet here (throw a hitbox forward)
                     shootBullet = true;
                     ammo -= 1;
                     shooting = shootTime;
                 } else {
                     shooting -= delta;
-                }
-            } else{
-                if(callout <= 0){
-                    System.out.println("Standing By!");
-                    callout = calloutTime;
                 }
             }
         } else {
@@ -87,7 +81,7 @@ public class Enemy extends  GenericObject{
     }
 
     public void pathing(float delta){
-        if(inCombat)return;
+        if(walkingDistance <= COLE_WIDTH || inCombat)return;
         if(isFacingRight){
             if(hitBox.x >= initialX + walkingDistance){
                 isFacingRight = false;
@@ -101,7 +95,10 @@ public class Enemy extends  GenericObject{
                 hitBox.x -= delta*moveSpeed;
             }
         }
+        lDetector.x = hitBox.x-COLE_WIDTH;
+        rDetector.x = hitBox.x+COLE_WIDTH;
     }
+
     public void visionCone(){
         if(isFacingRight){
             visionCone.setX(hitBox.x + COLE_WIDTH);
@@ -110,9 +107,19 @@ public class Enemy extends  GenericObject{
         }
     }
 
+    public void nearDetector(Cole player){
+        if(lDetector.overlaps(player.hitBox)){
+            isFacingRight = false;
+        } else if (rDetector.overlaps(player.hitBox)){
+            isFacingRight = true;
+        }
+    }
+
     public void drawDebug(ShapeRenderer shapeRenderer) {
         shapeRenderer.rect(hitBox.x, hitBox.y, hitBox.width, hitBox.height);
         shapeRenderer.rect(visionCone.x, visionCone.y, visionCone.width, visionCone.height);
+        shapeRenderer.rect(lDetector.x, lDetector.y, lDetector.width, lDetector.height);
+        shapeRenderer.rect(rDetector.x, rDetector.y, rDetector.width, rDetector.height);
     }
 
     public void takeDamage(int damage){
@@ -130,8 +137,6 @@ public class Enemy extends  GenericObject{
 
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
-
-
         if (isFacingRight) {
             currentFrame = walkRightAnimation.getKeyFrame(animationRightTime);
         }
@@ -139,7 +144,8 @@ public class Enemy extends  GenericObject{
             currentFrame = walkLeftAnimation.getKeyFrame(animationLeftTime);
         }
 
-        batch.draw(currentFrame, isFacingRight ? hitBox.x + currentFrame.getRegionWidth() : hitBox.x , hitBox.y , isFacingRight ? currentFrame.getRegionWidth() : -currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
+        batch.draw(currentFrame, isFacingRight ? hitBox.x  : hitBox.x + COLE_WIDTH, hitBox.y , isFacingRight ? COLE_WIDTH : -COLE_WIDTH, currentFrame.getRegionHeight());
+
     }
 
 }

@@ -251,8 +251,22 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> enemyPositions = tiledSetUp.getLayerCoordinates("Enemy");
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
-            enemies.add(new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY));
-            enemies.get(i).setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
+            Enemy newEnemy = new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY, true);
+            enemies.add(newEnemy);
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
+        }
+
+        Array<Vector2> stationaryL = tiledSetUp.getLayerCoordinates("EnemyStationaryL");
+        Array<Vector2> stationaryR = tiledSetUp.getLayerCoordinates("EnemyStationaryR");
+        for(int i = 0; i < stationaryL.size; i++){
+            Enemy newEnemy = new Enemy(stationaryL.get(i).x, stationaryL.get(i).y, 0, Alignment.ENEMY, false);
+            enemies.add(newEnemy);
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
+        }
+        for(int i = 0; i < stationaryR.size; i++){
+            Enemy newEnemy = new Enemy(stationaryR.get(i).x, stationaryR.get(i).y, 0, Alignment.ENEMY, true);
+            enemies.add(newEnemy);
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet);
         }
 
     }
@@ -765,6 +779,7 @@ class MainScreen extends ScreenAdapter {
         for(Enemy enemy : enemies){
             enemy.update(delta);
             enemy.setCombat(cole);
+            enemy.nearDetector(cole);
             if(enemy.shootBullet){
                 enemy.shootBullet = false;
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
