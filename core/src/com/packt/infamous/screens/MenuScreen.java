@@ -151,7 +151,7 @@ public class MenuScreen extends ScreenAdapter{
                 //Launches the game
                 if (buttonIndex == 0) {
                     musicControl.playSFX(0);
-                    infamous.setScreen(new LoadingScreen(infamous, 1, 1));
+                    infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
                 //Turns on the help menu
                 else if (buttonIndex == 1) {

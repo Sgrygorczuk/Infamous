@@ -316,7 +316,8 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
         for(int i = 0; i < enemyPositions.size; i++){
             Enemy newEnemy = new Enemy(enemyPositions.get(i).x, enemyPositions.get(i).y, enemyDimensions.get(i).x, Alignment.ENEMY, true);
-
+            newEnemy.setUpSpriteSheet(mainScreenTextures.enemySpriteSheet,
+                    mainScreenTextures.enemyDeathSpriteSheet);
             enemies.add(newEnemy);
         }
 
