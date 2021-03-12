@@ -75,7 +75,7 @@ public class Enemy extends  GenericObject{
     }
 
     public void action(float delta){
-
+        isReloading = false;
         if(reloading <= 0) {
             if (ammo <= 0 || (!inCombat && ammo < maxAmmo)) { // reloading action
                 reloading = reloadTime;
@@ -160,7 +160,8 @@ public class Enemy extends  GenericObject{
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
 
-        if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
+        if(walkingDistance < hitBox.width && !inCombat){currentFrame = spriteSheet[0][0];}
+        else if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
         else if(isReloading){currentFrame = reloadAnimation.getKeyFrame(reloadTimer);}
         else if(inCombat){currentFrame = spriteSheet[1][0]; }
         else if (isFacingRight) { currentFrame = walkRightAnimation.getKeyFrame(animationRightTime); }

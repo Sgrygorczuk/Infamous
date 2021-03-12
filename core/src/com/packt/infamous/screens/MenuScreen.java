@@ -153,8 +153,7 @@ public class MenuScreen extends ScreenAdapter{
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 //Launches the game
                 if (buttonIndex == 0) {
-                    musicControl.playSFX(0, 0.1f);
-                    musicControl.stopMusic();
+                    musicControl.playSFX(0, 1);
                     infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
                 else if(buttonIndex == 1){
@@ -198,8 +197,8 @@ public class MenuScreen extends ScreenAdapter{
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                    musicControl.playSFX(0,0.1f);
-                    musicControl.stopMusic();
+                    musicControl.playSFX(0, 1);
+
                     infamous.setScreen(new LoadingScreen(infamous, 1, levelIndex));
                 }
             }
