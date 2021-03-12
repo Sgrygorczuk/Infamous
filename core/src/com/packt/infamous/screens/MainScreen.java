@@ -50,7 +50,6 @@ import static com.packt.infamous.Const.COLE_WIDTH;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_X;
 import static com.packt.infamous.Const.DEVELOPER_TEXT_Y;
 import static com.packt.infamous.Const.EXPLOSIVE_RADIUS;
-import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
 import static com.packt.infamous.Const.INSTRUCTION_BUTTON_Y;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
@@ -89,7 +88,6 @@ class MainScreen extends ScreenAdapter {
     //============================================= Flags ==========================================
     private boolean developerMode = true;      //Developer mode shows hit boxes and phone data
     private boolean pausedFlag = false;         //Stops the game from updating
-    private boolean endFlag = false;            //Tells us game has been lost
     private boolean helpFlag = false;           //Tells us if help flag is on or off
     private boolean skinFlag = false;
     private float xCameraDelta = 0;
@@ -109,6 +107,9 @@ class MainScreen extends ScreenAdapter {
 
     private int skinIndex = 0;
     private boolean skinExit = false;
+
+    private boolean endFlag = false;            //Tells us the player touched the endShard
+    private int exitIndex = 1;
 
     //=================================== Miscellaneous Vars =======================================
     private Array<String> levelNames = new Array<>();
@@ -611,7 +612,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void menuInputHandling(){
         //================================= General Menu ==========================
-        if(!helpFlag && !skinFlag) {
+        if(!helpFlag && !skinFlag && !endFlag) {
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
@@ -681,12 +682,30 @@ class MainScreen extends ScreenAdapter {
                         updateTextureChoice(skinIndex);
                     }
                 }
-                else if(skinIndex < 3 && (Gdx.input.isKeyJustPressed(Input.Keys.D))){
+                else if(skinIndex < 3 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
                     skinIndex ++;
                 }
-                else if(skinIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A))){
+                else if(skinIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
                     skinIndex --;
                 }
+            }
+        }
+        //================== Exit Menu ==================
+        else if(endFlag){
+            //Move between buttons
+            if(exitIndex == 0 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
+                exitIndex++;
+            }
+            else if(exitIndex == 1 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
+                exitIndex--;
+            }
+
+            //Select the action
+            if (exitIndex == 0 && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                infamous.setScreen(new LoadingScreen(infamous, 0));
+            }
+            else if(exitIndex == 1 && Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                toNextLevel();
             }
         }
     }
@@ -854,17 +873,32 @@ class MainScreen extends ScreenAdapter {
     private void isCollidingEndShard() {
         for (EndShard endShard : endShards) {
             if (cole.isCollidingMelee(endShard.getHitBox())) {
-                if(tiledSelection + 1 < levelNames.size)
-                {
-                    musicControl.stopMusic();
-                    infamous.setScreen(new LoadingScreen(infamous, 1, tiledSelection + 1));
+                pausedFlag = true;
+                endFlag = true;
+                //Updates all the data for unlocks
+                if(!infamous.getKilled(tiledSelection) && killed  == civilians.size ){
+                    infamous.setKilled(tiledSelection);
                 }
-                else{
-                    musicControl.stopMusic();
-                    infamous.setScreen(new LoadingScreen(infamous, 2));
-
+                if(!infamous.getHealed(tiledSelection) && healed  == civilians.size ) {
+                    infamous.setHealed(tiledSelection);
+                }
+                if(!infamous.getCollected(tiledSelection) && (collectibleSum-collectibles.size) == collectibleSum){
+                    infamous.setCollected(tiledSelection);
                 }
             }
+        }
+    }
+
+    private void toNextLevel(){
+        if(tiledSelection + 1 < levelNames.size)
+        {
+            musicControl.stopMusic();
+            infamous.setScreen(new LoadingScreen(infamous, 1, tiledSelection + 1));
+        }
+        else{
+            musicControl.stopMusic();
+            infamous.setScreen(new LoadingScreen(infamous, 2));
+
         }
     }
 
@@ -1110,10 +1144,11 @@ class MainScreen extends ScreenAdapter {
         drawPopUpMenu();
 
         //=================== Draws the Menu Buttons =========================
-        if(pausedFlag && !skinFlag && !helpFlag){drawMainButtons();}
+        if(pausedFlag && !skinFlag && !helpFlag && !endFlag){drawMainButtons();}
 
         //================= Draw Menu Button Text =============================
-        if(skinFlag){ drawSkins(); }
+        if(skinFlag){ drawSkinsMenu(); }
+        if(endFlag){drawEndLevelScreenMenu();}
         else if(pausedFlag && !helpFlag && !skinFlag){drawButtonText();}
         else if(pausedFlag){drawBackButtonText();}
         batch.end();
@@ -1240,7 +1275,7 @@ class MainScreen extends ScreenAdapter {
      * Output: Void
      * Purpose: Draws the text for instructions
      */
-    private void drawSkins() {
+    private void drawSkinsMenu() {
         bitmapFont.setColor(Color.WHITE);
         bitmapFont.getData().setScale(0.5f);
 
@@ -1296,6 +1331,45 @@ class MainScreen extends ScreenAdapter {
         textAlignment.centerText(batch, bitmapFont, "Back", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + 27);
     }
 
+    private void drawEndLevelScreenMenu(){
+        bitmapFont.setColor(Color.WHITE);
+        bitmapFont.getData().setScale(0.5f);
+
+        batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta, yCameraDelta);
+
+        textAlignment.centerText(batch, bitmapFont, "Level Complete!", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + WORLD_HEIGHT - 40);
+
+        bitmapFont.getData().setScale(0.3f);
+        textAlignment.centerText(batch, bitmapFont, "Blast Shards Collected: " + (collectibleSum-collectibles.size) + "/" + collectibleSum, xCameraDelta + WORLD_WIDTH/2f - 24, yCameraDelta + WORLD_HEIGHT - 80);
+        textAlignment.centerText(batch, bitmapFont, "Civilians Healed: " + healed + "/" + civilians.size, xCameraDelta + WORLD_WIDTH/2f - 40, yCameraDelta + WORLD_HEIGHT - 110);
+        textAlignment.centerText(batch, bitmapFont, "Civilians Killed: " + killed + "/" + civilians.size, xCameraDelta + WORLD_WIDTH/2f - 41, yCameraDelta + WORLD_HEIGHT - 140);
+
+        if(infamous.getCollected(tiledSelection)){
+            batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 60, yCameraDelta + WORLD_HEIGHT - 90, 20, 20);
+        }
+        if(infamous.getHealed(tiledSelection)){
+            batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 60, yCameraDelta + WORLD_HEIGHT - 120, 20, 20);
+        }
+        if(infamous.getKilled(tiledSelection)){
+            batch.draw(mainScreenTextures.peopleUpSpriteSheet[0][4], xCameraDelta + WORLD_WIDTH/2f + 60, yCameraDelta + WORLD_HEIGHT - 150, 20, 20);
+        }
+
+
+        if(exitIndex == 0){
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][1], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f - 50, yCameraDelta + 34, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f + 50, yCameraDelta + 34, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+        else if(exitIndex == 1){
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f - 50, yCameraDelta + 34, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+            batch.draw(mainScreenTextures.buttonSpriteSheet[0][1], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f + 50, yCameraDelta + 34, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+
+        textAlignment.centerText(batch, bitmapFont, "Main Menu", xCameraDelta + WORLD_WIDTH/2f - 50, yCameraDelta + 51);
+        textAlignment.centerText(batch, bitmapFont, "Continue", xCameraDelta + WORLD_WIDTH/2f + 50, yCameraDelta + 51);
+
+
+    }
+
 
     /**
      * Purpose: Draws the main buttons on the screen
@@ -1309,10 +1383,6 @@ class MainScreen extends ScreenAdapter {
                 batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, yCameraDelta + MENU_BUTTON_Y_START -  15 - (10 + MENU_BUTTON_HEIGHT) * i, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
             }
         }
-    }
-
-    private void drawBackButton(){
-        batch.draw(mainScreenTextures.buttonSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, 10, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
     }
 
     /**
