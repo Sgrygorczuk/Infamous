@@ -63,6 +63,7 @@ public class Projectile extends GenericObject {
 
         if(type == Enum.BULLET){
             projectileTimer = BULLET_TIME;
+            damage = 10;
         } else if (type != Enum.BOLT && type != Enum.EXPLOSION){
             isExplosive = true;
             if (type == Enum.BOMB){

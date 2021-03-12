@@ -184,7 +184,7 @@ class MainScreen extends ScreenAdapter {
         mainScreenTextures = new MainScreenTextures();
         musicControl.setMusicVolume(0.1f);
         musicControl.showMusic(1);
-        musicControl.setSFXVolume(10);
+        musicControl.setSFXVolume(1f);
         showTiled();
         if (isCheckpointed){
             cole.setX(checkpoint.getLocation_x());
@@ -1013,6 +1013,7 @@ class MainScreen extends ScreenAdapter {
             }
 
             if (cole.isCanMelee()){
+                playSFX("Punch");
                 projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                         (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x));
             }
@@ -1021,6 +1022,7 @@ class MainScreen extends ScreenAdapter {
                         projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             else {
+                if(Enum.fromInteger(cole.getAttackIndex()) == Enum.BOLT) {playSFX("Bolt");}
                 projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
                         projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
@@ -1033,7 +1035,6 @@ class MainScreen extends ScreenAdapter {
                 direction = 1;
                 bulletX += shooter.width+5;
             }
-            System.out.println("direction"+direction);
             projectiles.add(new Projectile(bulletX, bulletY, Alignment.ENEMY, 5,5, direction, 1f, Enum.BULLET, mainScreenTextures.bulletSpriteSheet));
         }
     }
@@ -1415,6 +1416,22 @@ class MainScreen extends ScreenAdapter {
     private void clearScreen() {
         Gdx.gl.glClearColor(Color.CLEAR.r, Color.CLEAR.g, Color.CLEAR.b, Color.CLEAR.a); //Sets color to black
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);										 //Sends it to the buffer
+    }
+
+    private void playSFX(String action){
+        switch(action){
+            case "Menu Button": // Menu Buttons
+                musicControl.playSFX(0, 1f);
+                break;
+            case "Bolt": // Bolt SFX
+                musicControl.playSFX(1, 1f);
+                break;
+            case "Punch":
+                musicControl.playSFX(2, 1f);
+                break;
+            default:
+                break;
+        }
     }
 
     /**

@@ -170,6 +170,8 @@ public class LoadingScreen extends ScreenAdapter{
 
         //========================== Load SFX to Asset Manager =====================================
         infamous.getAssetManager().load("SFX/TestButton.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/bolt_blast.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/electric_punch.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
         infamous.getAssetManager().load("Tiled/InfamousMapPlaceHolder.tmx", TiledMap.class);
