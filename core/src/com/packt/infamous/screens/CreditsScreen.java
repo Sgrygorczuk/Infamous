@@ -110,24 +110,25 @@ public class CreditsScreen extends ScreenAdapter{
     private void showCredits(){
         credits.add("inFamous NES Demake");
         credits.add("Programming");
-        credits.add("Pr1");
-        credits.add("Pr2");
-        credits.add("Pr3");
+        credits.add("Sebastian Grygorczuk");
+        credits.add("Paul Tan");
+        credits.add("Jade Truncale");
         credits.add(" ");
         credits.add("Art");
-        credits.add("Ar1");
-        credits.add("Ar2");
+        credits.add("Sebastian Grygorczuk");
+        credits.add("Jade Truncale");
+        credits.add(" ");
+        credits.add("Level Design");
+        credits.add("Nelson Batista");
+        credits.add("Sebastian Grygorczuk");
+        credits.add("Paul Tan");
         credits.add(" ");
         credits.add("Music");
-        credits.add("Ar1");
-        credits.add("Ar2");
         credits.add("Level Music");
         credits.add("AKA Dramatic Music");
         credits.add("by PureDesignGirl");
         credits.add(" ");
         credits.add("SFX");
-        credits.add("Ar1");
-        credits.add("Ar2");
         credits.add("Electricity SFX");
         credits.add("ShareSynth");
         credits.add(" ");
@@ -172,7 +173,7 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add(" ");
         credits.add(" ");
         credits.add("Thank You");
-        credits.add("Game Jam");
+        credits.add("Retro Jam: 2021 ");
 
     }
 

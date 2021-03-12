@@ -88,7 +88,7 @@ class MainScreen extends ScreenAdapter {
     private MainScreenTextures mainScreenTextures;
 
     //============================================= Flags ==========================================
-    private boolean developerMode = true;      //Developer mode shows hit boxes and phone data
+    private boolean developerMode = false;      //Developer mode shows hit boxes and phone data
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean helpFlag = false;           //Tells us if help flag is on or off
     private boolean skinFlag = false;
@@ -192,7 +192,7 @@ class MainScreen extends ScreenAdapter {
             cole.setCurrentEnergy(checkpoint.getEnergy());
             cole.setCurrentHealth(checkpoint.getHealth());
         }
-        if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the renders
+        //if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the renders
     }
 
     /**
@@ -368,7 +368,7 @@ class MainScreen extends ScreenAdapter {
         if(!pausedFlag) { update(delta); }      //If the game is not paused update the variables
         else{ menuInputHandling(); }
         draw();                                 //Draws everything
-        if (developerMode) { debugRender(); }   //If developer mode is on draws hit-boxes
+        //if (developerMode) { debugRender(); }   //If developer mode is on draws hit-boxes
     }
 
     //===================================== Debug ==================================================
@@ -1167,7 +1167,7 @@ class MainScreen extends ScreenAdapter {
         tiledSetUp.drawTiledMap();
 
         batch.begin();
-        if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
+        //if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
         for (DrainableObject drainable : drainables){ drainable.draw(batch); }
         for(Collectible collectible : collectibles) {collectible.draw(batch);}
         for(EndShard endShard : endShards){endShard.draw(batch);}
