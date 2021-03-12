@@ -3,6 +3,9 @@ package com.packt.infamous;
 
 public final class Const{
 
+    //======================== Levels ===========================
+    public static final float LVL_COUNT = 5;
+
     //====================== Dimensions =========================
     public static final float WORLD_WIDTH = 256;
     public static final float WORLD_HEIGHT = 240;

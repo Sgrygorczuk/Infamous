@@ -19,6 +19,7 @@ public class MenuScreenTextures {
      */
     private void showTextures(){
         backgroundTexture = new Texture(Gdx.files.internal("UI/MenuBackground.png"));
+        menuBackgroundTexture = new Texture(Gdx.files.internal("UI/BoarderBox.png"));
         controlsTexture = new Texture(Gdx.files.internal("UI/Instructions.png"));
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
