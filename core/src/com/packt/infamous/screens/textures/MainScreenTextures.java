@@ -31,6 +31,8 @@ public class MainScreenTextures {
     public TextureRegion[][] meleeSpriteSheet;
 
     public TextureRegion[][] bulletSpriteSheet;
+    public TextureRegion[][] bombSpriteSheet;
+    public TextureRegion[][] torpedoSpriteSheet;
     public TextureRegion[][] collectibleSpriteSheet;
 
     public TextureRegion[][] peopleDownSpriteSheet;
@@ -89,6 +91,14 @@ public class MainScreenTextures {
         Texture bulletTexturePath = new Texture(Gdx.files.internal("Sprites/Bullet.png"));
         bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(
                 bulletTexturePath.getWidth()/3, bulletTexturePath.getHeight());
+
+        Texture bombTexturePath = new Texture(Gdx.files.internal("Sprites/Bomb.png"));
+        bombSpriteSheet = new TextureRegion(bombTexturePath).split(
+                bombTexturePath.getWidth()/3, bombTexturePath.getHeight());
+
+        Texture torpedoTexturePath = new Texture(Gdx.files.internal("Sprites/Torpedo.png"));
+        torpedoSpriteSheet = new TextureRegion(torpedoTexturePath).split(
+                torpedoTexturePath.getWidth()/3, torpedoTexturePath.getHeight());
 
         Texture collectibleTexturePath = new Texture(Gdx.files.internal("Sprites/BlastShard.png"));
         collectibleSpriteSheet = new TextureRegion(collectibleTexturePath).split(
