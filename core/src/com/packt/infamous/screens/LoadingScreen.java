@@ -171,10 +171,10 @@ public class LoadingScreen extends ScreenAdapter{
 
         //========================= Load Tiled Maps ================================================
         infamous.getAssetManager().load("Tiled/InfamousMapPlaceHolder.tmx", TiledMap.class);
-        infamous.getAssetManager().load("Tiled/LevelOne.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelTwo.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelThree.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelFour.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelVertical.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelFive.tmx", TiledMap.class);
     }
 

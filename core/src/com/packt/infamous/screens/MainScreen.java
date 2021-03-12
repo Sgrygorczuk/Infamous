@@ -142,10 +142,10 @@ class MainScreen extends ScreenAdapter {
 
         this.tiledSelection = tiledSelection;
         levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
-        levelNames.add("Tiled/LevelOne.tmx");
         levelNames.add("Tiled/LevelTwo.tmx");
         levelNames.add("Tiled/LevelThree.tmx");
         levelNames.add("Tiled/LevelFour.tmx");
+        levelNames.add("Tiled/LevelVertical.tmx");
         levelNames.add("Tiled/LevelFive.tmx");
     }
 
