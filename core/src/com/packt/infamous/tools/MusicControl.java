@@ -28,6 +28,9 @@ public class MusicControl {
             "SFX/TestButton.wav",
             "SFX/bolt_blast.wav",
             "SFX/electric_punch.wav",
+            "SFX/sharesynth__electricity00.wav",
+            "SFX/death_sfx.wav",
+            "SFX/water_sfx.wav",
     };
 
     //====================================== Constructor ===========================================

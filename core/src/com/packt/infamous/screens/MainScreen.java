@@ -180,14 +180,9 @@ class MainScreen extends ScreenAdapter {
         showCamera();       //Set up the camera
         showObjects();      //Sets up player and font
         mainScreenTextures = new MainScreenTextures();
-<<<<<<< HEAD
-        musicControl.setMusicVolume(0.1f);
+        musicControl.setMusicVolume(0.05f);
         musicControl.showMusic(1);
-        musicControl.setSFXVolume(1f);
-=======
-        musicControl.showMusic(0);
-
->>>>>>> ffffabb3bc021c8c083c122bce4d92cbda7f3573
+        musicControl.setSFXVolume(0.7f);
         showTiled();
         if (isCheckpointed){
             cole.setX(checkpoint.getLocation_x());
@@ -817,6 +812,7 @@ class MainScreen extends ScreenAdapter {
     private void isCollidingWater(){
         for (Water water : waters) {
             if(cole.isColliding(water.getHitBox())){
+                playSFX("Water");
                 cole.touchedWater();
                 updateCamera();
             }
@@ -846,6 +842,7 @@ class MainScreen extends ScreenAdapter {
         boolean riding = false;
         for (Rail rail : rails){
             if(rail.rideRail(cole)){
+                playSFX("Rail Riding");
                 riding = true;
                 cole.setFalling(false);
                 cole.setFriction(true);
@@ -1075,6 +1072,7 @@ class MainScreen extends ScreenAdapter {
      */
     public void updateIfDead(){
         if (cole.getCurrentHealth() < 0){
+            playSFX("Death");
             if (this.isCheckpointed){
                 infamous.setScreen(new MainScreen(infamous, tiledSelection, this.checkpoint));
             }
@@ -1449,6 +1447,15 @@ class MainScreen extends ScreenAdapter {
                 break;
             case "Punch":
                 musicControl.playSFX(2, 1f);
+                break;
+            case "Rail Riding":
+                musicControl.playSFX(3, 0.4f);
+                break;
+            case "Death":
+                musicControl.playSFX(4, 0.8f);
+                break;
+            case "Water":
+                musicControl.playSFX(5, 0.6f);
                 break;
             default:
                 break;

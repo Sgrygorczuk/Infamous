@@ -159,6 +159,9 @@ public class LoadingScreen extends ScreenAdapter{
         infamous.getAssetManager().load("SFX/TestButton.wav", Sound.class);
         infamous.getAssetManager().load("SFX/bolt_blast.wav", Sound.class);
         infamous.getAssetManager().load("SFX/electric_punch.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/sharesynth__electricity00.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/death_sfx.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/water_sfx.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
 
