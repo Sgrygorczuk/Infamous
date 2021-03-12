@@ -507,6 +507,7 @@ class MainScreen extends ScreenAdapter {
             cole.jump();
         }
         else if (cole.getIsJumping() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            playSFX("Hover");
             cole.setIsHovering(true);
             cole.setIsJumping(false);
         }
@@ -581,6 +582,7 @@ class MainScreen extends ScreenAdapter {
         //================================ Interact =================================================
         else if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
             if(cole.getIsTouchingPole() && !cole.getIsClimbingPole()){
+                playSFX("Grip");
                 cole.setIsClimbingPole(true);
                 cole.setX(polePosition);
                 cole.setIsJumping(false);
@@ -592,6 +594,7 @@ class MainScreen extends ScreenAdapter {
             }
 
             if(cole.getIsTouchingLedge() && !cole.getIsHangingLedge()){
+                playSFX("Grip");
                 cole.setIsHangingLedge(true);
                 cole.setY(ledgePosition);
                 cole.setIsJumping(false);
@@ -759,6 +762,7 @@ class MainScreen extends ScreenAdapter {
     private void isCollidingCheckpoint(){
         for (CheckpointObject checkpoint : checkpoints){
             if (checkpoint.isColliding(cole.getHitBox())){
+                playSFX("Checkpoint");
                 isCheckpointed = true;
                 this.checkpoint = new Checkpoint(cole.getCurrentHealth(), cole.getCurrentEnergy(),
                         cole.getX(), cole.getY());
@@ -891,6 +895,8 @@ class MainScreen extends ScreenAdapter {
             if (cole.isColliding(endShard.getHitBox())) {
                 pausedFlag = true;
                 endFlag = true;
+                musicControl.stopMusic();
+                playSFX("Level Complete");
                 //Updates all the data for unlocks
                 if(!infamous.getKilled(tiledSelection) && killed  == civilians.size ){
                     infamous.setKilled(tiledSelection);
@@ -926,6 +932,7 @@ class MainScreen extends ScreenAdapter {
         Collectible touchedCollectible =  new Collectible(0,0, mainScreenTextures.collectibleSpriteSheet);
         for (Collectible collectible : collectibles){
             if(collectible.isColliding(cole.getHitBox())){
+                playSFX("Collect");
                 touchedCollectible = collectible;
             }
         }
@@ -1070,6 +1077,7 @@ class MainScreen extends ScreenAdapter {
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
             }
             if(enemy.getCurrentHealth() < 0){
+                playSFX("Enemy Death");
                 removeEnemies.add(enemy);
             }
         }
@@ -1451,32 +1459,50 @@ class MainScreen extends ScreenAdapter {
 
     private void playSFX(String action){
         switch(action){
-            case "Menu SFX":
-                musicControl.playSFX(6, 1f);
-                break;
-            case "Menu Confirm":
-                musicControl.playSFX(7, 2f);
-                break;
-            case "Menu Deconfirm":
-                musicControl.playSFX(8, 2f);
-                break;
             case "Menu Button": // Menu Buttons
                 musicControl.playSFX(0, 1f);
                 break;
-            case "Bolt": // Bolt SFX
+            case "Menu SFX":
                 musicControl.playSFX(1, 1f);
                 break;
+            case "Menu Confirm":
+                musicControl.playSFX(2, 2f);
+                break;
+            case "Menu Deconfirm":
+                musicControl.playSFX(3, 2f);
+                break;
+            case "Bolt": // Bolt SFX
+                musicControl.playSFX(4, 1f);
+                break;
             case "Punch":
-                musicControl.playSFX(2, 1f);
+                musicControl.playSFX(5, 1f);
                 break;
             case "Rail Riding":
-                musicControl.playSFX(3, 0.4f);
+                musicControl.playSFX(6, 0.2f);
                 break;
             case "Death":
-                musicControl.playSFX(4, 0.8f);
+                musicControl.playSFX(7, 0.8f);
                 break;
             case "Water":
-                musicControl.playSFX(5, 0.6f);
+                musicControl.playSFX(8, 0.6f);
+                break;
+            case "Hover":
+                musicControl.playSFX(9, 0.3f);
+                break;
+            case "Enemy Death":
+                musicControl.playSFX(10, 0.7f);
+                break;
+            case "Collect":
+                musicControl.playSFX(11, 0.3f);
+                break;
+            case "Checkpoint":
+                musicControl.playSFX(12, 0.3f);
+                break;
+            case "Level Complete":
+                musicControl.playSFX(13, 0.3f);
+                break;
+            case "Grip":
+                musicControl.playSFX(14, 1f);
                 break;
             default:
                 break;

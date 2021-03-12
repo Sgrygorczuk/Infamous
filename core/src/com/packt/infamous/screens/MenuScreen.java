@@ -312,13 +312,13 @@ public class MenuScreen extends ScreenAdapter{
     private void playSFX(String action) {
         switch (action) {
             case "Menu SFX":
-                musicControl.playSFX(6, 1f);
+                musicControl.playSFX(1, 1f);
                 break;
             case "Menu Confirm":
-                musicControl.playSFX(7, 2f);
+                musicControl.playSFX(2, 2f);
                 break;
             case "Menu Deconfirm":
-                musicControl.playSFX(8, 2f);
+                musicControl.playSFX(3, 2f);
                 break;
             case "Menu Button": // Menu Buttons
                 musicControl.playSFX(0, 1f);

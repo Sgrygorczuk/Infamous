@@ -26,14 +26,20 @@ public class MusicControl {
     //Holds all the names for the SFX
     String[] soundSelect = new String[]{
             "SFX/TestButton.wav",
+            "SFX/menu_sfx.wav",
+            "SFX/menu_confirm.wav",
+            "SFX/menu_deconfirm.wav",
             "SFX/bolt_blast.wav",
             "SFX/electric_punch.wav",
             "SFX/sharesynth__electricity00.wav",
             "SFX/death_sfx.wav",
             "SFX/water_sfx.wav",
-            "SFX/menu_sfx.wav",
-            "SFX/menu_confirm.wav",
-            "SFX/menu_deconfirm.wav",
+            "SFX/hover.wav",
+            "SFX/enemy_death.wav",
+            "SFX/collectible.wav",
+            "SFX/checkpoint.wav",
+            "SFX/level_complete.wav",
+            "SFX/grip.wav",
     };
 
     //====================================== Constructor ===========================================

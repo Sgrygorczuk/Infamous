@@ -142,6 +142,7 @@ public class LoadingScreen extends ScreenAdapter{
 
     }
 
+
     /**
      * Purpose: Loads all the data needed for the asset manager, and set up logo to be displayed
     */
@@ -157,14 +158,20 @@ public class LoadingScreen extends ScreenAdapter{
 
         //========================== Load SFX to Asset Manager =====================================
         infamous.getAssetManager().load("SFX/TestButton.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/menu_sfx.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/menu_confirm.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/menu_deconfirm.wav", Sound.class);
         infamous.getAssetManager().load("SFX/bolt_blast.wav", Sound.class);
         infamous.getAssetManager().load("SFX/electric_punch.wav", Sound.class);
         infamous.getAssetManager().load("SFX/sharesynth__electricity00.wav", Sound.class);
         infamous.getAssetManager().load("SFX/death_sfx.wav", Sound.class);
         infamous.getAssetManager().load("SFX/water_sfx.wav", Sound.class);
-        infamous.getAssetManager().load("SFX/menu_sfx.wav", Sound.class);
-        infamous.getAssetManager().load("SFX/menu_confirm.wav", Sound.class);
-        infamous.getAssetManager().load("SFX/menu_deconfirm.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/hover.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/enemy_death.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/collectible.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/checkpoint.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/level_complete.wav", Sound.class);
+        infamous.getAssetManager().load("SFX/grip.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
 
