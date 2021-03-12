@@ -12,7 +12,7 @@ public class MusicControl {
 
     //================================= Variables ==================================================
     private Music music;           //What reads the music and plays it on loop
-    private float musicVolume = 1f;  //Current sfx volume
+    private float musicVolume = 0.2f;  //Current sfx volume
     private float sfxVolume = 1f;  //Current sfx volume
     AssetManager musicManager;     //All the data from the AssetManager
 
@@ -20,6 +20,7 @@ public class MusicControl {
     //Holds all the names for the songs
     String[] songSelect = new String[]{
             "Music/TestMusic.wav",
+            "Music/dramatic_music.wav"
     };
 
     //Holds all the names for the SFX
@@ -52,7 +53,7 @@ public class MusicControl {
      * Purpose: Plays a SFX from the list
      * @param soundSelection which SFX we're going to play
      */
-    public void playSFX(int soundSelection) {musicManager.get(soundSelect[soundSelection], Sound.class).play(1/2f * sfxVolume); }
+    public void playSFX(int soundSelection, float volume) {musicManager.get(soundSelect[soundSelection], Sound.class).play(volume * sfxVolume); }
 
     /**
      * Generic turn the sound on and off

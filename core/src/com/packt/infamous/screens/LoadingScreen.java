@@ -166,6 +166,7 @@ public class LoadingScreen extends ScreenAdapter{
 
         //=================== Load Music to Asset Manager ==========================================
         infamous.getAssetManager().load("Music/TestMusic.wav", Music.class);
+        infamous.getAssetManager().load("Music/dramatic_music.wav", Music.class);
 
         //========================== Load SFX to Asset Manager =====================================
         infamous.getAssetManager().load("SFX/TestButton.wav", Sound.class);
