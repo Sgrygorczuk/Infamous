@@ -841,9 +841,6 @@ class MainScreen extends ScreenAdapter {
             if(cole.isColliding(water.getHitBox())){
                 playSFX("Water");
                 cole.touchedWater();
-                camera.position.set(cole.getX(), camera.position.y, camera.position.z);
-                camera.update();
-                tiledSetUp.updateCamera(camera);
             }
         }
     }
