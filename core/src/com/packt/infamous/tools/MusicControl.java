@@ -31,6 +31,9 @@ public class MusicControl {
             "SFX/sharesynth__electricity00.wav",
             "SFX/death_sfx.wav",
             "SFX/water_sfx.wav",
+            "SFX/menu_sfx.wav",
+            "SFX/menu_confirm.wav",
+            "SFX/menu_deconfirm.wav",
     };
 
     //====================================== Constructor ===========================================

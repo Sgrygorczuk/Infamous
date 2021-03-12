@@ -493,6 +493,7 @@ class MainScreen extends ScreenAdapter {
      */
     private void handlePause(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            playSFX("Menu Confirm");
             pausedFlag = !pausedFlag;
         }
     }
@@ -616,6 +617,7 @@ class MainScreen extends ScreenAdapter {
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
+                playSFX("Menu SFX");
                 if (buttonIndex <= -1) {
                     buttonIndex = NUM_BUTTONS_MAIN_SCREEN - 1;
                 }
@@ -623,6 +625,7 @@ class MainScreen extends ScreenAdapter {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
                 buttonIndex++;
+                playSFX("Menu SFX");
                 if (buttonIndex >= NUM_BUTTONS_MAIN_SCREEN) {
                     buttonIndex = 0;
                 }
@@ -630,6 +633,7 @@ class MainScreen extends ScreenAdapter {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 //Launches the game
+                playSFX("Menu Confirm");
                 if (buttonIndex == 0) { helpFlag = true; }
                 else if(buttonIndex == 1){ skinFlag = true;}
                 //Turns on the help menu
@@ -646,17 +650,18 @@ class MainScreen extends ScreenAdapter {
             }
 
             if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+                playSFX("Menu Deconfirm");
                 pausedFlag = false;
                 buttonIndex = 0;
             }
         }
         //========================= Controls ===============================
         else if(helpFlag){
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) { helpFlag = false; }
-        }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) { playSFX("Menu Deconfirm"); helpFlag = false; } }
         //===================== Skin Menu ==================================
         else if(skinFlag){
             if((Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))){
+                playSFX("Menu Deconfirm");
                 skinFlag = false;
                 skinExit = false;
                 skinIndex = 0;
@@ -679,13 +684,16 @@ class MainScreen extends ScreenAdapter {
                     if((skinIndex == 1 && infamous.getIfCollectibleComplete())
                     || (skinIndex == 2 && infamous.getIfHealsComplete())
                     || (skinIndex == 3 && infamous.getIfKillsComplete())){
+                        playSFX("Menu Confirm");
                         updateTextureChoice(skinIndex);
                     }
                 }
                 else if(skinIndex < 3 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
+                    playSFX("Menu SFX");
                     skinIndex ++;
                 }
                 else if(skinIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
+                    playSFX("Menu SFX");
                     skinIndex --;
                 }
             }
@@ -694,18 +702,22 @@ class MainScreen extends ScreenAdapter {
         else if(endFlag){
             //Move between buttons
             if(exitIndex == 0 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
+                playSFX("Menu SFX");
                 exitIndex++;
             }
             else if(exitIndex == 1 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
+                playSFX("Menu SFX");
                 exitIndex--;
             }
 
             //Select the action
             if (exitIndex == 0 && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                playSFX("Menu Confirm");
                 musicControl.stopMusic();
                 infamous.setScreen(new LoadingScreen(infamous, 0));
             }
             else if(exitIndex == 1 && Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                playSFX("Menu Confirm");
                 toNextLevel();
             }
         }
@@ -1439,6 +1451,15 @@ class MainScreen extends ScreenAdapter {
 
     private void playSFX(String action){
         switch(action){
+            case "Menu SFX":
+                musicControl.playSFX(6, 1f);
+                break;
+            case "Menu Confirm":
+                musicControl.playSFX(7, 2f);
+                break;
+            case "Menu Deconfirm":
+                musicControl.playSFX(8, 2f);
+                break;
             case "Menu Button": // Menu Buttons
                 musicControl.playSFX(0, 1f);
                 break;

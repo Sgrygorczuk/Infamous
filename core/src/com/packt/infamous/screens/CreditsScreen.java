@@ -140,6 +140,12 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("Water SFX");
         credits.add("InspectorJ");
         credits.add(" ");
+        credits.add("Menu Move SFX");
+        credits.add("DrMrSir");
+        credits.add(" ");
+        credits.add("Confirm/Deconfirm SFX");
+        credits.add("Raclure");
+        credits.add(" ");
         credits.add("freesound.org");
         credits.add(" ");
         credits.add(" ");

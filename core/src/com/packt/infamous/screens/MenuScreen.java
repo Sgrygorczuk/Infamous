@@ -138,6 +138,7 @@ public class MenuScreen extends ScreenAdapter{
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
+                playSFX("Menu SFX");
                 if (buttonIndex <= -1) {
                     buttonIndex = NUM_BUTTONS_MENU_SCREEN - 1;
                 }
@@ -145,6 +146,7 @@ public class MenuScreen extends ScreenAdapter{
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
                 buttonIndex++;
+                playSFX("Menu SFX");
                 if (buttonIndex >= NUM_BUTTONS_MENU_SCREEN) {
                     buttonIndex = 0;
                 }
@@ -152,8 +154,9 @@ public class MenuScreen extends ScreenAdapter{
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 //Launches the game
+                playSFX("Menu Confirm");
                 if (buttonIndex == 0) {
-                    musicControl.playSFX(0, 1);
+                    musicControl.stopMusic();
                     infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
                 else if(buttonIndex == 1){
@@ -167,19 +170,23 @@ public class MenuScreen extends ScreenAdapter{
         }
         else if(helpFlag){
             if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                playSFX("Menu Deconfirm");
                 helpFlag = false;
             }
         }
         else if(levelSelectFlag){
             if ( Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                playSFX("Menu Deconfirm");
                 levelSelectFlag = false;
                 levelIndex = 0;
             }
             if(levelExit){
                 if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                    playSFX("Menu SFX");
                     levelExit = false;
                 }
                 else if((Gdx.input.isKeyJustPressed(Input.Keys.E))){
+                    playSFX("Menu Confirm");
                     levelSelectFlag = false;
                     levelExit = false;
                     levelIndex = 0;
@@ -187,18 +194,21 @@ public class MenuScreen extends ScreenAdapter{
             }
             else{
                 if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                    playSFX("Menu SFX");
                     levelExit = true;
                 }
                 else if(levelIndex < LVL_COUNT - 1 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
+                    playSFX("Menu SFX");
                     levelIndex ++;
                 }
                 else if(levelIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
+                    playSFX("Menu SFX");
                     levelIndex --;
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                    musicControl.playSFX(0, 1);
-
+                    playSFX("Menu Confirm");
+                    musicControl.stopMusic();
                     infamous.setScreen(new LoadingScreen(infamous, 1, levelIndex));
                 }
             }
@@ -299,7 +309,22 @@ public class MenuScreen extends ScreenAdapter{
         textAlignment.centerText(batch, bitmapFont, "Back", WORLD_WIDTH/2f, 47);
 
     }
-
+    private void playSFX(String action) {
+        switch (action) {
+            case "Menu SFX":
+                musicControl.playSFX(6, 1f);
+                break;
+            case "Menu Confirm":
+                musicControl.playSFX(7, 2f);
+                break;
+            case "Menu Deconfirm":
+                musicControl.playSFX(8, 2f);
+                break;
+            case "Menu Button": // Menu Buttons
+                musicControl.playSFX(0, 1f);
+                break;
+        }
+    }
     /**
      * Purpose: Draws the text for instructions
      */
