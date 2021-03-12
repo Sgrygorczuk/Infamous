@@ -14,6 +14,8 @@ public class MainScreenTextures {
     public Texture waterTexture;
     public Texture eTexture;
     public Texture qTexture;
+    public Texture lockTexture;
+    public Texture controlsTexture;
 
     public TextureRegion[][] buttonSpriteSheet;
 
@@ -39,8 +41,9 @@ public class MainScreenTextures {
      * Purpose: Sets up all of the textures
      */
     private void showTextures(){
-        backgroundTexture = new Texture(Gdx.files.internal("UI/TestBackground.png"));
-        menuBackgroundTexture = new Texture(Gdx.files.internal("UI/TestPopUp.png"));
+        menuBackgroundTexture = new Texture(Gdx.files.internal("UI/BoarderBox.png"));
+        lockTexture = new Texture(Gdx.files.internal("UI/Lock.png"));
+        controlsTexture = new Texture(Gdx.files.internal("UI/Instructions.png"));
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
         waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
@@ -57,20 +60,20 @@ public class MainScreenTextures {
 
         Texture drainTexturePath = new Texture(Gdx.files.internal("Sprites/Charging.png"));
         drainSpriteSheet = new TextureRegion(drainTexturePath).split(
-                drainTexturePath.getWidth()/2, drainTexturePath.getHeight());
+                drainTexturePath.getWidth()/2, drainTexturePath.getHeight()/4);
 
         Texture hoverTexturePath = new Texture(Gdx.files.internal("Sprites/FloatAction.png"));
         hoverSpriteSheet = new TextureRegion(hoverTexturePath).split(
-                hoverTexturePath.getWidth()/3, hoverTexturePath.getHeight());
+                hoverTexturePath.getWidth()/3, hoverTexturePath.getHeight()/4);
 
 
         Texture railSparkTexturePath = new Texture(Gdx.files.internal("Sprites/RailSparks.png"));
         railSparkSpriteSheet = new TextureRegion(railSparkTexturePath).split(
-                railSparkTexturePath.getWidth()/3, railSparkTexturePath.getHeight());
+                railSparkTexturePath.getWidth()/3, railSparkTexturePath.getHeight()/4);
 
         Texture meleeTexturePath = new Texture(Gdx.files.internal("Sprites/MeleeEffect.png"));
         meleeSpriteSheet = new TextureRegion(meleeTexturePath).split(
-                meleeTexturePath.getWidth()/5, meleeTexturePath.getHeight());
+                meleeTexturePath.getWidth()/5, meleeTexturePath.getHeight()/4);
 
         Texture bulletTexturePath = new Texture(Gdx.files.internal("Sprites/Bullet.png"));
         bulletSpriteSheet = new TextureRegion(bulletTexturePath).split(

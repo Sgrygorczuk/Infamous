@@ -103,6 +103,8 @@ public class Cole extends GenericObject{
     private float ledgeMin;
     private float ledgeMax;
 
+    private int textureChoice;
+
     /* =========================== Movement Variables =========================== */
 
     protected float yAccel;     //value of jump speed
@@ -112,7 +114,7 @@ public class Cole extends GenericObject{
 
     //============================ Constructor ========================================
 
-    public Cole(float x, float y, Alignment alignment) {
+    public Cole(float x, float y, Alignment alignment, int textureChoice) {
         super(x, y, alignment);
         relativeGravity = GRAVITY;
         velocity.y = -relativeGravity;
@@ -122,6 +124,7 @@ public class Cole extends GenericObject{
         xMaxVel = MAX_VELOCITY;
         maxEnergy = maxHealth = currentHealth = currentEnergy = 100;
 
+        this.textureChoice = textureChoice;
         setAttackNames();
 
         meleeRangeBox = new Rectangle(hitBox.x - hitBox.width, hitBox.y, hitBox.width * 3, hitBox.height * 2);
@@ -139,9 +142,9 @@ public class Cole extends GenericObject{
 
         setUpAnimations();
         setUpShimmyAnimation();
-        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/4f,0, Animation.PlayMode.LOOP_PINGPONG);
-        hoverEffectAnimation = setUpAnimation(hoverSpriteSheet, 1/6f, 0, Animation.PlayMode.LOOP);
-        railSparkEffectAnimation = setUpAnimation(railSparkEffectSpriteSheet, 1/6f,0, Animation.PlayMode.LOOP_PINGPONG);
+        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/4f,textureChoice, Animation.PlayMode.LOOP_PINGPONG);
+        hoverEffectAnimation = setUpAnimation(hoverSpriteSheet, 1/6f, textureChoice, Animation.PlayMode.LOOP);
+        railSparkEffectAnimation = setUpAnimation(railSparkEffectSpriteSheet, 1/6f,textureChoice, Animation.PlayMode.LOOP_PINGPONG);
         setUpMeleeAnimation();
     }
 
@@ -154,7 +157,15 @@ public class Cole extends GenericObject{
         meleeAnimation = new Animation<TextureRegion>(1/9f, spriteSheet[3][1], spriteSheet[3][2], spriteSheet[3][3], spriteSheet[4][0], spriteSheet[4][1]);
         meleeAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        meleeEffectAnimation = setUpAnimation(meleeEffectSpriteSheet, 1/9f, 0, Animation.PlayMode.LOOP);
+        meleeEffectAnimation = setUpAnimation(meleeEffectSpriteSheet, 1/9f, textureChoice, Animation.PlayMode.LOOP);
+    }
+
+    public void updateTextureChoice(int textureChoice){
+        this.textureChoice = textureChoice;
+        drainingParticleEffectAnimation = setUpAnimation(drainingParticleEffectSpriteSheet, 1/4f,textureChoice, Animation.PlayMode.LOOP_PINGPONG);
+        hoverEffectAnimation = setUpAnimation(hoverEffectSpriteSheet, 1/6f, textureChoice, Animation.PlayMode.LOOP);
+        railSparkEffectAnimation = setUpAnimation(railSparkEffectSpriteSheet, 1/6f,textureChoice, Animation.PlayMode.LOOP_PINGPONG);
+        setUpMeleeAnimation();
     }
 
     /**

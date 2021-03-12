@@ -18,7 +18,7 @@ public class Collectible extends GenericObject{
         hitBox.height = 16;
 
         collectibleSpriteSheet = textureRegions;
-        collectibleAnimation = setUpAnimation(collectibleSpriteSheet, 1/3f, 0, Animation.PlayMode.LOOP_PINGPONG);
+        collectibleAnimation = setUpAnimation(collectibleSpriteSheet, 1/5f, 0, Animation.PlayMode.LOOP_PINGPONG);
 
     }
 
