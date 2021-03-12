@@ -83,17 +83,18 @@ public class LoadingScreen extends ScreenAdapter{
         this.loadingFirstTime = true;
     }
 
+
+    public LoadingScreen(Infamous infamous, int screenPath) {
+        this.infamous = infamous;
+        this.screenPath = screenPath;
+    }
+
     /**
      * Purpose: General Constructor for moving between screens
      * @param infamous game object with data
      * @param screenPath tells us which screen to go to from here
      * @param checkpoint is used when transitioning from a different screen to maintain variables
      */
-    public LoadingScreen(Infamous infamous, int screenPath) {
-        this.infamous = infamous;
-        this.screenPath = screenPath;
-    }
-
     public LoadingScreen(Infamous infamous, int screenPath, Checkpoint checkpoint) {
         this(infamous, screenPath);
         this.checkpoint = checkpoint;
@@ -250,6 +251,7 @@ public class LoadingScreen extends ScreenAdapter{
             }
             case 2: {
                 infamous.setScreen(new CreditsScreen(infamous));
+                break;
             }
             default:{
                 infamous.setScreen(new MenuScreen(infamous));

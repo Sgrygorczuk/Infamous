@@ -3,6 +3,9 @@ package com.packt.infamous;
 
 public final class Const{
 
+    //======================== Levels ===========================
+    public static final float LVL_COUNT = 5;
+
     //====================== Dimensions =========================
     public static final float WORLD_WIDTH = 256;
     public static final float WORLD_HEIGHT = 240;
@@ -29,12 +32,12 @@ public final class Const{
     public static final float TEXT_OFFSET = 20;
 
     //====================== Menu Buttons =========================
-    public static final int NUM_BUTTONS_MENU_SCREEN = 2;
-    public static final int NUM_BUTTONS_MAIN_SCREEN = 4;
-    public static final float MENU_BUTTON_Y_START = 240 * WORLD_HEIGHT/320;
+    public static final int NUM_BUTTONS_MENU_SCREEN = 3;
+    public static final int NUM_BUTTONS_MAIN_SCREEN = 5;
+    public static final float MENU_BUTTON_Y_START = 265 * WORLD_HEIGHT/320;
     public static final float MENU_BUTTON_WIDTH = 150 * WORLD_WIDTH/480;
     public static final float MENU_BUTTON_HEIGHT = 40f * WORLD_HEIGHT/320;
-    public static final float MENU_BUTTON_FONT = 0.5f * WORLD_HEIGHT/320;
+    public static final float MENU_BUTTON_FONT = 0.45f * WORLD_HEIGHT/320;
 
 
     //========================= Tile Data ================================

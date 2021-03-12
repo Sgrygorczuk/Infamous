@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.main.Infamous;
+import com.packt.infamous.screens.textures.CreditsScreenTextures;
 import com.packt.infamous.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.TextAlignment;
@@ -46,12 +47,15 @@ public class CreditsScreen extends ScreenAdapter{
     //===================================== Tools ==================================================
     private final Infamous infamous;
     private final TextAlignment textAlignment = new TextAlignment();
+    private CreditsScreenTextures creditsScreenTextures;
 
     //====================================== Fonts =================================================
     private BitmapFont bitmapFont = new BitmapFont();
 
     private Array<String> credits = new Array<>();
     private float position =  -TEXT_OFFSET;
+
+
 
 
     /**
@@ -80,6 +84,7 @@ public class CreditsScreen extends ScreenAdapter{
         showCamera();           //Sets up camera through which objects are draw through
         showObjects();
         showCredits();           //Loads the stuff into the asset manager
+        creditsScreenTextures = new CreditsScreenTextures();
     }
 
     /**
@@ -135,7 +140,8 @@ public class CreditsScreen extends ScreenAdapter{
     @Override
     public void render(float delta) {
         update(delta);
-        if( Gdx.input.isKeyJustPressed(Input.Keys.E)){
+        if( Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) ||
+        position - TEXT_OFFSET * credits.size > WORLD_HEIGHT){
             infamous.setScreen(new LoadingScreen(infamous, 0));
         }
         draw();
@@ -167,9 +173,14 @@ public class CreditsScreen extends ScreenAdapter{
         batch.setTransformMatrix(camera.view);
 
         batch.begin();
+        bitmapFont.getData().setScale(0.5f);
         for(int i = 0; i < credits.size; i++){
             textAlignment.centerText(batch, bitmapFont, credits.get(i), WORLD_WIDTH/2f, position - TEXT_OFFSET * i);
         }
+        batch.draw(creditsScreenTextures.eTexture, 220, 7);
+        bitmapFont.getData().setScale(0.3f);
+        textAlignment.centerText(batch, bitmapFont, "End", 240, 15 );
+
         batch.end();
     }
 
