@@ -41,6 +41,8 @@ public class MusicControl {
             "SFX/level_complete.wav",
             "SFX/grip.wav",
             "SFX/electric_boom.wav",
+            "SFX/jump.wav",
+            "SFX/landing.wav",
     };
 
     //====================================== Constructor ===========================================

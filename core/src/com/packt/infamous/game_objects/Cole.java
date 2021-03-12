@@ -96,6 +96,7 @@ public class Cole extends GenericObject{
     private boolean isClimbingPole = false; //Tells us if Cole is climbing a pole
     private boolean isTouchingLedge = false;
     private boolean isHangingLedge = false; //Tells us if Cole is holding on a ledge
+    public boolean landedFlag = false;
 
     private float poleMin;
     private float poleMax;
@@ -505,6 +506,7 @@ public class Cole extends GenericObject{
     }
 
     public void setDraining(boolean draining){this.isDraining = draining;}
+    public boolean getDraining(){return this.isDraining;}
 
 
     /* ============================ Utility Functions =========================== */
@@ -537,6 +539,7 @@ public class Cole extends GenericObject{
             //=============== On Top Of the Colliding Platform ====================
             if(this.hitBox.y <= rectangle.y + rectangle.height
                     && this.hitBox.y >= rectangle.y + rectangle.height * 0.7f){
+                landedFlag = true;
                 this.hitBox.y = rectangle.y + rectangle.height;
                 isJumping = false;  //Can jump again
                 isFalling = false;  //Is no longer falling

@@ -129,7 +129,11 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("Ar1");
         credits.add("Ar2");
         credits.add("Electricity SFX");
+        credits.add("Jump SFX");
         credits.add("ShareSynth");
+        credits.add(" ");
+        credits.add("Landing SFX");
+        credits.add("KieranKeegan");
         credits.add(" ");
         credits.add("Bolt SFX");
         credits.add("Pure Audio Ninja");

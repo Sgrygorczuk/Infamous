@@ -457,6 +457,10 @@ class MainScreen extends ScreenAdapter {
         updateIfDead();
         cole.update(tiledSetUp.getLevelWidth(), tiledSetUp.getLevelHeight(), delta);
         if(cole.getInvincibility()){cole.invincibilityTimer(delta);}
+        if(cole.landedFlag){
+            playSFX("Landing");
+            cole.landedFlag = false;
+        }
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(EndShard endShard : endShards){endShard.update(delta);}
         for(Water water : waters){water.updatePosition();}
@@ -506,6 +510,7 @@ class MainScreen extends ScreenAdapter {
     private void handleInputs(float delta){
         //======================== Movement Vertically ====================================
         if(cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            playSFX("Jump");
             cole.jump();
         }
         else if (cole.getIsJumping() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
@@ -517,6 +522,7 @@ class MainScreen extends ScreenAdapter {
             cole.climbPole(true, delta);
         }
         else if(!cole.canColeMove() && cole.getIsHangingLedge() && (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+            playSFX("Jump");
             cole.jump();
             cole.setIsHangingLedge(false);
         }
@@ -538,6 +544,7 @@ class MainScreen extends ScreenAdapter {
         if (cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)))
         { cole.moveHorizontally(1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))){
+            playSFX("Jump");
             cole.jump();
             cole.setIsClimbingPole(false);
         }
@@ -548,6 +555,7 @@ class MainScreen extends ScreenAdapter {
         if (cole.getIsDucking() && cole.canColeMove() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)))
         { cole.moveHorizontally(-1); }
         else if(!cole.canColeMove() && cole.getIsClimbingPole() && (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))){
+            playSFX("Jump");
             cole.jump();
             cole.setIsClimbingPole(false);
         }
@@ -571,7 +579,7 @@ class MainScreen extends ScreenAdapter {
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.E) && Gdx.input.isKeyPressed(Input.Keys.Q) ||
                 Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-        { cole.drainEnergy(delta); }
+        { if(cole.getDraining()){playSFX("Drain");}cole.drainEnergy(delta); }
 
         //================================== Attacks ======================================
         else if (Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
@@ -763,8 +771,9 @@ class MainScreen extends ScreenAdapter {
      */
     private void isCollidingCheckpoint(){
         for (CheckpointObject checkpoint : checkpoints){
-            if (checkpoint.isColliding(cole.getHitBox())){
+            if (checkpoint.isColliding(cole.getHitBox()) && !checkpoint.getTouchedFlag()){
                 playSFX("Checkpoint");
+                checkpoint.setTouchedFlag(true);
                 isCheckpointed = true;
                 this.checkpoint = new Checkpoint(cole.getCurrentHealth(), cole.getCurrentEnergy(),
                         cole.getX(), cole.getY());
@@ -1507,6 +1516,9 @@ class MainScreen extends ScreenAdapter {
             case "Punch":
                 musicControl.playSFX(5, 1f);
                 break;
+            case "Drain":
+                musicControl.playSFX(6, 0.4f);
+                break;
             case "Rail Riding":
                 musicControl.playSFX(6, 0.2f);
                 break;
@@ -1536,6 +1548,12 @@ class MainScreen extends ScreenAdapter {
                 break;
             case "Explode":
                 musicControl.playSFX(15, 1.5f);
+                break;
+            case "Jump":
+                musicControl.playSFX(16, 0.7f);
+                break;
+            case "Landing":
+                musicControl.playSFX(17, 0.7f);
                 break;
             default:
                 break;
