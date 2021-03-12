@@ -5,11 +5,11 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -17,14 +17,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.packt.infamous.game_objects.Checkpoint;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.LoadingScreenTextures;
 import com.packt.infamous.tools.DebugRendering;
 import com.packt.infamous.tools.TextAlignment;
 
+import java.util.Random;
+
 import static com.packt.infamous.Const.LOADING_HEIGHT;
-import static com.packt.infamous.Const.LOADING_OFFSET;
 import static com.packt.infamous.Const.LOADING_WIDTH;
 import static com.packt.infamous.Const.LOADING_Y;
 import static com.packt.infamous.Const.LOGO_HEIGHT;
@@ -63,48 +63,34 @@ public class LoadingScreen extends ScreenAdapter{
     //State of the progress bar
     private float progress = 0;
 
+    //=================================== Loading Text Vars =======================================
     private static final float LOADING_TIME = .2F;
     private float loadTimer = LOADING_TIME;
-    private String loadingString = "Loading";
+    private Array<String> loadingQuotes = new Array<>();
+
+    private String loadingString;
+
+
 
     private int tiledSelection;
 
-    //Checkpoint for use with game screens
-    private Checkpoint checkpoint;
 
-
-    /**
-     * Purpose: The Constructor used when loading up the game for the first time showing off the logo
-     * @param infamous game object with data
-     */
     public LoadingScreen(Infamous infamous) {
         this.infamous = infamous;
         this.screenPath = 0;
         this.loadingFirstTime = true;
     }
 
-
+    /**
+     * Purpose: The Constructor used when loading up the game for the first time showing off the logo
+     * @param infamous game object with data
+     * @param screenPath tells us which screen to go to from here
+     */
     public LoadingScreen(Infamous infamous, int screenPath) {
         this.infamous = infamous;
         this.screenPath = screenPath;
     }
 
-    /**
-     * Purpose: General Constructor for moving between screens
-     * @param infamous game object with data
-     * @param screenPath tells us which screen to go to from here
-     * @param checkpoint is used when transitioning from a different screen to maintain variables
-     */
-    public LoadingScreen(Infamous infamous, int screenPath, Checkpoint checkpoint) {
-        this(infamous, screenPath);
-        this.checkpoint = checkpoint;
-    }
-
-    /**
-     * Purpose: General Constructor for moving between screens
-     * @param infamous game object with data
-     * @param screenPath tells us which screen to go to from here
-     */
     public LoadingScreen(Infamous infamous, int screenPath, int tiledSelection) {
         this.infamous = infamous;
         this.screenPath = screenPath;
@@ -126,6 +112,7 @@ public class LoadingScreen extends ScreenAdapter{
     @Override
     public void show() {
         //Sets up the camera
+        loadingString = getQuote();
         showCamera();           //Sets up camera through which objects are draw through
         loadingScreenTextures = new LoadingScreenTextures();
         debugRendering = new DebugRendering(camera);
@@ -172,7 +159,9 @@ public class LoadingScreen extends ScreenAdapter{
         infamous.getAssetManager().load("SFX/TestButton.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
+
         infamous.getAssetManager().load("Tiled/InfamousMapPlaceHolder.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelOne.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelTwo.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelThree.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/LevelFour.tmx", TiledMap.class);
@@ -204,7 +193,6 @@ public class LoadingScreen extends ScreenAdapter{
         else { progress = infamous.getAssetManager().getProgress();}
 
         updateTimer(delta);
-        updateLoadingString(delta);
     }
 
     /**
@@ -219,23 +207,6 @@ public class LoadingScreen extends ScreenAdapter{
         }
     }
 
-    /**
-     * Purpose: Makes dot appear while loading so it looks like something is happening
-     * @param delta timer to count down
-     */
-    private void updateLoadingString(float delta){
-        loadTimer -= delta;
-        //Add a "." if the length is short enough
-        if(loadingString.length() < 10 && loadTimer <= 0){
-            loadingString += ".";
-            loadTimer = LOADING_TIME;
-        }
-        //Reset to default
-        else if(loadTimer <= 0){
-            loadingString = "Loading";
-            loadTimer = LOADING_TIME;
-        }
-    }
 
     /**
      * Purpose: Allows us to go to a different screen each time we enter the LoadingScreen
@@ -258,6 +229,25 @@ public class LoadingScreen extends ScreenAdapter{
                 infamous.setScreen(new MenuScreen(infamous));
             }
         }
+    }
+
+    /**
+     * Purpose: Gets a random quote from quotes.txt
+     */
+    private String getQuote(){
+        FileHandle handle = Gdx.files.internal("UI/quotes.txt");
+
+        String text = handle.readString();
+        String quoteArray[] = text.split("\\r?\\n");
+        for(String quote : quoteArray) {
+            loadingQuotes.add(quote);
+        }
+
+        Random random = new Random();
+        int quoteIndex = random.nextInt(loadingQuotes.size);
+        String quote =  loadingQuotes.get(quoteIndex);
+        quote = textAlignment.addNewLine(quote, 25);
+        return quote;
     }
 
     //========================================== Drawing ===========================================
@@ -284,16 +274,13 @@ public class LoadingScreen extends ScreenAdapter{
         else{
             batch.begin();
             batch.draw(loadingScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-            batch.draw(loadingScreenTextures.loadingBarTexture, WORLD_WIDTH/2 - LOADING_WIDTH/2f, LOADING_Y + LOADING_HEIGHT/2f, LOADING_WIDTH, LOADING_HEIGHT);
             batch.end();
 
             debugRendering.startBackgroundRender();
-            debugRendering.getShapeRendererBackground().rect(WORLD_WIDTH/2 - LOADING_WIDTH/2f + LOADING_OFFSET, LOADING_Y + LOADING_HEIGHT/2f + LOADING_OFFSET,
-                    progress * (LOADING_WIDTH - 2 * LOADING_OFFSET), LOADING_HEIGHT -  2 * LOADING_OFFSET);
             debugRendering.endBackgroundRender();
 
             batch.begin();
-            textAlignment.centerText(batch, bitmapFont, loadingString, WORLD_WIDTH/2f,  LOADING_Y + 1.1f * LOADING_HEIGHT);
+            textAlignment.centerText(batch, bitmapFont, loadingString, LOADING_WIDTH,  LOADING_Y + 1.1f * LOADING_HEIGHT);
             batch.end();}
 
     }

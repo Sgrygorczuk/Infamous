@@ -37,7 +37,7 @@ public class TextAlignment {
      *                             I am
      *                             Dev
      */
-    private String addNewLine(String str, int lineLength) {
+    public String addNewLine(String str, int lineLength) {
         int spaceFound;
         int reminder = 0; //Used to push back the check to wherever the last " " was
         for (int j = 0; lineLength * (j + 1) + j - reminder < str.length(); j++) {
