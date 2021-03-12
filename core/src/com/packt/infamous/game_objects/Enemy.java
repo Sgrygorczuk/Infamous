@@ -54,7 +54,7 @@ public class Enemy extends  GenericObject{
         this.spriteSheet = textureRegions;
         setUpAnimations();
         setUpReloadAnimation();
-        deathAnimation = setUpAnimation(deathSpriteSheet, 1/5f, 0, Animation.PlayMode.NORMAL);
+        deathAnimation = setUpAnimation(deathSpriteSheet, 1/3f, 0, Animation.PlayMode.NORMAL);
   }
 
     protected void setUpReloadAnimation(){
@@ -157,8 +157,8 @@ public class Enemy extends  GenericObject{
     public void drawAnimations(SpriteBatch batch){
         TextureRegion currentFrame = spriteSheet[0][0];
 
-        if(walkingDistance < hitBox.width && !inCombat){currentFrame = spriteSheet[0][0];}
-        else if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
+        if(currentHealth < 0){currentFrame = deathAnimation.getKeyFrame(deathTimer);}
+        else if(walkingDistance < hitBox.width){currentFrame = spriteSheet[0][0];}
         else if(isReloading){currentFrame = reloadAnimation.getKeyFrame(reloadTimer);}
         else if(inCombat){currentFrame = spriteSheet[1][0]; }
         else if (isFacingRight) { currentFrame = walkRightAnimation.getKeyFrame(animationRightTime); }

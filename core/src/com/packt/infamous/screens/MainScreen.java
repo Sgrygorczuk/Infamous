@@ -289,9 +289,9 @@ class MainScreen extends ScreenAdapter {
             float width = railDimensions.get(i).x;
             float height = railDimensions.get(i).y/2f;
             rails.add(new Rail(x, y+height, width, height,Alignment.BACKGROUND));
-            Platforms rail_platform = new Platforms(x + 5, y, Alignment.BACKGROUND);
+            Platforms rail_platform = new Platforms(x, y - 5, Alignment.BACKGROUND);
             rail_platform.setWidth(width - 10);
-            rail_platform.setHeight(height);
+            rail_platform.setHeight(height * 2f);
             platforms.add(rail_platform);
         }
 
@@ -832,7 +832,9 @@ class MainScreen extends ScreenAdapter {
             if(cole.isColliding(water.getHitBox())){
                 playSFX("Water");
                 cole.touchedWater();
-                updateCamera();
+                camera.position.set(cole.getX(), camera.position.y, camera.position.z);
+                camera.update();
+                tiledSetUp.updateCamera(camera);
             }
         }
     }
@@ -1078,9 +1080,10 @@ class MainScreen extends ScreenAdapter {
 
         for(Enemy enemy : enemies){
             //Removes enemies on death
-            if (enemy.getCurrentHealth() < 0){
-                enemies.removeValue(enemy, true);
+            if(enemy.getCurrentHealth() < 0){
+                removeEnemies.add(enemy);
             }
+
             enemy.update(delta);
             enemy.setCombat(cole);
             enemy.nearDetector(cole);
@@ -1088,14 +1091,13 @@ class MainScreen extends ScreenAdapter {
                 enemy.shootBullet = false;
                 createProjectile(Alignment.ENEMY, enemy.isFacingRight, enemy.getHitBox());
             }
-            if(enemy.getCurrentHealth() < 0){
-                playSFX("Enemy Death");
-                removeEnemies.add(enemy);
-            }
         }
 
-        for(Enemy enemy : removeEnemies){
-            if(enemy.finishedDying()){enemies.removeValue(enemy, true);}
+        for(Enemy enemy : removeEnemies) {
+            if (enemy.finishedDying()) {
+                playSFX("Enemy Death");
+                enemies.removeValue(enemy, true);
+            }
         }
     }
 
@@ -1120,11 +1122,6 @@ class MainScreen extends ScreenAdapter {
      *          Moving the camera if that's part of the game
      */
     public void updateCamera() {
-        if(cole.getX() < xCameraDelta - WORLD_WIDTH/2f){
-            camera.position.set(cole.getX(), camera.position.y, camera.position.z);
-            camera.update();
-            tiledSetUp.updateCamera(camera);
-        }
         //Updates Camera if the X positions has changed
         if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
             camera.position.set(cole.getX(), camera.position.y, camera.position.z);

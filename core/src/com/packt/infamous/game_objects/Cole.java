@@ -234,11 +234,11 @@ public class Cole extends GenericObject{
         //=================== Player Initiated Jumping============
         if(isJumping) {
             //Is rising towards peak
-            if (isRising && hitBox.y < initialY + JUMP_PEAK) { velocity.y += relativeGravity; }
+            if (isRising && hitBox.y < initialY + JUMP_PEAK) { velocity.y += relativeGravity/2f; }
             //Checks if we reached peaked or Cole hit something above him
             else if (isRising) { isRising = false; }
             //Starts falling back down
-            else if (velocity.y > -relativeGravity) { velocity.y -= relativeGravity; }
+            else if (velocity.y > -relativeGravity) { velocity.y = -relativeGravity; }
         }
         //=========================== Hovering ==========================
         else if(isHovering){velocity.y = -HOVER_GRAVITY;}
@@ -248,7 +248,7 @@ public class Cole extends GenericObject{
         }
         //================== Player Walked Off A Platform ===========
         else if(isFalling) {
-            if (velocity.y > -relativeGravity) { velocity.y -= relativeGravity; }
+            if (velocity.y > -relativeGravity) { velocity.y = -relativeGravity; }
         }
         //==================== Is Standing on a Platform =============
         else{

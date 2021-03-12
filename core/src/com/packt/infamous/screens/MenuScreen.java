@@ -306,6 +306,7 @@ public class MenuScreen extends ScreenAdapter{
             textAlignment.centerText(batch, bitmapFont, "" + (i+1), 46 + (30 + 10) * i,  WORLD_HEIGHT / 2f + 19);
         }
 
+        /*
         for (int i = 5; i < 6; i++) {
             if (levelIndex == i) {
                 batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], 30 + (30 + 10) * (i - 5), WORLD_HEIGHT / 2f - 45, 30, 30);
@@ -323,6 +324,7 @@ public class MenuScreen extends ScreenAdapter{
                 batch.draw(menuScreenTextures.peopleUpSpriteSheet[0][4], 30 + (30 + 10) * (i - 5) + 25, WORLD_HEIGHT / 2f + 40 - 45, 5, 5);
             }
         }
+        */
 
         bitmapFont.getData().setScale(0.3f);
         if(levelExit){
