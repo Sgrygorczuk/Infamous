@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Checkpoint{
-    private int health, energy;
+    private int health, energy, shards;
     private float location_x, location_y;
 
     /**
@@ -14,15 +14,17 @@ public class Checkpoint{
      * @param location_x
      * @param location_y
      */
-    public Checkpoint(int health, int energy, float location_x, float location_y) {
+    public Checkpoint(int health, int energy, float location_x, float location_y, int shards) {
         this.health = health;
         this.energy = energy;
         this.location_x = location_x;
         this.location_y = location_y;
+        this.shards = shards;
     }
 
     public int getEnergy() { return energy; }
     public int getHealth() { return health; }
+    public int getShards() { return shards; }
     public float getLocation_x() {return location_x;}
     public float getLocation_y() {return location_y;}
 }

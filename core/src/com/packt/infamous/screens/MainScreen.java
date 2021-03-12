@@ -192,6 +192,8 @@ class MainScreen extends ScreenAdapter {
             cole.setY(checkpoint.getLocation_y());
             cole.setCurrentEnergy(checkpoint.getEnergy());
             cole.setCurrentHealth(checkpoint.getHealth());
+            collectibleSum = checkpoint.getShards();
+
         }
         //if(developerMode){debugRendering.showRender();}    //If in developer mode sets up the renders
     }
@@ -777,7 +779,7 @@ class MainScreen extends ScreenAdapter {
                 checkpoint.setTouchedFlag(true);
                 isCheckpointed = true;
                 this.checkpoint = new Checkpoint(cole.getCurrentHealth(), cole.getCurrentEnergy(),
-                        cole.getX(), cole.getY());
+                        cole.getX(), cole.getY(), collectibleSum);
             }
         }
     }
