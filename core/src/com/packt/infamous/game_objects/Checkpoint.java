@@ -1,5 +1,8 @@
 package com.packt.infamous.game_objects;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 public class Checkpoint{
     private int health, energy;
     private float location_x, location_y;
@@ -11,7 +14,7 @@ public class Checkpoint{
      * @param location_x
      * @param location_y
      */
-    public Checkpoint(int health, int energy,  float location_x,  float location_y) {
+    public Checkpoint(int health, int energy, float location_x, float location_y) {
         this.health = health;
         this.energy = energy;
         this.location_x = location_x;

@@ -146,13 +146,11 @@ class MainScreen extends ScreenAdapter {
         this.infamous = infamous;
 
         this.tiledSelection = tiledSelection;
-        //levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
-//        levelNames.add("Tiled/LevelOne.tmx");
-        levelNames.add("Tiled/LevelTwo.tmx");
-        levelNames.add("Tiled/LevelThree.tmx");
-        levelNames.add("Tiled/LevelFour.tmx");
-        levelNames.add("Tiled/LevelVertical.tmx");
-        levelNames.add("Tiled/LevelFive.tmx");
+        levelNames.add("Tiled/SebaLevelOne.tmx");
+        levelNames.add("Tiled/SebaLevelTwo.tmx");
+        levelNames.add("Tiled/SebaLevelThree.tmx");
+        levelNames.add("Tiled/SebaLevelFour.tmx");
+        levelNames.add("Tiled/SebaLevelFive.tmx");
     }
 
     MainScreen(Infamous infamous, int tiledSelection, Checkpoint checkpoint) {
@@ -182,9 +180,8 @@ class MainScreen extends ScreenAdapter {
         showCamera();       //Set up the camera
         showObjects();      //Sets up player and font
         mainScreenTextures = new MainScreenTextures();
-        musicControl.setMusicVolume(0.1f);
-        musicControl.showMusic(1);
-        musicControl.setSFXVolume(10);
+        musicControl.showMusic(0);
+
         showTiled();
         if (isCheckpointed){
             cole.setX(checkpoint.getLocation_x());
@@ -298,7 +295,7 @@ class MainScreen extends ScreenAdapter {
         //========================= Checkpoints ==========================================
         Array<Vector2> checkpointPositions = tiledSetUp.getLayerCoordinates("Checkpoint");
         for (Vector2 position : checkpointPositions){
-            checkpoints.add(new CheckpointObject(position.x, position.y, Alignment.BACKGROUND));
+            checkpoints.add(new CheckpointObject(position.x, position.y, Alignment.BACKGROUND, mainScreenTextures.checkpointTexture));
         }
 
         //========================= Drainables ===========================================
@@ -815,6 +812,7 @@ class MainScreen extends ScreenAdapter {
         for (Water water : waters) {
             if(cole.isColliding(water.getHitBox())){
                 cole.touchedWater();
+                updateCamera();
             }
         }
     }
@@ -875,7 +873,7 @@ class MainScreen extends ScreenAdapter {
 
     private void isCollidingEndShard() {
         for (EndShard endShard : endShards) {
-            if (cole.isCollidingMelee(endShard.getHitBox())) {
+            if (cole.isColliding(endShard.getHitBox())) {
                 pausedFlag = true;
                 endFlag = true;
                 //Updates all the data for unlocks
@@ -1093,7 +1091,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         //Updates the Camera if the Y positions has changed
-        if((cole.getY() >  WORLD_HEIGHT / 2) && (cole.getY() < tiledSetUp.getLevelHeight() - WORLD_HEIGHT / 2)){
+        if(cole.getY() >  WORLD_HEIGHT / 2){
             camera.position.set(camera.position.x, cole.getY(), camera.position.z);
             camera.update();
             tiledSetUp.updateCamera(camera);
@@ -1119,9 +1117,15 @@ class MainScreen extends ScreenAdapter {
         batch.setTransformMatrix(camera.view);
 
         //======================== Draws Titled =============================
-        tiledSetUp.drawTiledMap();
+
 
         //======================== Draws ==============================
+
+        batch.begin();
+        drawBackground();
+        batch.end();
+
+        tiledSetUp.drawTiledMap();
 
         batch.begin();
         if(developerMode){debugInfo();}        //If dev mode is on draw hit boxes and phone stats
@@ -1129,6 +1133,7 @@ class MainScreen extends ScreenAdapter {
         for(Collectible collectible : collectibles) {collectible.draw(batch);}
         for(EndShard endShard : endShards){endShard.draw(batch);}
         for(Civilian civilian : civilians){civilian.draw(batch);}
+        for(CheckpointObject checkpoint : checkpoints){checkpoint.draw(batch);}
         cole.drawAnimations(batch);
         drawAction();
         for(Projectile projectile : projectiles){projectile.drawAnimation(batch);}
@@ -1155,6 +1160,16 @@ class MainScreen extends ScreenAdapter {
         else if(pausedFlag && !helpFlag && !skinFlag){drawButtonText();}
         else if(pausedFlag){drawBackButtonText();}
         batch.end();
+    }
+
+    private void drawBackground(){
+        batch.draw(mainScreenTextures.backgroundColor, xCameraDelta, yCameraDelta);
+        for(int i = 0; i < tiledSetUp.getLevelWidth()/WORLD_WIDTH + 1; i++){
+            batch.draw(mainScreenTextures.backgroundBack, xCameraDelta - xCameraDelta * 0.1f + WORLD_WIDTH *i, yCameraDelta);
+            batch.draw(mainScreenTextures.backgroundMid, xCameraDelta - xCameraDelta * 0.2f + WORLD_WIDTH *i, yCameraDelta);
+            batch.draw(mainScreenTextures.backgroundFront, xCameraDelta - xCameraDelta * 0.4f + WORLD_WIDTH *i, yCameraDelta);
+
+        }
     }
 
     private void drawAction(){
@@ -1185,7 +1200,7 @@ class MainScreen extends ScreenAdapter {
     private void drawPopUpMenu() {
         bitmapFont.getData().setScale(0.3f);
         if ((pausedFlag && !skinFlag) || endFlag || helpFlag) {
-            batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta + WORLD_WIDTH / 2f - WORLD_WIDTH / 4, 10, WORLD_WIDTH / 2, WORLD_HEIGHT - 20);
+            batch.draw(mainScreenTextures.menuBackgroundTexture, xCameraDelta + WORLD_WIDTH / 2f - WORLD_WIDTH / 4, yCameraDelta + 10, WORLD_WIDTH / 2, WORLD_HEIGHT - 20);
             if (helpFlag) { drawInstructions();}
         }
     }
