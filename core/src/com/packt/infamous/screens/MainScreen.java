@@ -844,7 +844,6 @@ class MainScreen extends ScreenAdapter {
         if (cole.getPreviousDrainable() == null) {
             for (DrainableObject source : drainables) {
                 if (cole.isCollidingMelee(source.getHitBox()) && source.getCurrentEnergy() > 0) {
-                    System.out.println("Found drainable: " + source);
                     cole.setPreviousDrainable(source);
                     cole.setCanDrain(true);
                     return;
@@ -952,7 +951,6 @@ class MainScreen extends ScreenAdapter {
             if (proj.canDestroy()){
                 projectileRemove(proj);
             }
-//            System.out.println(proj.getType());
             proj.update(levelWidth, levelHeight, delta);
             //Check if colliding with a platform
             for (Platforms platform : platforms){
@@ -1006,6 +1004,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         if (proj.isIsExplosive()){
+            playSFX("Explode");
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
                     EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spriesheet));
         }
@@ -1534,6 +1533,9 @@ class MainScreen extends ScreenAdapter {
                 break;
             case "Grip":
                 musicControl.playSFX(14, 1f);
+                break;
+            case "Explode":
+                musicControl.playSFX(15, 1.5f);
                 break;
             default:
                 break;

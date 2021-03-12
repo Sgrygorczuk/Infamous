@@ -11,7 +11,6 @@ public class Rail extends Platforms{
         this.setHeight(height);
     }
     public boolean rideRail(Cole player){
-//        System.out.println("Player Facing: "+player.getIsFacingRight());
         if(hitBox.overlaps(player.getHitBox())){
             int xVelocity;
             if ( player.getIsFacingRight() ){

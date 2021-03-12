@@ -142,10 +142,7 @@ public class Enemy extends  GenericObject{
         shapeRenderer.rect(rDetector.x, rDetector.y, rDetector.width, rDetector.height);
     }
 
-    public void takeDamage(int damage){
-        currentHealth -= damage;
-        System.out.println("Enemy's New Health: "+ currentHealth);
-    }
+    public void takeDamage(int damage){ currentHealth -= damage;}
 
     public void setCombat(boolean combatState){
         inCombat = combatState;

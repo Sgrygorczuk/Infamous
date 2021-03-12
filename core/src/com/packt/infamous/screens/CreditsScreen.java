@@ -128,11 +128,14 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("SFX");
         credits.add("Ar1");
         credits.add("Ar2");
+        credits.add("Electricity SFX");
+        credits.add("ShareSynth");
+        credits.add(" ");
         credits.add("Bolt SFX");
         credits.add("Pure Audio Ninja");
         credits.add(" ");
-        credits.add("Punch + Electricty SFX");
-        credits.add("ShareSynth & Damnsatinist");
+        credits.add("Punch SFX");
+        credits.add("Damnsatinist");
         credits.add(" ");
         credits.add("Death SFX");
         credits.add("tonsil5");
@@ -160,6 +163,9 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add(" ");
         credits.add("Grip SFX");
         credits.add("Aquafeniz");
+        credits.add(" ");
+        credits.add("Explosion SFX");
+        credits.add("Bekir_VirtualDJ");
         credits.add(" ");
         credits.add("freesound.org");
         credits.add(" ");

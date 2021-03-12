@@ -40,6 +40,7 @@ public class MusicControl {
             "SFX/checkpoint.wav",
             "SFX/level_complete.wav",
             "SFX/grip.wav",
+            "SFX/electric_boom.wav",
     };
 
     //====================================== Constructor ===========================================
