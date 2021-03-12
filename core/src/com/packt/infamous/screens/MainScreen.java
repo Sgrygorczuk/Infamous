@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -147,10 +149,10 @@ class MainScreen extends ScreenAdapter {
 
         this.tiledSelection = tiledSelection;
         levelNames.add("Tiled/SebaLevelOne.tmx");
-        levelNames.add("Tiled/SebaLevelTwo.tmx");
+        levelNames.add("Tiled/LevelVertical.tmx");
         levelNames.add("Tiled/SebaLevelThree.tmx");
-        levelNames.add("Tiled/SebaLevelFour.tmx");
-        levelNames.add("Tiled/SebaLevelFive.tmx");
+        levelNames.add("Tiled/Paul_Level.tmx");
+        levelNames.add("Tiled/SebaLevelTwo.tmx");
     }
 
     MainScreen(Infamous infamous, int tiledSelection, Checkpoint checkpoint) {
@@ -992,9 +994,20 @@ class MainScreen extends ScreenAdapter {
      */
     private void projectileRemove(Projectile proj){
         //If an explosive, create temporary bullet
+        TextureRegion[][] spriesheet;
+        if(cole.getCurrentAttack() == "Bomb"){
+            spriesheet = mainScreenTextures.bombSpriteSheet;
+        }
+        else if(cole.getCurrentAttack() == "Torpedo"){
+            spriesheet = mainScreenTextures.torpedoSpriteSheet;
+        }
+        else{
+            spriesheet = mainScreenTextures.bulletSpriteSheet;
+        }
+
         if (proj.isIsExplosive()){
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, mainScreenTextures.bulletSpriteSheet));
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spriesheet));
         }
         projectiles.removeValue(proj, true);
     }
@@ -1039,7 +1052,7 @@ class MainScreen extends ScreenAdapter {
             }
             else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
                 projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
-                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
+                        projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bombSpriteSheet));
             }
             else {
                 if(Enum.fromInteger(cole.getAttackIndex()) == Enum.BOLT) {playSFX("Bolt");}
@@ -1108,6 +1121,11 @@ class MainScreen extends ScreenAdapter {
      *          Moving the camera if that's part of the game
      */
     public void updateCamera() {
+        if(cole.getX() < xCameraDelta - WORLD_WIDTH/2f){
+            camera.position.set(cole.getX(), camera.position.y, camera.position.z);
+            camera.update();
+            tiledSetUp.updateCamera(camera);
+        }
         //Updates Camera if the X positions has changed
         if((cole.getX() > WORLD_WIDTH/2f) && (cole.getX() < tiledSetUp.getLevelWidth() - WORLD_WIDTH/2f)) {
             camera.position.set(cole.getX(), camera.position.y, camera.position.z);
@@ -1266,6 +1284,19 @@ class MainScreen extends ScreenAdapter {
 
     private void drawCollectibleSum(){
         bitmapFont.getData().setScale(0.25f);
+
+        //Bullet
+        switch (cole.getCurrentAttack()) {
+            case "Lighting Bolt":
+                batch.draw(mainScreenTextures.bulletSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + WORLD_HEIGHT - 27, 20, 20);
+                break;
+            case "Bomb":
+                batch.draw(mainScreenTextures.bombSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + WORLD_HEIGHT - 27, 20, 20);
+                break;
+            case "Torpedo":
+                batch.draw(mainScreenTextures.torpedoSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH / 2f, yCameraDelta + WORLD_HEIGHT - 27, 20, 20);
+                break;
+        }
 
         //============================= Shards
         batch.draw(mainScreenTextures.collectibleSpriteSheet[0][0], xCameraDelta + WORLD_WIDTH/2f + 90,  yCameraDelta + WORLD_HEIGHT - 15 , 8, 8);
