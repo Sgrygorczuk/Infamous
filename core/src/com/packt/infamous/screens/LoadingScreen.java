@@ -165,8 +165,8 @@ public class LoadingScreen extends ScreenAdapter{
         infamous.getAssetManager().load("Tiled/SebaLevelOne.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/SebaLevelTwo.tmx", TiledMap.class);
         infamous.getAssetManager().load("Tiled/SebaLevelThree.tmx", TiledMap.class);
-        infamous.getAssetManager().load("Tiled/SebaLevelFour.tmx", TiledMap.class);
-        infamous.getAssetManager().load("Tiled/SebaLevelFive.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/LevelVertical.tmx", TiledMap.class);
+        infamous.getAssetManager().load("Tiled/Paul_Level.tmx", TiledMap.class);
     }
 
     //=================================== Execute Time Methods =====================================
@@ -246,7 +246,7 @@ public class LoadingScreen extends ScreenAdapter{
         Random random = new Random();
         int quoteIndex = random.nextInt(loadingQuotes.size);
         String quote =  loadingQuotes.get(quoteIndex);
-        quote = textAlignment.addNewLine(quote, 25);
+        quote = textAlignment.addNewLine(quote, 50);
         return quote;
     }
 
@@ -276,11 +276,15 @@ public class LoadingScreen extends ScreenAdapter{
             batch.draw(loadingScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
             batch.end();
 
-            debugRendering.startBackgroundRender();
-            debugRendering.endBackgroundRender();
+
+            debugRendering.startUIRender();
+            debugRendering.getShapeRendererUI().rect(20,  10, WORLD_WIDTH- 40, 50);
+            debugRendering.endUIRender();
 
             batch.begin();
-            textAlignment.centerText(batch, bitmapFont, loadingString, LOADING_WIDTH,  LOADING_Y + 1.1f * LOADING_HEIGHT);
+            bitmapFont.setColor(Color.WHITE);
+            bitmapFont.getData().setScale(0.22f);
+            textAlignment.centerText(batch, bitmapFont, loadingString, WORLD_WIDTH/2f,  40);
             batch.end();}
 
     }

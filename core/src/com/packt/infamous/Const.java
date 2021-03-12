@@ -4,7 +4,7 @@ package com.packt.infamous;
 public final class Const{
 
     //======================== Levels ===========================
-    public static final float LVL_COUNT = 5;
+    public static final float LVL_COUNT = 6;
 
     //====================== Dimensions =========================
     public static final float WORLD_WIDTH = 256;
@@ -46,7 +46,7 @@ public final class Const{
     public static final float COLE_WIDTH = 16;
     public static final float COLE_HEIGHT = 32;
 
-    public static final float UI_HEIGHT = 32;
+    public static final float UI_HEIGHT = 36;
 
     //======================== Movement Data ===========================
     public static final float GRAVITY = 2f;

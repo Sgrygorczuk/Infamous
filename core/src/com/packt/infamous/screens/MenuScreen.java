@@ -278,13 +278,40 @@ public class MenuScreen extends ScreenAdapter{
 
         //============================= Draws the boxes Cole in them with different colors =========
         bitmapFont.getData().setScale(0.4f);
-        for (int i = 0; i < LVL_COUNT; i++) {
+        for (int i = 0; i < 5; i++) {
             if (levelIndex == i) {
                 batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], 30 + (30 + 10) * i, WORLD_HEIGHT / 2f, 30, 30);
             } else {
                 batch.draw(menuScreenTextures.buttonSpriteSheet[0][0], 30 + (30 + 10) * i,  WORLD_HEIGHT / 2f, 30, 30);
             }
+            if(infamous.getCollected(i)){
+                batch.draw(menuScreenTextures.collectibleSpriteSheet[0][0], 30 + (30 + 10) * i + 15, WORLD_HEIGHT / 2f + 40, 5, 5);
+            }
+            if(infamous.getHealed(i)){
+                batch.draw(menuScreenTextures.peopleUpSpriteSheet[0][0], 30 + (30 + 10) * i + 5, WORLD_HEIGHT / 2f + 40, 5, 5);
+            }
+            if(infamous.getKilled(i)){
+                batch.draw(menuScreenTextures.peopleUpSpriteSheet[0][4], 30 + (30 + 10) * i + 25, WORLD_HEIGHT / 2f + 40, 5, 5);
+            }
             textAlignment.centerText(batch, bitmapFont, "" + (i+1), 46 + (30 + 10) * i,  WORLD_HEIGHT / 2f + 19);
+        }
+
+        for (int i = 5; i < 6; i++) {
+            if (levelIndex == i) {
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], 30 + (30 + 10) * (i - 5), WORLD_HEIGHT / 2f - 45, 30, 30);
+            } else {
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][0], 30 + (30 + 10) * (i - 5),  WORLD_HEIGHT / 2f - 45, 30, 30);
+            }
+            textAlignment.centerText(batch, bitmapFont, "" + (i+1), 46 + (30 + 10) * (i - 5),  WORLD_HEIGHT / 2f + 19 - 45);
+            if(infamous.getCollected(i)){
+                batch.draw(menuScreenTextures.collectibleSpriteSheet[0][0], 30 + (30 + 10) * (i - 5) + 15, WORLD_HEIGHT / 2f + 40 - 45, 5, 5);
+            }
+            if(infamous.getHealed(i)){
+                batch.draw(menuScreenTextures.peopleUpSpriteSheet[0][0], 30 + (30 + 10) * (i - 5) + 5, WORLD_HEIGHT / 2f + 40 - 45, 5, 5);
+            }
+            if(infamous.getKilled(i)){
+                batch.draw(menuScreenTextures.peopleUpSpriteSheet[0][4], 30 + (30 + 10) * (i - 5) + 25, WORLD_HEIGHT / 2f + 40 - 45, 5, 5);
+            }
         }
 
         bitmapFont.getData().setScale(0.3f);
