@@ -16,7 +16,7 @@ public class EndShard extends GenericObject {
         hitBox.width = 32;
         hitBox.height = 32;
 
-        shardAnimation = setUpAnimation(texture, 1/3f, 0,Animation.PlayMode.LOOP_PINGPONG);
+        shardAnimation = setUpAnimation(texture, 1/5f, 0,Animation.PlayMode.LOOP_PINGPONG);
 
     }
 

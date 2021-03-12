@@ -25,6 +25,7 @@ import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 
 import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
+import static com.packt.infamous.Const.LVL_COUNT;
 import static com.packt.infamous.Const.MENU_BUTTON_FONT;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
@@ -54,11 +55,13 @@ public class MenuScreen extends ScreenAdapter{
 
     //============================================= Flags ==========================================
     private boolean helpFlag;      //Tells if help menu is up or not
-    private boolean creditsFlag;   //Tells if credits menu is up or not
+    private boolean levelSelectFlag;   //Tells if credits menu is up or not
+    private int levelIndex = 0;
+    private boolean levelExit = false;
 
     //=================================== Miscellaneous Vars =======================================
     //String used on the buttons
-    private final String[] buttonText = new String[]{"Play", "Help"};
+    private final String[] buttonText = new String[]{"Play", "Level Select", "Controls"};
     private float backButtonY = 10;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
 
@@ -68,7 +71,7 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Grabs the info from main screen that holds asset manager
      * Input: Infamous
      */
-    MenuScreen(Infamous infamous) { this.infamous = infamous;}
+    MenuScreen(Infamous infamous) { this.infamous = infamous; }
 
     /**
      Purpose: Updates the dimensions of the screen
@@ -131,7 +134,7 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Allow user to navigate the menus
      */
     private void inputHandling(){
-        if(!helpFlag) {
+        if(!helpFlag && !levelSelectFlag) {
             //Movement Vertically
             if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 buttonIndex--;
@@ -153,16 +156,50 @@ public class MenuScreen extends ScreenAdapter{
                     musicControl.playSFX(0);
                     infamous.setScreen(new LoadingScreen(infamous, 1, 0));
                 }
+                else if(buttonIndex == 1){
+                    levelSelectFlag = true;
+                }
                 //Turns on the help menu
-                else if (buttonIndex == 1) {
+                else if (buttonIndex == 2) {
                     helpFlag = true;
                 }
             }
         }
         else if(helpFlag){
-            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
                 helpFlag = false;
-                backButtonY = 10;
+            }
+        }
+        else if(levelSelectFlag){
+            if ( Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                levelSelectFlag = false;
+                levelIndex = 0;
+            }
+            if(levelExit){
+                if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                    levelExit = false;
+                }
+                else if((Gdx.input.isKeyJustPressed(Input.Keys.E))){
+                    levelSelectFlag = false;
+                    levelExit = false;
+                    levelIndex = 0;
+                }
+            }
+            else{
+                if (Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                    levelExit = true;
+                }
+                else if(levelIndex < LVL_COUNT - 1 && (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))){
+                    levelIndex ++;
+                }
+                else if(levelIndex > 0 && (Gdx.input.isKeyJustPressed(Input.Keys.A) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT))){
+                    levelIndex --;
+                }
+
+                if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                    musicControl.playSFX(0);
+                    infamous.setScreen(new LoadingScreen(infamous, 1, levelIndex));
+                }
             }
         }
     }
@@ -181,22 +218,18 @@ public class MenuScreen extends ScreenAdapter{
         batch.begin();
         batch.draw(menuScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         //Draw the pop up menu
-        if(helpFlag  || creditsFlag){batch.draw(menuScreenTextures.menuBackgroundTexture, 10, 10, WORLD_WIDTH - 20, WORLD_HEIGHT-20);}
         //Draws the Play|Help|Credits text on buttons
-        if(!helpFlag && !creditsFlag){
+        if(!helpFlag && !levelSelectFlag){
             drawMainButtons();
             drawButtonText();
         }
         else if(helpFlag){
-            drawBackButton();
             drawInstructions();
-            drawBackButtonText();
         }
-        //Draws the credits text
-        else{
-            drawBackButton();
-            drawBackButtonText();
+        else if(levelSelectFlag){
+            drawLevelSelect();
         }
+
         batch.end();
     }
 
@@ -222,11 +255,6 @@ public class MenuScreen extends ScreenAdapter{
         }
     }
 
-    private void drawBackButton(){
-        batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], WORLD_WIDTH/2f - menuScreenTextures.buttonSpriteSheet[0][1].getRegionWidth()/2f - 8, backButtonY, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
-
-    }
-
     /**
      * Purpose: Draws the text on the Play|Help|Credits buttons
     */
@@ -238,27 +266,44 @@ public class MenuScreen extends ScreenAdapter{
         }
     }
 
-    /**
-     * Purpose: Draws the backButton text
-     */
-    protected void drawBackButtonText(){
-        bitmapFont.getData().setScale(MENU_BUTTON_FONT);
-        textAlignment.centerText(batch, bitmapFont, "Back", WORLD_WIDTH/2f,
-                backButtonY + 0.65f * MENU_BUTTON_HEIGHT);
+    private void drawLevelSelect() {
+        bitmapFont.setColor(Color.WHITE);
+        bitmapFont.getData().setScale(0.5f);
+
+        batch.draw(menuScreenTextures.menuBackgroundTexture, 0, 0);
+
+        textAlignment.centerText(batch, bitmapFont, "Level Select",   WORLD_WIDTH/2f, WORLD_HEIGHT - 30);
+
+
+        //============================= Draws the boxes Cole in them with different colors =========
+        bitmapFont.getData().setScale(0.4f);
+        for (int i = 0; i < LVL_COUNT; i++) {
+            if (levelIndex == i) {
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], 30 + (30 + 10) * i, WORLD_HEIGHT / 2f, 30, 30);
+            } else {
+                batch.draw(menuScreenTextures.buttonSpriteSheet[0][0], 30 + (30 + 10) * i,  WORLD_HEIGHT / 2f, 30, 30);
+            }
+            textAlignment.centerText(batch, bitmapFont, "" + (i+1), 46 + (30 + 10) * i,  WORLD_HEIGHT / 2f + 19);
+        }
+
+        bitmapFont.getData().setScale(0.3f);
+        if(levelExit){
+            batch.draw(menuScreenTextures.buttonSpriteSheet[0][1], WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, 30, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+        else{
+            batch.draw(menuScreenTextures.buttonSpriteSheet[0][0], WORLD_WIDTH / 2f - MENU_BUTTON_WIDTH / 2f, 30, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        }
+
+
+        textAlignment.centerText(batch, bitmapFont, "Back", WORLD_WIDTH/2f, 47);
+
     }
 
     /**
      * Purpose: Draws the text for instructions
      */
     private void drawInstructions() {
-        bitmapFont.getData().setScale(.5f);
-        textAlignment.centerText(batch, bitmapFont, "Instruction", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START);
-        bitmapFont.getData().setScale(.35f);
-
-        textAlignment.centerText(batch, bitmapFont, "Move - WASD", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #2", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 2 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #3", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START  - 3 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Actions #4", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 4 * TEXT_OFFSET);
+        batch.draw(menuScreenTextures.controlsTexture, 0, 0);
     }
 
 
