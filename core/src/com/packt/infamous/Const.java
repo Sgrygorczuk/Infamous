@@ -72,7 +72,7 @@ public final class Const{
 
 
     public static final float BOLT_SPEED = 3f;
-    public static final int BOLT_DAMAGE = 10;
+    public static final int BOLT_DAMAGE = 30;
     public static final int BOLT_WIDTH = 4;
     public static final int BOLT_HEIGHT = 3;
 
@@ -84,7 +84,7 @@ public final class Const{
     public static final int BOMB_WIDTH = 1;
     public static final int BOMB_HEIGHT = 1;
 
-    public static final int EXPLOSION_DAMAGE = 30;
+    public static final int EXPLOSION_DAMAGE = 100;
 
     //====================== Draining =======================
     public static final int REMOVE_ENERGY = 1;

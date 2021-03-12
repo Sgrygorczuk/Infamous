@@ -7,15 +7,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class MainScreenTextures {
 
     //============================================= Textures =======================================
-    public Texture backgroundTexture;
     public Texture menuBackgroundTexture;   //Pop up menu to show menu buttons and Help screen
     public Texture junctionBoxTexture;
     public Texture telephoneBoxTexture;
+    public Texture checkpointTexture;
     public Texture waterTexture;
     public Texture eTexture;
     public Texture qTexture;
     public Texture lockTexture;
     public Texture controlsTexture;
+    public Texture backgroundColor;
+    public Texture backgroundBack;
+    public Texture backgroundMid;
+    public Texture backgroundFront;
 
     public TextureRegion[][] buttonSpriteSheet;
 
@@ -46,9 +50,16 @@ public class MainScreenTextures {
         controlsTexture = new Texture(Gdx.files.internal("UI/Instructions.png"));
         junctionBoxTexture = new Texture(Gdx.files.internal("Sprites/junc_box.png"));
         telephoneBoxTexture = new Texture(Gdx.files.internal("Sprites/phone_booth.png"));
+        checkpointTexture = new Texture(Gdx.files.internal("Sprites/TeslaCoil.png"));
         waterTexture = new Texture(Gdx.files.internal("Sprites/Water.png"));
         eTexture = new Texture(Gdx.files.internal("Sprites/E.png"));
         qTexture = new Texture(Gdx.files.internal("Sprites/Q.png"));
+
+        backgroundColor = new Texture(Gdx.files.internal("Sprites/background.png"));
+        backgroundBack = new Texture(Gdx.files.internal("Sprites/BuildingBackLayer.png"));
+        backgroundMid = new Texture(Gdx.files.internal("Sprites/BuildingMiddleLayer.png"));
+        backgroundFront = new Texture(Gdx.files.internal("Sprites/BuildingFrontLayer.png"));
+
 
         Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
         buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(

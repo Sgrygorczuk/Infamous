@@ -52,7 +52,7 @@ public class MusicControl {
      * Purpose: Plays a SFX from the list
      * @param soundSelection which SFX we're going to play
      */
-    public void playSFX(int soundSelection) {musicManager.get(soundSelect[soundSelection], Sound.class).play(1/2f * sfxVolume); }
+    public void playSFX(int soundSelection, float volume) {musicManager.get(soundSelect[soundSelection], Sound.class).play(volume * sfxVolume); }
 
     /**
      * Generic turn the sound on and off
