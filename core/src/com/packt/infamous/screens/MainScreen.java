@@ -153,6 +153,7 @@ class MainScreen extends ScreenAdapter {
         levelNames.add("Tiled/SebaLevelThree.tmx");
         levelNames.add("Tiled/Paul_Level.tmx");
         levelNames.add("Tiled/SebaLevelTwo.tmx");
+        levelNames.add("Tiled/JadeLevel.tmx");
     }
 
     MainScreen(Infamous infamous, int tiledSelection, Checkpoint checkpoint) {
