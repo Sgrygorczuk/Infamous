@@ -12,7 +12,7 @@ public class MusicControl {
 
     //================================= Variables ==================================================
     private Music music;           //What reads the music and plays it on loop
-    private float musicVolume = 1f;  //Current sfx volume
+    private float musicVolume = 0.2f;  //Current sfx volume
     private float sfxVolume = 1f;  //Current sfx volume
     AssetManager musicManager;     //All the data from the AssetManager
 
@@ -20,6 +20,7 @@ public class MusicControl {
     //Holds all the names for the songs
     String[] songSelect = new String[]{
             "Music/TestMusic.wav",
+            "Music/dramatic_music.wav"
     };
 
     //Holds all the names for the SFX

@@ -146,7 +146,6 @@ class MainScreen extends ScreenAdapter {
         this.infamous = infamous;
 
         this.tiledSelection = tiledSelection;
-        //levelNames.add("Tiled/InfamousMapPlaceHolder.tmx");
         levelNames.add("Tiled/SebaLevelOne.tmx");
         levelNames.add("Tiled/SebaLevelTwo.tmx");
         levelNames.add("Tiled/SebaLevelThree.tmx");
@@ -182,6 +181,7 @@ class MainScreen extends ScreenAdapter {
         showObjects();      //Sets up player and font
         mainScreenTextures = new MainScreenTextures();
         musicControl.showMusic(0);
+
         showTiled();
         if (isCheckpointed){
             cole.setX(checkpoint.getLocation_x());
@@ -701,6 +701,7 @@ class MainScreen extends ScreenAdapter {
 
             //Select the action
             if (exitIndex == 0 && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                musicControl.stopMusic();
                 infamous.setScreen(new LoadingScreen(infamous, 0));
             }
             else if(exitIndex == 1 && Gdx.input.isKeyJustPressed(Input.Keys.E)){
@@ -1072,7 +1073,7 @@ class MainScreen extends ScreenAdapter {
             }
             //Reload screen if died with no checkpoint
             else {
-                infamous.setScreen(new MenuScreen(infamous));
+                infamous.setScreen(new MainScreen(infamous, tiledSelection));
             }
         }
     }

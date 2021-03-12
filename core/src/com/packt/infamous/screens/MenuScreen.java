@@ -128,7 +128,7 @@ public class MenuScreen extends ScreenAdapter{
     /**
      Purpose: Updates all the moving components and game variables
      */
-    private void update() { inputHandling(); }
+    private void update() { inputHandling();}
 
     /**
      * Purpose: Allow user to navigate the menus
@@ -198,6 +198,7 @@ public class MenuScreen extends ScreenAdapter{
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
                     musicControl.playSFX(0, 1);
+
                     infamous.setScreen(new LoadingScreen(infamous, 1, levelIndex));
                 }
             }
