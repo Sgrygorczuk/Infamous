@@ -49,8 +49,8 @@ public final class Const{
     public static final float UI_HEIGHT = 36;
 
     //======================== Movement Data ===========================
-    public static final float GRAVITY = 2f;
-    public static final float JUMP_PEAK = 30f;
+    public static final float GRAVITY = 4f;
+    public static final float JUMP_PEAK = 35f;
     public static final float ACCELERATION = 1f;
     public static final float FRICTION = 0.5f;
     public static final float FRICTION_AFTER_RIDE = 0.2f;

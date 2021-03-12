@@ -1039,7 +1039,7 @@ class MainScreen extends ScreenAdapter {
                     break;
                 case TORPEDO:
                     projWidth = TORPEDO_WIDTH;
-                    projWidth = TORPEDO_HEIGHT;
+                    projHeight = TORPEDO_HEIGHT;
                     projVel += TORPEDO_SPEED;
                     break;
             }
