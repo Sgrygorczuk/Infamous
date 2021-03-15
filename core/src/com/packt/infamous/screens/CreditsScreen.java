@@ -122,6 +122,7 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("Nelson Batista");
         credits.add("Sebastian Grygorczuk");
         credits.add("Paul Tan");
+        credits.add("Jade Truncale");
         credits.add(" ");
         credits.add("Music");
         credits.add("Level Music");
