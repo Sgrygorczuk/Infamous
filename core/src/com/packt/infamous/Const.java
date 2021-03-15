@@ -50,10 +50,10 @@ public final class Const{
 
     //======================== Movement Data ===========================
     public static final float GRAVITY = 3f;
-    public static final float JUMP_PEAK = 35f;
+    public static final float JUMP_PEAK = 45f;
     public static final float ACCELERATION = 1f;
     public static final float FRICTION = 0.5f;
-    public static final float FRICTION_AFTER_RIDE = 0.2f;
+    public static final float FRICTION_AFTER_RIDE = 0.1f;
     public static final float MAX_VELOCITY = 3f;
 
     public static final float HOVER_GRAVITY = 1f;

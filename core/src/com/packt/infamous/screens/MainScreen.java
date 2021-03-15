@@ -78,44 +78,44 @@ class MainScreen extends ScreenAdapter {
     private final Infamous infamous;      //Game object that holds the settings
     private DebugRendering debugRendering;        //Draws debug hit-boxes
     private MusicControl musicControl;            //Plays Music
-    private final TextAlignment textAlignment = new TextAlignment();
-    private TiledSetUp tiledSetUp;
+    private final TextAlignment textAlignment = new TextAlignment();    //Used to write text
+    private TiledSetUp tiledSetUp;               //Takes all the data from tiled 
 
     //=========================================== Text =============================================
     //Font used for the user interaction
     private BitmapFont bitmapFont = new BitmapFont();             //Font used for the user interaction
     private final BitmapFont bitmapFontDeveloper = new BitmapFont();    //Font for viewing phone stats in developer mode
-    private MainScreenTextures mainScreenTextures;
+    private MainScreenTextures mainScreenTextures;                //Holds all the premade textures 
 
     //============================================= Flags ==========================================
-    private boolean developerMode = false;      //Developer mode shows hit boxes and phone data
+    private boolean developerMode = true;      //Developer mode shows hit boxes and phone data
     private boolean pausedFlag = false;         //Stops the game from updating
     private boolean helpFlag = false;           //Tells us if help flag is on or off
-    private boolean skinFlag = false;
-    private float xCameraDelta = 0;
-    private float yCameraDelta = 0;
-    private int buttonIndex = 0;    //Tells us which button we're currently looking at
-    private float polePosition = 0;
-    private float ledgePosition = 0;
-    private int collectibleSum = 0;
+    private boolean skinFlag = false;           //Tells us if the skin menu is on 
+    private float xCameraDelta = 0;             //Keeps track of how far the camera has moved (to update menus)
+    private float yCameraDelta = 0;             //Keeps track of how far the camera has moved (to update menus)
+    private int buttonIndex = 0;    //Tells us which button we're currently looking at in the main menu
+    private float polePosition = 0;            //Tells us which pole we're touching 
+    private float ledgePosition = 0;           //Tells us which ledge we're touching 
+    private int collectibleSum = 0;            //Tells us how many collectibles we've collected d
 
-    private int touchedPersonIndex;
-    private boolean isTouchingPerson = false;
-    private float killText = -1;
-    private float healText = 1;
-    private boolean textDirection = false;
-    private int healed = 0;
-    private int killed = 0;
+    private int touchedPersonIndex;             //Tells us if which person we're touching
+    private boolean isTouchingPerson = false;   //Tells us if we're touching any person
+    private float killText = -1;                //Postion of the kill text when near a downed person 
+    private float healText = 1;                 //Postion of the heal text when near a downed person 
+    private boolean textDirection = false;      //Tells us which direction the text should be moving in     
+    private int healed = 0;                     //Counter of how many people have been healed 
+    private int killed = 0;                     //Counter of how many people have been killed 
 
-    private int skinIndex = 0;
-    private boolean skinExit = false;
+    private int skinIndex = 0;                  //Tells us which skin we're looking at 
+    private boolean skinExit = false;           //Tell us if we're looking at the back button 
 
-    private boolean endFlag = false;            //Tells us the player touched the endShard
-    private int exitIndex = 1;
+    private boolean endFlag = false;            //Tells us the player touched the endShard  
+    private int exitIndex = 1;                  //Tells us which button in the exit menu we're looking at 
 
     //=================================== Miscellaneous Vars =======================================
-    private Array<String> levelNames = new Array<>();
-    private int tiledSelection;
+    private Array<String> levelNames = new Array<>(); //Names of all the lvls in order 
+    private int tiledSelection;                       //Which tiled map is loaded in 
     private final String[] menuButtonText = new String[]{"Controls", "Skins", "Sound Off", "Main Menu", "Back", "Sound On"};
 
 
@@ -156,14 +156,19 @@ class MainScreen extends ScreenAdapter {
         levelNames.add("Tiled/JadeLevel.tmx");
     }
 
+    /**
+     * Purpose: Load the lvl from a checkpoint 
+     * @param infamous game data
+     * @param tiledSelection level sections
+     * @param checkpoint checkpoint that 
+     */
     MainScreen(Infamous infamous, int tiledSelection, Checkpoint checkpoint) {
         this(infamous, tiledSelection);
         this.checkpoint = checkpoint;
         isCheckpointed = true;
 
     }
-
-
+    
     /**
     Purpose: Updates the dimensions of the screen
     Input: The width and height of the screen
@@ -233,7 +238,6 @@ class MainScreen extends ScreenAdapter {
                     mainScreenTextures.peopleUpSpriteSheet[0][4]));
         }
 
-
         //========================================= Pole ======================================
         Array<Vector2> polePositions = tiledSetUp.getLayerCoordinates("Pole");
         Array<Vector2> poleDimensions = tiledSetUp.getLayerDimensions("Pole");
@@ -247,9 +251,9 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> ledgePositions = tiledSetUp.getLayerCoordinates("Ledge");
         Array<Vector2> ledgeDimensions = tiledSetUp.getLayerDimensions("Ledge");
         for(int i = 0; i < ledgePositions.size; i++){
-            ledges.add(new Ledge(ledgePositions.get(i).x, ledgePositions.get(i).y + ledgeDimensions.get(i).y/4f));
+            ledges.add(new Ledge(ledgePositions.get(i).x, ledgePositions.get(i).y));
             ledges.get(i).setWidth(ledgeDimensions.get(i).x);
-            ledges.get(i).setHeight(ledgeDimensions.get(i).y/2f);
+            ledges.get(i).setHeight(ledgeDimensions.get(i).y);
         }
 
         //================================= Collectible ===================================
@@ -321,6 +325,8 @@ class MainScreen extends ScreenAdapter {
 
             drainables.get(i+currDrainableNum).setTexture(mainScreenTextures.junctionBoxTexture);
         }
+        
+        //====================== Enemies ==========================================================
 
         Array<Vector2> enemyPositions = tiledSetUp.getLayerCoordinates("Enemy");
         Array<Vector2> enemyDimensions = tiledSetUp.getLayerDimensions("Enemy");
@@ -371,7 +377,7 @@ class MainScreen extends ScreenAdapter {
         if(!pausedFlag) { update(delta); }      //If the game is not paused update the variables
         else{ menuInputHandling(); }
         draw();                                 //Draws everything
-        //if (developerMode) { debugRender(); }   //If developer mode is on draws hit-boxes
+//        if (developerMode) { debugRender(); }   //If developer mode is on draws hit-boxes
     }
 
     //===================================== Debug ==================================================
@@ -467,21 +473,7 @@ class MainScreen extends ScreenAdapter {
         for(Collectible collectible : collectibles){collectible.update(delta);}
         for(EndShard endShard : endShards){endShard.update(delta);}
         for(Water water : waters){water.updatePosition();}
-
-        if(textDirection){
-            healText += 0.5;
-            killText -= 0.5;
-            if(healText == 10){
-                textDirection = false;
-            }
-        }
-        else{
-            healText -= 0.5;
-            killText += 0.5;
-            if(killText == 10){
-                textDirection = true;
-            }
-        }
+        updateTextPostion();
     }
 
     //======================= Input Handling ======================================================
@@ -512,11 +504,11 @@ class MainScreen extends ScreenAdapter {
      */
     private void handleInputs(float delta){
         //======================== Movement Vertically ====================================
-        if(cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+        if(cole.canColeMove() && !cole.getIsJumping() && !cole.getIsFalling() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP))){
             playSFX("Jump");
             cole.jump();
         }
-        else if (cole.getIsJumping() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP))){
+        else if (cole.getIsJumping() && !cole.getIsHovering() && (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.UP))){
             playSFX("Hover");
             cole.setIsHovering(true);
             cole.setIsJumping(false);
@@ -748,6 +740,26 @@ class MainScreen extends ScreenAdapter {
         cole.updateTextureChoice(infamous.getTextureChoice());
     }
 
+    /**
+     * Purpose: Updates the Kill and Heal text position and direction 
+     */
+    private void updateTextPostion(){
+        if(textDirection){
+            healText += 0.5;
+            killText -= 0.5;
+            if(healText == 10){
+                textDirection = false;
+            }
+        }
+        else{
+            healText -= 0.5;
+            killText += 0.5;
+            if(killText == 10){
+                textDirection = true;
+            }
+        }
+    }
+
 
     //============================== Collision ============================================
 
@@ -806,7 +818,7 @@ class MainScreen extends ScreenAdapter {
     }
 
     /**
-     *.]
+     *Checks if cole is touch a pole and save that poles data 
      */
     private void isCollidingPole(){
         boolean touching = false;
@@ -822,14 +834,14 @@ class MainScreen extends ScreenAdapter {
 
 
     /**
-     * Checks if cole hits water.
+     *Checks if cole is touch a ledge and save that poles data 
      */
     private void isCollidingLedge(){
         boolean touching = false;
         for (Ledge ledge : ledges) {
             if(cole.isColliding(ledge.getHitBox())){
                 touching = true;
-                ledgePosition = ledge.getY() - 2.5f * ledge.getHeight();
+                ledgePosition = ledge.getY() - ledge.getHeight();
                 cole.setLedgeLimits(ledge.getX(), ledge.getX() + ledge.getWidth());
             }
         }
@@ -892,6 +904,9 @@ class MainScreen extends ScreenAdapter {
         cole.setCanMelee(isMelee);
     }
 
+    /**
+     * Checks if cole is standing next to a downed person 
+     */
     private void isCollidingWithPerson(){
         isTouchingPerson = false;
         for (Civilian civilian : civilians){
@@ -902,6 +917,9 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Checks if cole is touching the end of game shard, if so initiates end of game 
+     */
     private void isCollidingEndShard() {
         for (EndShard endShard : endShards) {
             if (cole.isColliding(endShard.getHitBox())) {
@@ -923,6 +941,9 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Purpose: Next level logic, if there are any lvls left go to next otherwise go to credits 
+     */
     private void toNextLevel(){
         if(tiledSelection + 1 < levelNames.size)
         {
@@ -938,7 +959,7 @@ class MainScreen extends ScreenAdapter {
 
 
     /**
-     * Purpose: Check if Cole is on rails
+     * Purpose: Check if Cole is touching a collectible 
      */
     private void isCollidingCollectibles(){
         Collectible touchedCollectible =  new Collectible(0,0, mainScreenTextures.collectibleSpriteSheet);
@@ -1210,6 +1231,9 @@ class MainScreen extends ScreenAdapter {
         batch.end();
     }
 
+    /**
+     * Purpose: Draws the parallax background 
+     */
     private void drawBackground(){
         batch.draw(mainScreenTextures.backgroundColor, xCameraDelta, yCameraDelta);
         for(int i = 0; i < tiledSetUp.getLevelWidth()/WORLD_WIDTH + 1; i++){
@@ -1220,6 +1244,9 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Draws the action cole can take when near pole/ledge or a downed person 
+     */
     private void drawAction(){
         if((cole.getIsTouchingLedge() || cole.getIsTouchingPole()) && !cole.getIsClimbingPole() && !cole.getIsHangingLedge()){
             batch.draw(mainScreenTextures.eTexture, cole.getX() + mainScreenTextures.eTexture.getWidth()/2f,
@@ -1287,6 +1314,9 @@ class MainScreen extends ScreenAdapter {
         debugRendering.endBoarderRender();
     }
 
+    /**
+     * Draws the collectibles and the weapon currently equipped and all the collectibles status
+     */
     private void drawCollectibleSum(){
         bitmapFont.getData().setScale(0.25f);
 
@@ -1410,6 +1440,9 @@ class MainScreen extends ScreenAdapter {
         textAlignment.centerText(batch, bitmapFont, "Back", xCameraDelta + WORLD_WIDTH/2f, yCameraDelta + 27);
     }
 
+    /**
+     * Draws the end lvl menu and the buttons
+     */
     private void drawEndLevelScreenMenu(){
         bitmapFont.setColor(Color.WHITE);
         bitmapFont.getData().setScale(0.5f);
