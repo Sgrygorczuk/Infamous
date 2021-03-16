@@ -992,20 +992,20 @@ class MainScreen extends ScreenAdapter {
                     }
                 }
             }
-            //Check if Projectile is colliding with an enemy
-            for (Enemy enemy : enemies){
-                if(proj.getAlignment() == Alignment.ENEMY) {continue;}
-                if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB){
-                    proj.setVelocity(0, 0);
-                    proj.setAttached(enemy);
-                    proj.setDerezTimer(true);
-                }
-                else if (proj.isColliding(enemy.getHitBox())){
-                    enemy.takeDamage(proj.getDamage());
-                    proj.setDestroy(true);
+            if (proj.getAlignment() == Alignment.PLAYER) {
+                //Check if Projectile is colliding with an enemy
+                for (Enemy enemy : enemies) {
+                    if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB) {
+                        proj.setVelocity(0, 0);
+                        proj.setAttached(enemy);
+                        proj.setDerezTimer(true);
+                    } else if (proj.isColliding(enemy.getHitBox())) {
+                        enemy.takeDamage(proj.getDamage());
+                        proj.setDestroy(true);
+                    }
                 }
             }
-            if(proj.isColliding(cole.getHitBox()) && proj.getAlignment() == Alignment.ENEMY){
+            else if(proj.getAlignment() == Alignment.ENEMY && proj.isColliding(cole.getHitBox())){
                 if(!cole.getInvincibility()){
                     cole.takeDamage(proj.getDamage());
                     cole.setInvincibility(true);
@@ -1024,22 +1024,21 @@ class MainScreen extends ScreenAdapter {
     private void projectileRemove(Projectile proj){
         //If an explosive, create temporary bullet
         TextureRegion[][] spritesheet;
-        if(proj.getType() == Enum.BOMB){
-            spritesheet = mainScreenTextures.bombSpriteSheet;
+        if (proj.getAlignment() == Alignment.PLAYER) {
+            if (proj.getType() == Enum.BOMB) {
+                spritesheet = mainScreenTextures.bombSpriteSheet;
+            } else if (proj.getType() == Enum.TORPEDO) {
+                spritesheet = mainScreenTextures.torpedoSpriteSheet;
+            } else {
+                spritesheet = mainScreenTextures.bulletSpriteSheet;
+            }
+            if (proj.isIsExplosive()) {
+                playSFX("Explode");
+                projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
+                        EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spritesheet));
+            }
         }
-        else if(proj.getType() == Enum.TORPEDO){
-            spritesheet = mainScreenTextures.torpedoSpriteSheet;
-        }
-        else{
-            spritesheet = mainScreenTextures.bulletSpriteSheet;
-        }
-        if (proj.isIsExplosive()){
-            System.out.println("Found something to EXPLODE on"+proj.getX());
-            playSFX("Explode");
-            projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spritesheet));
-        }
-        else { projectiles.removeValue(proj, true);}
+        projectiles.removeValue(proj, true);
 
     }
 
@@ -1078,21 +1077,22 @@ class MainScreen extends ScreenAdapter {
 
             if (cole.isCanMelee()){
                 playSFX("Punch");
-                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), alignment,
                         (int)cole.getHitBox().width, (int)cole.getHitBox().height, direction, cole.getVelocity().x));
             }
             else if (Enum.fromInteger(cole.getAttackIndex()) == Enum.BOMB){
-                projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                projectiles.add(new Bomb(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), alignment,
                         projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bombSpriteSheet));
             }
             else {
                 if(Enum.fromInteger(cole.getAttackIndex()) == Enum.BOLT) {playSFX("Bolt");}
-                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), Alignment.PLAYER,
+                projectiles.add(new Projectile(cole.getIsFacingRight() ? cole.getX() : cole.getX() + cole.getWidth(), cole.getY() + cole.getHeight() * (2/3f), alignment,
                         projWidth, projHeight, direction, projVel, Enum.fromInteger(cole.getAttackIndex()), mainScreenTextures.bulletSpriteSheet));
             }
             cole.setIsAttacking(false);
             cole.resetAttackTimer();
-        } else {
+        }
+        else {
             float bulletX = shooter.x-5;
             float bulletY = shooter.y+shooter.height*(2/3f);
             if(facing_direction) {
