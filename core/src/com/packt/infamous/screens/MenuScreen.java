@@ -7,16 +7,8 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.main.Infamous;
@@ -24,13 +16,11 @@ import com.packt.infamous.screens.textures.MenuScreenTextures;
 import com.packt.infamous.tools.MusicControl;
 import com.packt.infamous.tools.TextAlignment;
 
-import static com.packt.infamous.Const.INSTRUCTIONS_Y_START;
 import static com.packt.infamous.Const.LVL_COUNT;
 import static com.packt.infamous.Const.MENU_BUTTON_FONT;
 import static com.packt.infamous.Const.MENU_BUTTON_HEIGHT;
 import static com.packt.infamous.Const.MENU_BUTTON_WIDTH;
 import static com.packt.infamous.Const.NUM_BUTTONS_MENU_SCREEN;
-import static com.packt.infamous.Const.TEXT_OFFSET;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;
 
@@ -62,7 +52,6 @@ public class MenuScreen extends ScreenAdapter{
     //=================================== Miscellaneous Vars =======================================
     //String used on the buttons
     private final String[] buttonText = new String[]{"Play", "Level Select", "Controls"};
-    private float backButtonY = 10;
     private int buttonIndex = 0;    //Tells us which button we're currently looking at
 
     //================================ Set Up ======================================================

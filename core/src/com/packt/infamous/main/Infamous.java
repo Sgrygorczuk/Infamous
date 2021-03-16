@@ -7,8 +7,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.packt.infamous.screens.LoadingScreen;
 
-import java.lang.reflect.Array;
-
 public class Infamous extends Game {
 
 	//Holds the UI images and sound files

@@ -1,6 +1,5 @@
 package com.packt.infamous.game_objects;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.packt.infamous.Alignment;

@@ -11,7 +11,6 @@ import com.packt.infamous.game_objects.GenericObject;
 import static com.packt.infamous.Const.BOLT_DAMAGE;
 import static com.packt.infamous.Const.BOLT_SPEED;
 import static com.packt.infamous.Const.BULLET_TIME;
-import static com.packt.infamous.Const.EXPLOSION_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_DAMAGE;
 import static com.packt.infamous.Const.EXPLOSIVE_LINGER;
 import static com.packt.infamous.Const.MELEE_TIME;

@@ -3,8 +3,6 @@ package com.packt.infamous.game_objects.Projectiles;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.packt.infamous.Alignment;
 import com.packt.infamous.Enum;
-import com.packt.infamous.game_objects.Enemy;
-import com.packt.infamous.game_objects.GenericObject;
 
 public class Bomb extends Projectile{
     public Bomb(float x, float y, Alignment align, int width, int height, int direction, float startVelocity, Enum type, TextureRegion[][] bulletSpriteSheet) {

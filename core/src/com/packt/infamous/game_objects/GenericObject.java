@@ -11,7 +11,6 @@ import com.packt.infamous.Alignment;
 
 import static com.packt.infamous.Const.TILED_HEIGHT;
 import static com.packt.infamous.Const.TILED_WIDTH;
-import static com.packt.infamous.Const.WORLD_HEIGHT;
 
 public class GenericObject {
 

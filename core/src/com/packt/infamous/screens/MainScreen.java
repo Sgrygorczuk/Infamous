@@ -983,7 +983,6 @@ class MainScreen extends ScreenAdapter {
             if (proj.canDestroy()){
                 projectileRemove(proj);
             }
-            proj.update(levelWidth, levelHeight, delta);
             //Check if colliding with a platform
             for (Platforms platform : platforms){
                 if (proj.isColliding(platform.getHitBox())){
@@ -1013,7 +1012,7 @@ class MainScreen extends ScreenAdapter {
                 }
                 proj.setDestroy(true);
             }
-
+            proj.update(levelWidth, levelHeight, delta);
         }
     }
 
@@ -1034,8 +1033,8 @@ class MainScreen extends ScreenAdapter {
         else{
             spritesheet = mainScreenTextures.bulletSpriteSheet;
         }
-
         if (proj.isIsExplosive()){
+            System.out.println("Found something to EXPLODE on"+proj.getX());
             playSFX("Explode");
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
                     EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spritesheet));

@@ -3,33 +3,21 @@ package com.packt.infamous.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.assets.loaders.BitmapFontLoader;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.infamous.main.Infamous;
 import com.packt.infamous.screens.textures.CreditsScreenTextures;
-import com.packt.infamous.screens.textures.LoadingScreenTextures;
-import com.packt.infamous.tools.DebugRendering;
+
 import com.packt.infamous.tools.TextAlignment;
 
-import static com.packt.infamous.Const.LOADING_HEIGHT;
-import static com.packt.infamous.Const.LOADING_OFFSET;
-import static com.packt.infamous.Const.LOADING_WIDTH;
-import static com.packt.infamous.Const.LOADING_Y;
-import static com.packt.infamous.Const.LOGO_HEIGHT;
-import static com.packt.infamous.Const.LOGO_WIDTH;
 import static com.packt.infamous.Const.TEXT_OFFSET;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
 import static com.packt.infamous.Const.WORLD_WIDTH;

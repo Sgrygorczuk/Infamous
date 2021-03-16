@@ -15,7 +15,6 @@ import static com.packt.infamous.Const.FRICTION;
 import static com.packt.infamous.Const.FRICTION_AFTER_RIDE;
 import static com.packt.infamous.Const.GRAVITY;
 import static com.packt.infamous.Const.HOVER_GRAVITY;
-import static com.packt.infamous.Const.INVINCIBILITY_TIME;
 import static com.packt.infamous.Const.JUMP_PEAK;
 import static com.packt.infamous.Const.MAX_VELOCITY;
 

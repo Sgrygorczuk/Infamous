@@ -24,9 +24,6 @@ import com.packt.infamous.tools.TextAlignment;
 
 import java.util.Random;
 
-import static com.packt.infamous.Const.LOADING_HEIGHT;
-import static com.packt.infamous.Const.LOADING_WIDTH;
-import static com.packt.infamous.Const.LOADING_Y;
 import static com.packt.infamous.Const.LOGO_HEIGHT;
 import static com.packt.infamous.Const.LOGO_WIDTH;
 import static com.packt.infamous.Const.WORLD_HEIGHT;
@@ -64,8 +61,6 @@ public class LoadingScreen extends ScreenAdapter{
     private float progress = 0;
 
     //=================================== Loading Text Vars =======================================
-    private static final float LOADING_TIME = .2F;
-    private float loadTimer = LOADING_TIME;
     private Array<String> loadingQuotes = new Array<>();
 
     private String loadingString;
