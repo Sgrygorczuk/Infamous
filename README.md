@@ -12,9 +12,7 @@ Screenshots:
 <img src="https://img.itch.zone/aW1hZ2UvOTU0ODExLzU0MTI5MTEucG5n/original/S7XtYf.png" width="400">
 
 Video:
-<iframe width="560" height="315"
-	src="https://www.youtube.com/embed/UgfjZ9ELSks">
-</iframe>
+[Infamous NES Demake Gameplay](https://www.youtube.com/watch?v=UgfjZ9ELSks)
 
 Controls:
 ```
