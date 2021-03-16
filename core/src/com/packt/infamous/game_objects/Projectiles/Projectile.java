@@ -54,9 +54,6 @@ public class Projectile extends GenericObject {
             damage = 1;
         }
 
-        if (type == Enum.EXPLOSION){
-            damage = EXPLOSION_DAMAGE;
-        }
 
         projectileTimer = PROJ_TIME;
         this.type = type;

@@ -995,7 +995,7 @@ class MainScreen extends ScreenAdapter {
             }
             //Check if Projectile is colliding with an enemy
             for (Enemy enemy : enemies){
-                if(proj.getAlignment() == Alignment.ENEMY) continue;
+                if(proj.getAlignment() == Alignment.ENEMY) {continue;}
                 if (proj.isColliding(enemy.getHitBox()) && proj.getType() == Enum.BOMB){
                     proj.setVelocity(0, 0);
                     proj.setAttached(enemy);
@@ -1020,27 +1020,28 @@ class MainScreen extends ScreenAdapter {
     /**
      * Purpose: Removes projectiles from the vector, if proj isExplosive,
      * then create explosive projectile first.
-     * @param proj
+     * @param proj, projectile object to remove
      */
     private void projectileRemove(Projectile proj){
         //If an explosive, create temporary bullet
-        TextureRegion[][] spriesheet;
-        if(cole.getCurrentAttack() == "Bomb"){
-            spriesheet = mainScreenTextures.bombSpriteSheet;
+        TextureRegion[][] spritesheet;
+        if(proj.getType() == Enum.BOMB){
+            spritesheet = mainScreenTextures.bombSpriteSheet;
         }
-        else if(cole.getCurrentAttack() == "Torpedo"){
-            spriesheet = mainScreenTextures.torpedoSpriteSheet;
+        else if(proj.getType() == Enum.TORPEDO){
+            spritesheet = mainScreenTextures.torpedoSpriteSheet;
         }
         else{
-            spriesheet = mainScreenTextures.bulletSpriteSheet;
+            spritesheet = mainScreenTextures.bulletSpriteSheet;
         }
 
         if (proj.isIsExplosive()){
             playSFX("Explode");
             projectiles.add(new Projectile(proj.getX(), proj.getY(), Alignment.PLAYER,
-                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spriesheet));
+                    EXPLOSIVE_RADIUS, EXPLOSIVE_RADIUS, 1, cole.getVelocity().x, Enum.EXPLOSION, spritesheet));
         }
-        projectiles.removeValue(proj, true);
+        else { projectiles.removeValue(proj, true);}
+
     }
 
     /**

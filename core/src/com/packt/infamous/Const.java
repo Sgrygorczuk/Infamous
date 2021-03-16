@@ -66,7 +66,7 @@ public final class Const{
     public static final float MELEE_TIME = 0.1f;
     public static final float BULLET_TIME = 0.8f;
 
-    public static final int EXPLOSIVE_DAMAGE = 5;
+    public static final int EXPLOSIVE_DAMAGE = 60;
     public static final int EXPLOSIVE_RADIUS = 20;
     public static final float EXPLOSIVE_LINGER = 0.5f;
 
